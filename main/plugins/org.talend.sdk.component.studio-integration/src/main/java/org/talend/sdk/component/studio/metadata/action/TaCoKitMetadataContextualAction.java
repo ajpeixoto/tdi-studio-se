@@ -56,7 +56,9 @@ public abstract class TaCoKitMetadataContextualAction extends AbstractCreateActi
     @Override
     protected void doRun() {
         WizardDialog wizardDialog = createWizardDialog();
-        openWizardDialog(wizardDialog);
+        if (wizardDialog  != null) {
+            openWizardDialog(wizardDialog);
+        }
     }
 
     protected abstract WizardDialog createWizardDialog();

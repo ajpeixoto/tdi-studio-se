@@ -54,6 +54,21 @@
            type="TACOKIT">
      </repositoryNode>
   </extension>
+    <extension
+        point="org.talend.core.repository.repository_node_provider">
+     <repositoryNode
+           alias="metadata_tacokit_jdbcnew_jdbcdatastore"
+           folder="metadata/tacokit/jdbcnew/jdbcdatastore"
+           icon="icon/configuration_16x16.png"
+           isResouce="true"
+           key="repository.metadata.tacokit.jdbcnew.jdbcdatastore"
+           label="%TaCoKitJDCBConnection"
+           ordinal="1"
+           parentNodeType="TACOKIT"
+           products="DI"
+           type="repository.metadata.tacokit.jdbcnew.jdbcdatastore">
+     </repositoryNode>
+  </extension>
   <extension
         point="org.talend.core.repository.repository_content">
      <RepositoryContent
@@ -112,6 +127,33 @@
            name="Edit TaCoKit">
      </Action>
   </extension>
+    <extension
+        point="org.talend.core.repositoryContextualsActions">
+     <Action
+           class="org.talend.sdk.component.studio.metadata.action.TaCoKitRetriveSchemaAction"
+           id="org.talend.sdk.component.metadata.action.TaCoKitRetriveSchemaAction"
+           isEditAction="true"
+           isPropertiesAction="false"
+           isReadAction="true"
+           level="1"
+           name="Retrieve schema">
+     </Action>
+  </extension>
+  <extension
+        point="org.talend.core.repositoryContextualsActions">
+     <Action
+           class="org.talend.sdk.component.studio.metadata.action.TaCoKitReadQueriesAction"
+           id="org.talend.sdk.component.metadata.action.TaCoKitReadQueriesAction"
+           isEditAction="true"
+           isPropertiesAction="false"
+           isReadAction="true"
+           level="1"
+           name="Read queries">
+     </Action>
+  </extension>
+  
+  
+  
   <extension
         point="org.talend.core.runtime.service">
      <Service
