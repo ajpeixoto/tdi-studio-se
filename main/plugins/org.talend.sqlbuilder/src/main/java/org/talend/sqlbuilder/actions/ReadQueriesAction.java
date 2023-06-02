@@ -27,6 +27,7 @@ import org.talend.core.model.metadata.IMetadataConnection;
 import org.talend.core.model.metadata.builder.ConvertionHelper;
 import org.talend.core.model.metadata.builder.connection.Connection;
 import org.talend.core.model.metadata.builder.connection.DatabaseConnection;
+import org.talend.core.model.metadata.builder.connection.TacokitDatabaseConnection;
 import org.talend.core.model.properties.ContextItem;
 import org.talend.core.model.properties.DatabaseConnectionItem;
 import org.talend.core.model.repository.ERepositoryObjectType;
@@ -95,6 +96,10 @@ public class ReadQueriesAction extends AContextualAction {
         TextUtil.setDialogTitle(TextUtil.SQL_BUILDER_TITLE_REP);
         String selectedContext = null;
         Connection connection = dbConnectionItem.getConnection();
+        if (connection instanceof TacokitDatabaseConnection) {
+            connection = ConvertionHelper.fillJDBCParams4TacokitDatabaseConnection(connection);
+            connParameters.setTacokitJDBC(true);
+        }
         Connection copyConnection = MetadataConnectionUtils.prepareConection(connection);
         if (copyConnection == null) {
             return;

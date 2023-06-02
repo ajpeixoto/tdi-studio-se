@@ -48,9 +48,14 @@ public class NodeActionProvider extends MetedataNodeActionProvier {
             return;
         }
         final Object selObj = sel.getFirstElement();
+        
         List<ITreeContextualAction> actions = new ArrayList<>();
         if (selObj instanceof ITaCoKitRepositoryNode) {
             ITaCoKitRepositoryNode tacokitNode = (ITaCoKitRepositoryNode) selObj;
+            if (TaCoKitMetadataContentProvider.isJDBCLeafNode(tacokitNode)) {
+                return;
+            }
+                
             ConfigTypeNode configTypeNode = tacokitNode.getConfigTypeNode();
             if (configTypeNode != null) {
                 if (tacokitNode.isFamilyNode() || tacokitNode.isLeafNode()) {

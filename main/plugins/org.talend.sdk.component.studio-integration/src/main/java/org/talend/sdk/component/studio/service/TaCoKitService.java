@@ -43,6 +43,7 @@ import org.talend.sdk.component.studio.Lookups;
 import org.talend.sdk.component.studio.ServerManager;
 import org.talend.sdk.component.studio.metadata.TaCoKitCache;
 import org.talend.sdk.component.studio.metadata.model.TaCoKitConfigurationModel;
+import org.talend.sdk.component.studio.metadata.node.ITaCoKitRepositoryNode;
 import org.talend.sdk.component.studio.model.parameter.PropertyDefinitionDecorator;
 import org.talend.sdk.component.studio.model.parameter.ValueSelectionParameter;
 import org.talend.sdk.component.studio.model.parameter.VersionParameter;
@@ -233,5 +234,13 @@ public class TaCoKitService implements ITaCoKitService {
     @Override
     public boolean isValueSelectionParameter(Object parameter) {
         return (parameter instanceof ValueSelectionParameter);
+    }
+
+    @Override
+    public boolean isTaCoKitRepositoryNode(Object node) {
+        if (node instanceof ITaCoKitRepositoryNode) {
+            return true;
+        }
+        return false;
     }
 }

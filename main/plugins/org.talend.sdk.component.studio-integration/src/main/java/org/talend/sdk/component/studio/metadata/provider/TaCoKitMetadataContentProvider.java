@@ -526,7 +526,7 @@ public class TaCoKitMetadataContentProvider extends AbstractMetadataContentProvi
         }       
     }
     
-    private boolean isJDBCLeafNode(ITaCoKitRepositoryNode tacoNode) {
+    public static boolean isJDBCLeafNode(ITaCoKitRepositoryNode tacoNode) {
         if ("JDBCDataStore".equals(tacoNode.getConfigTypeNode().getName())) {
             return true;
         }

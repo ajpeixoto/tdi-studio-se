@@ -34,6 +34,7 @@ import org.talend.repository.model.RepositoryNode;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.studio.metadata.model.TaCoKitConfigurationModel;
 import org.talend.sdk.component.studio.metadata.node.ITaCoKitRepositoryNode;
+import org.talend.sdk.component.studio.metadata.provider.TaCoKitMetadataContentProvider;
 import org.talend.sdk.component.studio.ui.wizard.TaCoKitConfigurationRuntimeData;
 import org.talend.sdk.component.studio.ui.wizard.TaCoKitCreateWizard;
 import org.talend.sdk.component.studio.util.TaCoKitConst;
@@ -67,7 +68,7 @@ public class CreateTaCoKitConfigurationAction extends TaCoKitMetadataContextualA
         case SIMPLE_FOLDER:
         case SYSTEM_FOLDER:
         case REPOSITORY_ELEMENT:
-            if (isUserReadOnly() || !belongsToCurrentProject(node) || isDeleted(node)) {
+            if (isUserReadOnly() || !belongsToCurrentProject(node) || isDeleted(node) || TaCoKitMetadataContentProvider.isJDBCLeafNode((ITaCoKitRepositoryNode) node)) {
                 setEnabled(false);
                 return;
             } else {

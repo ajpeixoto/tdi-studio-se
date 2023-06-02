@@ -29,6 +29,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
 import org.talend.commons.exception.ExceptionHandler;
+import org.talend.commons.runtime.model.repository.ERepositoryStatus;
 import org.talend.commons.ui.gmf.util.DisplayUtils;
 import org.talend.commons.ui.runtime.exception.ExceptionMessageDialog;
 import org.talend.commons.ui.runtime.image.EImage;
@@ -42,11 +43,15 @@ import org.talend.core.model.properties.ConnectionItem;
 import org.talend.core.model.properties.ContextItem;
 import org.talend.core.model.properties.DatabaseConnectionItem;
 import org.talend.core.model.repository.ERepositoryObjectType;
+import org.talend.core.model.repository.IRepositoryViewObject;
+import org.talend.core.model.repository.RepositoryManager;
 import org.talend.core.repository.model.ProjectRepositoryNode;
 import org.talend.core.repository.model.ProxyRepositoryFactory;
+import org.talend.core.repository.model.repositoryObject.MetadataTableRepositoryObject;
 import org.talend.core.repository.model.repositoryObject.QueryRepositoryObject;
 import org.talend.core.sqlbuilder.util.ConnectionParameters;
 import org.talend.core.sqlbuilder.util.TextUtil;
+import org.talend.cwm.helper.SubItemHelper;
 import org.talend.metadata.managment.ui.wizard.metadata.ContextSetsSelectionDialog;
 import org.talend.metadata.managment.utils.MetadataConnectionUtils;
 import org.talend.repository.model.IProxyRepositoryFactory;
@@ -69,13 +74,13 @@ import org.talend.sqlbuilder.util.UIUtils;
  * Repository node may have only 1 edit action. This action is registered as extension point.
  * Thus, it supports double click out of the box
  */
-public class TaCoKitReadQueriesAction extends TaCoKitMetadataContextualAction {
+public class TaCoKitEidtQueriesAction extends TaCoKitMetadataContextualAction {
 
     protected static final int WIZARD_WIDTH = 900;
 
     protected static final int WIZARD_HEIGHT = 495;
     
-    public TaCoKitReadQueriesAction() {
+    public TaCoKitEidtQueriesAction() {
         super();
         setImageDescriptor(ImageProvider.getImageDesc(EImage.EDIT_ICON));
     }
@@ -186,10 +191,49 @@ public class TaCoKitReadQueriesAction extends TaCoKitMetadataContextualAction {
             }
         }
         
+        IProxyRepositoryFactory factory = ProxyRepositoryFactory.getInstance();
+
+        IRepositoryViewObject nodeObject = repositoryNode.getObject();
+
+        boolean locked = false;
+
+        if (!factory.getRepositoryContext().isEditableAsReadOnly()) {
+            if (nodeObject.getRepositoryStatus() == ERepositoryStatus.LOCK_BY_OTHER) {
+                locked = true;
+            }
+        }
+        // Avoid to delete node which is locked.
+        if (locked || RepositoryManager.isOpenedItemInEditor(nodeObject)) {
+
+            final String title = "Impossible to edit queries";
+            String nodeName = nodeObject.getRepositoryObjectType().getLabel();
+            final String message = "item is already locked by another user.";
+            Display.getDefault().syncExec(new Runnable() {
+
+                @Override
+                public void run() {
+                    MessageDialog dialog = new MessageDialog(DisplayUtils.getDefaultShell(false), title, null, message,
+                            MessageDialog.ERROR,
+                            new String[] { IDialogConstants.OK_LABEL }, 0);
+                    dialog.open();
+                }
+            });
+            return;
+        }
+        
         ConnectionItem dbConnectionItem = null;
+        boolean readOnly = false;
+        
         ConnectionParameters connParameters = new ConnectionParameters();
-        if (repositoryNode.getObjectType() == ERepositoryObjectType.METADATA_CON_QUERY) {
+        if (repositoryNode.getObjectType() == ERepositoryObjectType.METADATA_CONNECTIONS) {
+            dbConnectionItem = (ConnectionItem) repositoryNode.getObject().getProperty().getItem();
+            connParameters.setRepositoryName(repositoryNode.getObject().getLabel());
+            connParameters.setRepositoryId(repositoryNode.getObject().getId());
+            connParameters.setQuery(""); //$NON-NLS-1$
+            connParameters.setTacokitJDBC(true);
+        } else if (repositoryNode.getObjectType() == ERepositoryObjectType.METADATA_CON_QUERY) {
             QueryRepositoryObject queryRepositoryObject = (QueryRepositoryObject) repositoryNode.getObject();
+            readOnly = SubItemHelper.isDeleted(queryRepositoryObject.getAbstractMetadataObject());
             dbConnectionItem = (DatabaseConnectionItem) queryRepositoryObject.getProperty().getItem();
             connParameters.setRepositoryName(dbConnectionItem.getProperty().getLabel());
             connParameters.setRepositoryId(dbConnectionItem.getProperty().getId());
@@ -197,19 +241,29 @@ public class TaCoKitReadQueriesAction extends TaCoKitMetadataContextualAction {
             connParameters.setQuery(queryRepositoryObject.getQuery().getValue());
             connParameters.setFirstOpenSqlBuilder(true); // first open Sql Builder,set true
             connParameters.setTacokitJDBC(true);
-        } else {
-            dbConnectionItem = (ConnectionItem) repositoryNode.getObject().getProperty().getItem();
-            connParameters.setRepositoryName(repositoryNode.getObject().getLabel());
-            connParameters.setRepositoryId(repositoryNode.getObject().getId());
+        } else if (repositoryNode.getObjectType() == ERepositoryObjectType.METADATA_CON_TABLE) {
+            dbConnectionItem = (DatabaseConnectionItem) repositoryNode.getObject().getProperty().getItem();
+            connParameters.setRepositoryName(dbConnectionItem.getProperty().getLabel());
+            connParameters.setRepositoryId(dbConnectionItem.getProperty().getId());
+            connParameters.setMetadataTable((MetadataTableRepositoryObject) repositoryNode.getObject());
             connParameters.setQuery(""); //$NON-NLS-1$
             connParameters.setTacokitJDBC(true);
         }
-        Display display = Display.getCurrent();
-        if (display == null) {
-            display = Display.getDefault();
+        
+
+        IRepositoryView viewPart = getViewPart();
+        Display display = null;
+        if (viewPart != null) {
+            display = viewPart.getViewer().getControl().getDisplay();
+        } else {
+            display = Display.getCurrent();
+            if (display == null) {
+                display = Display.getDefault();
+            }
         }
         Shell parentShell = DisplayUtils.getDefaultShell(false);
         TextUtil.setDialogTitle(TextUtil.SQL_BUILDER_TITLE_REP);
+
         String selectedContext = null;
         DatabaseConnection connection = ConvertionHelper.fillJDBCParams4TacokitDatabaseConnection(runtimeData.getConnectionItem().getConnection());
         Connection copyConnection = MetadataConnectionUtils.prepareConection(connection);
@@ -231,17 +285,23 @@ public class TaCoKitReadQueriesAction extends TaCoKitMetadataContextualAction {
         }
         SQLBuilderDialog dial = new SQLBuilderDialog(parentShell, repositoryNode, selectedContext);
         EMFRepositoryNodeManager.getInstance().setCopyConnection((DatabaseConnection) copyConnection);
-        dial.setReadOnly(true);
+        dial.setReadOnly(readOnly);
 
         if (copyConnection instanceof DatabaseConnection) {
             IMetadataConnection imetadataConnection = ConvertionHelper.convert(copyConnection);
             connParameters.setSchema(imetadataConnection.getSchema() == null ? "" : imetadataConnection.getSchema());
             UIUtils.checkConnection(parentShell, imetadataConnection);
         }
-        connParameters.setNodeReadOnly(true);
+
+        connParameters.setNodeReadOnly(readOnly);
         connParameters.setFromRepository(true);
         dial.setConnParameters(connParameters);
         dial.open();
+        IRepositoryView view = getViewPart();
+        if (view != null) {
+            view.refreshView();
+        }
+        
         refresh(repositoryNode);
     } 
 
@@ -281,6 +341,6 @@ public class TaCoKitReadQueriesAction extends TaCoKitMetadataContextualAction {
     }
 
     protected String getEditLabel() {
-        return "Read queries";
+        return "Eidt queries";
     }
 }

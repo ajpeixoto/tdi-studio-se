@@ -151,9 +151,18 @@
            name="Read queries">
      </Action>
   </extension>
-  
-  
-  
+    <extension
+        point="org.talend.core.repositoryContextualsActions">
+     <Action
+           class="org.talend.sdk.component.studio.metadata.action.TaCoKitEidtQueriesAction"
+           id="org.talend.sdk.component.metadata.action.TaCoKitEidtQueriesAction"
+           isEditAction="true"
+           isPropertiesAction="false"
+           isReadAction="false"
+           level="1"
+           name="Edit queries">
+     </Action>
+  </extension> 
   <extension
         point="org.talend.core.runtime.service">
      <Service
