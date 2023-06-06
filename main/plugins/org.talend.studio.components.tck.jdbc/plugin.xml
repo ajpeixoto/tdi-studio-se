@@ -2,12 +2,21 @@
 <?eclipse version="3.2"?>
 <plugin>
 
-   <extension
-         point="org.talend.core.component_installer_task">
-      <componentInstallerTask
-            class="org.talend.studio.components.tck.jdbc.JDBCInstaller" order="1" >
-            <componentGAV g="@@COMP_GROUP@@" a="@@COMP_ARTIFACT@@" v="@@COMP_VERSION@@" c="" t="" ct="2" />
-      </componentInstallerTask>
-   </extension>
-
+	<extension point="org.talend.core.component_installer_task">
+		<componentInstallerTask class="org.talend.studio.components.tck.jdbc.JDBCInstaller" order="1">
+			<componentGAV g="@@COMP_GROUP@@" a="@@COMP_ARTIFACT@@" v="@@COMP_VERSION@@" c="" t="" ct="2" />
+		</componentInstallerTask>
+	</extension>
+	<extension point="org.talend.core.repository.repository_node_provider">
+		<repositoryNode alias="metadata_tacokit_jdbcnew_jdbcdatastore" folder="metadata/tacokit/jdbcnew/jdbcdatastore" icon="icon/configuration_16x16.png" isResouce="true" key="repository.metadata.tacokit.jdbcnew.jdbcdatastore" label="%TaCoKitJDCBConnection" ordinal="1" parentNodeType="TACOKIT" products="DI" type="repository.metadata.tacokit.jdbcnew.jdbcdatastore"></repositoryNode>
+	</extension>
+	<extension point="org.talend.core.repositoryContextualsActions">
+		<Action class="org.talend.studio.components.tck.jdbc.action.TaCoKitRetriveSchemaAction" id="org.talend.studio.components.tck.jdbc.action.TaCoKitRetriveSchemaAction" isEditAction="true" isPropertiesAction="false" isReadAction="true" level="1" name="Retrieve schema"></Action>
+	</extension>
+	<extension point="org.talend.core.repositoryContextualsActions">
+		<Action class="org.talend.studio.components.tck.jdbc.action.TaCoKitReadQueriesAction" id="org.talend.studio.components.tck.jdbc.action.TaCoKitReadQueriesAction" isEditAction="true" isPropertiesAction="false" isReadAction="true" level="1" name="Read queries"></Action>
+	</extension>
+	<extension point="org.talend.core.repositoryContextualsActions">
+		<Action class="org.talend.studio.components.tck.jdbc.action.TaCoKitEidtQueriesAction" id="org.talend.studio.components.tck.jdbc.action.TaCoKitEidtQueriesAction" isEditAction="true" isPropertiesAction="false" isReadAction="false" level="1" name="Edit queries"></Action>
+	</extension>
 </plugin>

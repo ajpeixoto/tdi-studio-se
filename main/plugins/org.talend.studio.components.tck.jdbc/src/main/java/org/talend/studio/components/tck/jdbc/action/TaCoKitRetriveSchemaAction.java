@@ -10,11 +10,10 @@
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
-package org.talend.sdk.component.studio.metadata.action;
+package org.talend.studio.components.tck.jdbc.action;
 
 import java.lang.reflect.InvocationTargetException;
 
-import org.apache.commons.lang3.StringUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -24,8 +23,6 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.wizard.IWizard;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
 import org.talend.commons.exception.ExceptionHandler;
@@ -33,49 +30,42 @@ import org.talend.commons.ui.gmf.util.DisplayUtils;
 import org.talend.commons.ui.runtime.exception.ExceptionMessageDialog;
 import org.talend.commons.ui.runtime.image.EImage;
 import org.talend.commons.ui.runtime.image.ImageProvider;
-import org.talend.core.model.context.ContextUtils;
 import org.talend.core.model.metadata.IMetadataConnection;
 import org.talend.core.model.metadata.builder.ConvertionHelper;
 import org.talend.core.model.metadata.builder.connection.Connection;
 import org.talend.core.model.metadata.builder.connection.DatabaseConnection;
 import org.talend.core.model.properties.ConnectionItem;
-import org.talend.core.model.properties.ContextItem;
-import org.talend.core.model.properties.DatabaseConnectionItem;
 import org.talend.core.model.repository.ERepositoryObjectType;
 import org.talend.core.repository.model.ProjectRepositoryNode;
 import org.talend.core.repository.model.ProxyRepositoryFactory;
-import org.talend.core.repository.model.repositoryObject.QueryRepositoryObject;
-import org.talend.core.sqlbuilder.util.ConnectionParameters;
-import org.talend.core.sqlbuilder.util.TextUtil;
-import org.talend.metadata.managment.ui.wizard.metadata.ContextSetsSelectionDialog;
+import org.talend.metadata.managment.repository.ManagerConnection;
 import org.talend.metadata.managment.utils.MetadataConnectionUtils;
 import org.talend.repository.model.IProxyRepositoryFactory;
 import org.talend.repository.model.IRepositoryNode.EProperties;
 import org.talend.repository.model.RepositoryNode;
 import org.talend.repository.ui.views.IRepositoryView;
+import org.talend.repository.ui.wizards.metadata.table.database.DatabaseTableWizard;
 import org.talend.sdk.component.studio.Lookups;
 import org.talend.sdk.component.studio.i18n.Messages;
+import org.talend.sdk.component.studio.metadata.action.TaCoKitMetadataContextualAction;
 import org.talend.sdk.component.studio.metadata.migration.TaCoKitMigrationManager;
 import org.talend.sdk.component.studio.metadata.model.TaCoKitConfigurationItemModel;
 import org.talend.sdk.component.studio.metadata.model.TaCoKitConfigurationModel;
 import org.talend.sdk.component.studio.metadata.node.ITaCoKitRepositoryNode;
 import org.talend.sdk.component.studio.ui.wizard.TaCoKitConfigurationRuntimeData;
-import org.talend.sqlbuilder.repository.utility.EMFRepositoryNodeManager;
-import org.talend.sqlbuilder.ui.SQLBuilderDialog;
-import org.talend.sqlbuilder.util.UIUtils;
 
 /**
  * Metadata contextual action which creates WizardDialog used to edit Component configuration.
  * Repository node may have only 1 edit action. This action is registered as extension point.
  * Thus, it supports double click out of the box
  */
-public class TaCoKitReadQueriesAction extends TaCoKitMetadataContextualAction {
+public class TaCoKitRetriveSchemaAction extends TaCoKitMetadataContextualAction {
 
     protected static final int WIZARD_WIDTH = 900;
 
     protected static final int WIZARD_HEIGHT = 495;
     
-    public TaCoKitReadQueriesAction() {
+    public TaCoKitRetriveSchemaAction() {
         super();
         setImageDescriptor(ImageProvider.getImageDesc(EImage.EDIT_ICON));
     }
@@ -128,19 +118,16 @@ public class TaCoKitReadQueriesAction extends TaCoKitMetadataContextualAction {
 
     @Override
     protected WizardDialog createWizardDialog() {
+        IWizard wizard = null;
         try {
-            openQueryDialog(PlatformUI.getWorkbench());
+            wizard = createWizard(PlatformUI.getWorkbench());
         } catch (Exception e) {
             ExceptionHandler.process(e);
         } 
-        return null;
+        return new WizardDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), wizard);
     }
 
-    private IWizard createWizard(IWorkbench workbench) {
-        return null;
-    }
-
-    public void openQueryDialog(final IWorkbench wb) throws Exception {
+    public DatabaseTableWizard createWizard(final IWorkbench wb) throws Exception {
         TaCoKitConfigurationRuntimeData runtimeData = createRuntimeData();
         if (!runtimeData.isReadonly()) {
             try {
@@ -186,63 +173,21 @@ public class TaCoKitReadQueriesAction extends TaCoKitMetadataContextualAction {
             }
         }
         
-        ConnectionItem dbConnectionItem = null;
-        ConnectionParameters connParameters = new ConnectionParameters();
-        if (repositoryNode.getObjectType() == ERepositoryObjectType.METADATA_CON_QUERY) {
-            QueryRepositoryObject queryRepositoryObject = (QueryRepositoryObject) repositoryNode.getObject();
-            dbConnectionItem = (DatabaseConnectionItem) queryRepositoryObject.getProperty().getItem();
-            connParameters.setRepositoryName(dbConnectionItem.getProperty().getLabel());
-            connParameters.setRepositoryId(dbConnectionItem.getProperty().getId());
-            connParameters.setQueryObject(queryRepositoryObject.getQuery());
-            connParameters.setQuery(queryRepositoryObject.getQuery().getValue());
-            connParameters.setFirstOpenSqlBuilder(true); // first open Sql Builder,set true
-            connParameters.setTacokitJDBC(true);
-        } else {
-            dbConnectionItem = (ConnectionItem) repositoryNode.getObject().getProperty().getItem();
-            connParameters.setRepositoryName(repositoryNode.getObject().getLabel());
-            connParameters.setRepositoryId(repositoryNode.getObject().getId());
-            connParameters.setQuery(""); //$NON-NLS-1$
-            connParameters.setTacokitJDBC(true);
-        }
-        Display display = Display.getCurrent();
-        if (display == null) {
-            display = Display.getDefault();
-        }
-        Shell parentShell = DisplayUtils.getDefaultShell(false);
-        TextUtil.setDialogTitle(TextUtil.SQL_BUILDER_TITLE_REP);
-        String selectedContext = null;
+        final ManagerConnection managerConnection = new ManagerConnection();
+
         DatabaseConnection connection = ConvertionHelper.fillJDBCParams4TacokitDatabaseConnection(runtimeData.getConnectionItem().getConnection());
+        //boolean useKrb = Boolean.valueOf(connection.getParameters().get(ConnParameterKeys.CONN_PARA_KEY_USE_KRB));
+        // TUP-596 : Update the context name in connection when the user does a context switch in DI
+        String oldContextName = connection.getContextName();
         Connection copyConnection = MetadataConnectionUtils.prepareConection(connection);
         if (copyConnection == null) {
-            return;
-        } else {
-            selectedContext = copyConnection.getContextName();
+            return null;
         }
-        if (connection.isContextMode()) {
-            if (StringUtils.isBlank(selectedContext)) {
-                ContextItem contextItem = ContextUtils.getContextItemById2(connection.getContextId());
-                if (contextItem != null && connection.isContextMode()) {
-
-                    ContextSetsSelectionDialog setsDialog = new ContextSetsSelectionDialog(null, contextItem, false);
-                    setsDialog.open();
-                    selectedContext = setsDialog.getSelectedContext();
-                }
-            }
-        }
-        SQLBuilderDialog dial = new SQLBuilderDialog(parentShell, repositoryNode, selectedContext);
-        EMFRepositoryNodeManager.getInstance().setCopyConnection((DatabaseConnection) copyConnection);
-        dial.setReadOnly(true);
-
-        if (copyConnection instanceof DatabaseConnection) {
-            IMetadataConnection imetadataConnection = ConvertionHelper.convert(copyConnection);
-            connParameters.setSchema(imetadataConnection.getSchema() == null ? "" : imetadataConnection.getSchema());
-            UIUtils.checkConnection(parentShell, imetadataConnection);
-        }
-        connParameters.setNodeReadOnly(true);
-        connParameters.setFromRepository(true);
-        dial.setConnParameters(connParameters);
-        dial.open();
-        refresh(repositoryNode);
+        IMetadataConnection metadataConnection = ConvertionHelper.convert(copyConnection, false, copyConnection.getContextName());
+        
+        DatabaseTableWizard databaseTableWizard =
+                new DatabaseTableWizard(PlatformUI.getWorkbench(), runtimeData.isCreation(), repositoryNode.getObject(), null, getExistingNames(), false, managerConnection, metadataConnection);
+        return databaseTableWizard;
     } 
 
     private TaCoKitConfigurationRuntimeData createRuntimeData() {
@@ -281,6 +226,6 @@ public class TaCoKitReadQueriesAction extends TaCoKitMetadataContextualAction {
     }
 
     protected String getEditLabel() {
-        return "Read queries";
+        return "Retrieve schema";
     }
 }
