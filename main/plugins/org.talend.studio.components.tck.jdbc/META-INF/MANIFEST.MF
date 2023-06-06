@@ -13,7 +13,8 @@ Require-Bundle: org.talend.sdk.component.studio-integration,
  org.talend.core.repository,
  org.talend.metadata.managment.ui,
  org.talend.sqlbuilder,
- org.talend.repository.metadata
+ org.talend.repository.metadata,
+ org.talend.metadata.managment
 Bundle-Vendor: .Talend SA.
 Import-Package: org.eclipse.core.runtime,
  org.slf4j
