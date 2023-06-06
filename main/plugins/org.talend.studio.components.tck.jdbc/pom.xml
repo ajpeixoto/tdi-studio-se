@@ -12,7 +12,7 @@
 	<properties>
 		<compGroup>org.talend.components</compGroup>
 		<compArtifact>newjdbc</compArtifact>
-		<jdbcversion>1.44.0-SNAPSHOT</jdbcversion>
+		<jdbcversion>1.46.0-SNAPSHOT</jdbcversion>
 		<tycho.buildtimestamp.format>${timestamp}</tycho.buildtimestamp.format>
 	</properties>
 	<build>
@@ -75,7 +75,7 @@
 					</replacements>
 				</configuration>
 			</plugin>
-			<plugin>
+<!-- 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-dependency-plugin</artifactId>
 				<executions>
@@ -101,7 +101,7 @@
 						</configuration>
 					</execution>
 				</executions>
-			</plugin>
+			</plugin> -->
 		</plugins>
 	</build>
 </project>
