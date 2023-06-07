@@ -38,6 +38,9 @@ public class RemoveUnwantedUsageDataMigrationTask extends AbstractProjectMigrati
 				JSONObject jsonObject = new JSONObject(result);
 				preferenceStore.setValue(PREF_TOS_JOBS_RECORDS, jsonObject.toString());
 			}
+			
+			return ExecutionResult.SUCCESS_NO_ALERT;
+			
 		} catch (Exception e) {
 			// the value is not set, or is empty
 			e.printStackTrace();
