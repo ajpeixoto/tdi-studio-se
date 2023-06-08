@@ -111,31 +111,19 @@ public class CreateTaCoKitConfigurationAction extends TaCoKitMetadataContextualA
         ConnectionItem connectionItem = null;
         if(TaCoKitConst.TACOKIT_JDBC_DATASTORE_NAME.equals(configTypeNode.getName())) {
             connection = ConnectionFactory.eINSTANCE.createTacokitDatabaseConnection();
-
-            Property property = PropertiesFactory.eINSTANCE.createProperty();
-            property.setAuthor(
-                    ((RepositoryContext) CorePlugin.getContext().getProperty(Context.REPOSITORY_CONTEXT_KEY)).getUser());
-            property.setVersion(VersionUtils.DEFAULT_VERSION);
-            property.setStatusCode(""); //$NON-NLS-1$
-
-            connectionItem = PropertiesFactory.eINSTANCE.createTacokitDatabaseConnectionItem();
-            connectionItem.setConnection(connection);
-            connectionItem.setProperty(property);
-            connectionItem.setTypeName(configTypeNode.getId());
         } else {
             connection = ConnectionFactory.eINSTANCE.createConnection();
-
-            Property property = PropertiesFactory.eINSTANCE.createProperty();
-            property.setAuthor(
-                    ((RepositoryContext) CorePlugin.getContext().getProperty(Context.REPOSITORY_CONTEXT_KEY)).getUser());
-            property.setVersion(VersionUtils.DEFAULT_VERSION);
-            property.setStatusCode(""); //$NON-NLS-1$
-
-            connectionItem = PropertiesFactory.eINSTANCE.createConnectionItem();
-            connectionItem.setConnection(connection);
-            connectionItem.setProperty(property);
-            connectionItem.setTypeName(configTypeNode.getId());
         }
+        Property property = PropertiesFactory.eINSTANCE.createProperty();
+        property.setAuthor(
+                ((RepositoryContext) CorePlugin.getContext().getProperty(Context.REPOSITORY_CONTEXT_KEY)).getUser());
+        property.setVersion(VersionUtils.DEFAULT_VERSION);
+        property.setStatusCode(""); //$NON-NLS-1$
+
+        connectionItem = PropertiesFactory.eINSTANCE.createConnectionItem();
+        connectionItem.setConnection(connection);
+        connectionItem.setProperty(property);
+        connectionItem.setTypeName(configTypeNode.getId());
 
         TaCoKitConfigurationModel configurationModel = new TaCoKitConfigurationModel(connection, configTypeNode);
         String id = null;
