@@ -40,7 +40,7 @@ import org.talend.metadata.managment.utils.MetadataConnectionUtils;
 import org.talend.repository.model.IRepositoryNode.EProperties;
 import org.talend.repository.model.RepositoryNode;
 import org.talend.repository.ui.views.IRepositoryView;
-import org.talend.sdk.component.studio.i18n.Messages;
+import org.talend.studio.components.tck.jdbc.Messages;
 import org.talend.sdk.component.studio.metadata.action.TaCoKitMetadataContextualAction;
 import org.talend.sdk.component.studio.metadata.node.ITaCoKitRepositoryNode;
 import org.talend.sdk.component.studio.ui.wizard.TaCoKitConfigurationRuntimeData;
