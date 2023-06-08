@@ -10,9 +10,13 @@ import org.talend.core.model.process.INode;
 import org.talend.sdk.component.server.front.model.ComponentDetail;
 import org.talend.sdk.component.studio.Lookups;
 import org.talend.sdk.component.studio.model.parameter.ListPropertyNode;
+import org.talend.sdk.component.studio.model.parameter.Metadatas;
 import org.talend.sdk.component.studio.model.parameter.PropertyNode;
 
 public interface ComponentReferenceFinder {
+
+    String DEPENDENCIES_CONNECTOR_META = "dependencies::connector";
+
     Stream<ComponentReference> find(final PropertyNode property, final INode node);
 
     static ComponentReferenceFinder getFinder(final PropertyNode property) {
@@ -26,16 +30,28 @@ public interface ComponentReferenceFinder {
         @Override
         public Stream<ComponentReference> find(PropertyNode property, INode node) {
             final List<PropertyNode> children = property.getChildren();
-            String mavenReferences = null;
+            String mavenReferences = null, name = null, family = null;
             for (PropertyNode child : children) {
+                final String metaValue = child.getProperty().getMetadata().get(DEPENDENCIES_CONNECTOR_META);
+                if (metaValue == null) {
+                    continue;
+                }
+
                 final String path = child.getProperty().getPath();
                 final IElementParameter elementParameter = node.getElementParameter(path);
-                final Object value = elementParameter.getValue();
-                if (value != null && path.endsWith(".mavenReference")) {
-                    mavenReferences = String.valueOf(value);
+                switch (metaValue) {
+                    case "mavenReference":
+                        mavenReferences = (String) elementParameter.getValue();
+                        break;
+                    case "family":
+                        family = (String) elementParameter.getValue();
+                        break;
+                    case "name":
+                        name = (String) elementParameter.getValue();
+                        break;
                 }
             }
-            return Stream.of(new ComponentReference(mavenReferences));
+            return Stream.of(new ComponentReference(family, name, mavenReferences));
         }
     }
 
@@ -45,23 +61,41 @@ public interface ComponentReferenceFinder {
             if (!(property instanceof ListPropertyNode)) {
                 return Stream.empty();
             }
-            final List<ComponentReference> details = new ArrayList<>();
             final String path = property.getProperty().getPath();
             final IElementParameter elementParameter = node.getElementParameter(path);
             final Object values = elementParameter.getValue();
-            if (values instanceof List) {
-                for (Object value : (List) values) {
-                    if (value instanceof Map) {
-                        Map map = (Map)value;
-                        String mavenReferences = null;
-                        for (Object key : map.keySet()) {
-                            if (key.toString().endsWith(".mavenReference")) {
-                                mavenReferences = (String)map.get(key);
-                            }                           
-                        }
-                        details.add(new ComponentReference(mavenReferences));
+            if (!(values instanceof List)) {
+                return Stream.empty();
+            }
+
+            final List<ComponentReference> details = new ArrayList<>();
+            for (Object value : (List) values) {
+                if (!(value instanceof Map)) {
+                    continue;
+                }
+
+                Map map = (Map) value;
+                String mavenReferences = null, family = null, name = null;
+                for (PropertyNode column : ((ListPropertyNode) property).getColumns(Metadatas.MAIN_FORM)) {
+                    final String metaValue = column.getProperty().getMetadata().get(DEPENDENCIES_CONNECTOR_META);
+                    if (metaValue == null) {
+                        continue;
+                    }
+
+                    switch (metaValue) {
+                        case "mavenReference":
+                            mavenReferences = (String) map.get(column.getProperty().getPath());
+                            break;
+                        case "name":
+                            name = (String) map.get(column.getProperty().getPath());
+                            break;
+                        case "family":
+                            family = (String) map.get(column.getProperty().getPath());
+                            break;
                     }
                 }
+
+                details.add(new ComponentReference(family, name, mavenReferences));
             }
             return details.stream();
         }

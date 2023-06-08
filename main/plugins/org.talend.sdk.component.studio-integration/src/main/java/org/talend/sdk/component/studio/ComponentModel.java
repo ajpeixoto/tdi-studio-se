@@ -501,12 +501,12 @@ public class ComponentModel extends AbstractBasicComponent implements IAdditiona
                     .distinct()
                     .collect(toList());
             
-            Set<ModuleNeeded> extractComponent = new HashSet<ModuleNeeded>();
+            Set<ModuleNeeded> extractComponent = new HashSet<>();
             connectors.forEach((PropertyNode p) -> this.extractComponent(p, iNode, extractComponent));  // extract connectors as maven references
 
            if (GlobalServiceRegister.getDefault().isServiceRegistered(IDataPrepLookupService.class)) {
                 IDataPrepLookupService service = GlobalServiceRegister.getDefault().getService(IDataPrepLookupService.class);
-                Set<ModuleNeeded> extractDependencies = new HashSet<ModuleNeeded>();
+                Set<ModuleNeeded> extractDependencies = new HashSet<>();
                 for (ModuleNeeded module : extractComponent) {
                     extractDependencies.addAll(service.getLookupModuleNeeded(module));
                 }
@@ -588,7 +588,7 @@ public class ComponentModel extends AbstractBasicComponent implements IAdditiona
 
         if (metadata != null
                 && metadata.isPresent()
-                && metadata.get().containsKey("dependencies::connector")) {
+                && metadata.get().containsKey(ComponentReferenceFinder.DEPENDENCIES_CONNECTOR_META)) {
             return propertyNode.get();
         }
         return null;
