@@ -3735,6 +3735,15 @@
               name="RemoveDuplicateContextReferencesMigrationTask"
               version="7.3.1">
         </projecttask>
+        <projecttask
+              beforeLogon="true"
+              breaks="7.3.0"
+              class="org.talend.repository.model.migration.RemoveUnwantedUsageDataMigrationTask"
+              description="Remove unwanted old entried from prefrence store for Usage Data Collection"
+              id="org.talend.repository.model.migration.RemoveUnwantedUsageDataMigrationTask"
+              name="RemoveUnwantedUsageDataMigrationTask"
+              version="7.3.1">
+        </projecttask>
    </extension>
 
    <extension
