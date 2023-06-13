@@ -61,7 +61,7 @@ public class TaCoKitReadQueriesAction extends TaCoKitMetadataContextualAction {
     
     public TaCoKitReadQueriesAction() {
         super();
-        setImageDescriptor(ImageProvider.getImageDesc(EImage.EDIT_ICON));
+        setImageDescriptor(ImageProvider.getImageDesc(EImage.READ_ICON));
     }
 
     @Override

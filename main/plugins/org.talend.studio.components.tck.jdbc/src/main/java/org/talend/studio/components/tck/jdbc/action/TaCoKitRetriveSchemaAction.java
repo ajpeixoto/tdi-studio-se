@@ -17,13 +17,12 @@ import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
 import org.talend.commons.exception.ExceptionHandler;
-import org.talend.commons.ui.runtime.image.EImage;
+import org.talend.commons.ui.runtime.image.ECoreImage;
 import org.talend.commons.ui.runtime.image.ImageProvider;
 import org.talend.core.model.metadata.IMetadataConnection;
 import org.talend.core.model.metadata.builder.ConvertionHelper;
 import org.talend.core.model.metadata.builder.connection.Connection;
 import org.talend.core.model.metadata.builder.connection.DatabaseConnection;
-import org.talend.core.model.properties.ConnectionItem;
 import org.talend.core.model.repository.ERepositoryObjectType;
 import org.talend.core.repository.model.ProjectRepositoryNode;
 import org.talend.metadata.managment.repository.ManagerConnection;
@@ -32,10 +31,10 @@ import org.talend.repository.model.IRepositoryNode.EProperties;
 import org.talend.repository.model.RepositoryNode;
 import org.talend.repository.ui.views.IRepositoryView;
 import org.talend.repository.ui.wizards.metadata.table.database.DatabaseTableWizard;
-import org.talend.studio.components.tck.jdbc.Messages;
 import org.talend.sdk.component.studio.metadata.action.TaCoKitMetadataContextualAction;
 import org.talend.sdk.component.studio.metadata.node.ITaCoKitRepositoryNode;
 import org.talend.sdk.component.studio.ui.wizard.TaCoKitConfigurationRuntimeData;
+import org.talend.studio.components.tck.jdbc.Messages;
 
 /**
  * Metadata contextual action which creates WizardDialog used to edit Component configuration.
@@ -50,7 +49,7 @@ public class TaCoKitRetriveSchemaAction extends TaCoKitMetadataContextualAction 
     
     public TaCoKitRetriveSchemaAction() {
         super();
-        setImageDescriptor(ImageProvider.getImageDesc(EImage.EDIT_ICON));
+        this.setImageDescriptor(ImageProvider.getImageDesc(ECoreImage.METADATA_TABLE_ICON));
     }
 
     @Override

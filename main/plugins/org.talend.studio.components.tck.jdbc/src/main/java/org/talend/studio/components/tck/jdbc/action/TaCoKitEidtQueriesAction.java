@@ -23,7 +23,7 @@ import org.eclipse.ui.PlatformUI;
 import org.talend.commons.exception.ExceptionHandler;
 import org.talend.commons.runtime.model.repository.ERepositoryStatus;
 import org.talend.commons.ui.gmf.util.DisplayUtils;
-import org.talend.commons.ui.runtime.image.EImage;
+import org.talend.commons.ui.runtime.image.ECoreImage;
 import org.talend.commons.ui.runtime.image.ImageProvider;
 import org.talend.core.model.context.ContextUtils;
 import org.talend.core.model.metadata.IMetadataConnection;
@@ -70,7 +70,7 @@ public class TaCoKitEidtQueriesAction extends TaCoKitMetadataContextualAction {
     
     public TaCoKitEidtQueriesAction() {
         super();
-        setImageDescriptor(ImageProvider.getImageDesc(EImage.EDIT_ICON));
+        setImageDescriptor(ImageProvider.getImageDesc(ECoreImage.METADATA_QUERY_ICON));
     }
 
     @Override
