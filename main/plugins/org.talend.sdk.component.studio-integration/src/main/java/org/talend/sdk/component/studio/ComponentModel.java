@@ -406,7 +406,7 @@ public class ComponentModel extends AbstractBasicComponent implements IAdditiona
                 returnVariables.add(returnNode);
             }
         }
-	}
+    }
     
     /**
      * Creates component connectors. It creates all possible connector even if some
@@ -505,7 +505,7 @@ public class ComponentModel extends AbstractBasicComponent implements IAdditiona
                     .filter(Objects::nonNull)
                     .distinct()
                     .collect(toList());
-            
+
             Set<ModuleNeeded> extractComponent = new HashSet<>();
             connectors.forEach((PropertyNode p) -> this.extractComponent(p, iNode, extractComponent));  // extract connectors as maven references
 
@@ -513,8 +513,7 @@ public class ComponentModel extends AbstractBasicComponent implements IAdditiona
                 IDataPrepLookupService service = GlobalServiceRegister.getDefault().getService(IDataPrepLookupService.class);
                 Set<ModuleNeeded> extractDependencies = new HashSet<>();
                 for (ModuleNeeded module : extractComponent) {
-                    extractDependencies.add(module);                // connector itself
-                    extractDependencies.addAll(service.getLookupModuleNeeded(module));
+                    extractDependencies.addAll(service.getLookupModuleNeeded(module)); // Contains connector itself
                 }
                 modules.addAll(extractDependencies); // extractDependencies contains connector. (we may change connector's version in case it not existed on m2)
             } else {
