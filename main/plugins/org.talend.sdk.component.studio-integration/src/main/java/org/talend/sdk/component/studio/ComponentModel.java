@@ -513,6 +513,7 @@ public class ComponentModel extends AbstractBasicComponent implements IAdditiona
                 IDataPrepLookupService service = GlobalServiceRegister.getDefault().getService(IDataPrepLookupService.class);
                 Set<ModuleNeeded> extractDependencies = new HashSet<>();
                 for (ModuleNeeded module : extractComponent) {
+                    extractDependencies.add(module);                // connector itself
                     extractDependencies.addAll(service.getLookupModuleNeeded(module));
                 }
                 modules.addAll(extractDependencies); // extractDependencies contains connector. (we may change connector's version in case it not existed on m2)
