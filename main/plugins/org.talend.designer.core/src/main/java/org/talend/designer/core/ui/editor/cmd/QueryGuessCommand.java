@@ -30,6 +30,7 @@ import org.talend.core.model.metadata.IMetadataTable;
 import org.talend.core.model.metadata.QueryUtil;
 import org.talend.core.model.metadata.builder.connection.Connection;
 import org.talend.core.model.metadata.builder.connection.DatabaseConnection;
+import org.talend.core.model.metadata.builder.connection.TacokitDatabaseConnection;
 import org.talend.core.model.metadata.builder.database.ExtractMetaDataUtils;
 import org.talend.core.model.metadata.designerproperties.RepositoryToComponentProperty;
 import org.talend.core.model.param.EConnectionParameterName;
@@ -145,27 +146,26 @@ public class QueryGuessCommand extends Command {
             newQuery = generateNewQueryFromDQRuler(dqRuler);
         }
 
-        for (IElementParameter param : (List<IElementParameter>) node.getElementParameters()) {
-            if (param.getFieldType() == EParameterFieldType.MEMO_SQL) {
-                oldValue = node.getPropertyValue(param.getName());
-                this.propName = param.getName();
-                String sql = null;
-                try {
-                    // sql = new SQLFormatUtil().formatSQL(newQuery);
-                    if (QueryUtil.needFormatSQL(dbType)) {
-                        sql = fomatQuery(newQuery);
-                    } else {
-                        sql = newQuery;
-                    }
-                    node.setPropertyValue(param.getName(), sql);
-                } catch (Exception e) {
-                    ExceptionHandler.process(e, Priority.WARN);
-                    node.setPropertyValue(param.getName(), newQuery);
-                }
-
-                param.setRepositoryValueUsed(false);
-            }
+        IElementParameter param = node.getElementParameterFromField(EParameterFieldType.MEMO_SQL);
+        if (param == null) {
+            param = node.getElementParameter(TacokitDatabaseConnection.KEY_DATASET_SQL_QUERY);
         }
+        oldValue = node.getPropertyValue(param.getName());
+        this.propName = param.getName();
+        String sql = null;
+        try {
+            // sql = new SQLFormatUtil().formatSQL(newQuery);
+            if (QueryUtil.needFormatSQL(dbType)) {
+                sql = fomatQuery(newQuery);
+            } else {
+                sql = newQuery;
+            }
+            node.setPropertyValue(param.getName(), sql);
+        } catch (Exception e) {
+            ExceptionHandler.process(e, Priority.WARN);
+            node.setPropertyValue(param.getName(), newQuery);
+        }
+        param.setRepositoryValueUsed(false);
 
         node.setPropertyValue(EParameterName.UPDATE_COMPONENTS.getName(), Boolean.TRUE);
 

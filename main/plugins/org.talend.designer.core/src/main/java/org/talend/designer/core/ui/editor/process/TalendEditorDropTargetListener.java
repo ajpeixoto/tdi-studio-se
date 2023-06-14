@@ -101,6 +101,7 @@ import org.talend.core.model.metadata.builder.connection.Query;
 import org.talend.core.model.metadata.builder.connection.SAPFunctionUnit;
 import org.talend.core.model.metadata.builder.connection.SAPTable;
 import org.talend.core.model.metadata.builder.connection.SalesforceModuleUnit;
+import org.talend.core.model.metadata.builder.connection.TacokitDatabaseConnection;
 import org.talend.core.model.metadata.builder.connection.XMLFileNode;
 import org.talend.core.model.metadata.builder.connection.impl.BRMSConnectionImpl;
 import org.talend.core.model.metadata.builder.connection.impl.HL7ConnectionImpl;
@@ -1648,6 +1649,9 @@ public class TalendEditorDropTargetListener extends TemplateTransferDropTargetLi
 
     public boolean hasQuery(Node node) {
         IElementParameter elementParameter = node.getElementParameterFromField(EParameterFieldType.MEMO_SQL);
+        if (elementParameter == null) {
+            elementParameter = node.getElementParameter(TacokitDatabaseConnection.KEY_DATASET_SQL_QUERY);
+        }
         if (elementParameter == null) {
             return false;
         }

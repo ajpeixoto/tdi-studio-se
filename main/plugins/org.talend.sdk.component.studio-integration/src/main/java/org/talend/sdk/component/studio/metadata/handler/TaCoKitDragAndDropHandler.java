@@ -248,14 +248,17 @@ public class TaCoKitDragAndDropHandler extends AbstractDragAndDropServiceHandler
             final ERepositoryObjectType type) {
 
         List<IComponent> neededComponents = new ArrayList<IComponent>();
+        
+        ITaCoKitRepositoryNode taCoKitRepositoryNode = null;
         if (selectedNode instanceof ITaCoKitRepositoryNode) {
+            taCoKitRepositoryNode = (ITaCoKitRepositoryNode)selectedNode;
             if (!((ITaCoKitRepositoryNode) selectedNode).isLeafNode()) {
                 return neededComponents;
             }
-        } else {
+        } else if ((taCoKitRepositoryNode = getParentTaCoKitRepositoryNode(selectedNode)) == null){
             return neededComponents;
         }
-        ITaCoKitRepositoryNode tacokitNode = (ITaCoKitRepositoryNode) selectedNode;
+        ITaCoKitRepositoryNode tacokitNode = taCoKitRepositoryNode;
         ConfigTypeNode configTypeNode = tacokitNode.getConfigTypeNode();
         ConfigTypeNode familyTypeNode = Lookups.taCoKitCache().getFamilyNode(configTypeNode);
         String familyName = familyTypeNode.getName();
@@ -275,6 +278,17 @@ public class TaCoKitDragAndDropHandler extends AbstractDragAndDropServiceHandler
 
         return neededComponents;
 
+    }
+    
+    private ITaCoKitRepositoryNode getParentTaCoKitRepositoryNode(RepositoryNode selectedNode) {
+        while (selectedNode.getParent() != null) {
+            if (selectedNode.getParent() instanceof ITaCoKitRepositoryNode) {
+                return (ITaCoKitRepositoryNode)selectedNode.getParent();
+            }
+            selectedNode = selectedNode.getParent();
+        }
+        
+        return null;
     }
 
     @Override
