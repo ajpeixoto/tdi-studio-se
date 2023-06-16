@@ -216,6 +216,9 @@ public class QueryGuessCommand extends Command {
                     schemaParam == null ? org.apache.commons.lang.StringUtils.EMPTY : schemaParam.getValue().toString(),
                     lastRunContext);
             IElementParameter tableParam = node.getElementParameterFromField(EParameterFieldType.DBTABLE);
+            if (tableParam == null) {
+                tableParam = node.getElementParameter(TacokitDatabaseConnection.KEY_DATASET_TABLE_NAME);
+            }
             String tableName = JavaProcessUtil.getRealParamValue(process, tableParam.getValue().toString(), lastRunContext);
             IElementParameter whereClause = node.getElementParameter("WHERE_CLAUSE"); //$NON-NLS-1$
             String whereStr = org.apache.commons.lang.StringUtils.EMPTY;

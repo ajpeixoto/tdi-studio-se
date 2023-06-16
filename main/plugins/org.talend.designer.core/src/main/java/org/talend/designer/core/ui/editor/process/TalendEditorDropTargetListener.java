@@ -1160,6 +1160,9 @@ public class TalendEditorDropTargetListener extends TemplateTransferDropTargetLi
                     repositoryNode = (RepositoryNode) getSelection().getFirstElement();
                     // dnd a table
                     IElementParameter dbTableParam = node.getElementParameterFromField(EParameterFieldType.DBTABLE);
+                    if (dbTableParam == null) {
+                        dbTableParam = node.getElementParameter(TacokitDatabaseConnection.KEY_DATASET_TABLE_NAME);
+                    }
                     boolean hasDbTableField = dbTableParam != null;
 
                     if (repositoryNode.getObjectType() == ERepositoryObjectType.METADATA_CON_TABLE
@@ -1551,6 +1554,9 @@ public class TalendEditorDropTargetListener extends TemplateTransferDropTargetLi
                     DatabaseConnection connection2 = (DatabaseConnection) connection;
                     String schema = connection2.getUiSchema();
                     String dbType = connection2.getDatabaseType();
+                    if (connection instanceof TacokitDatabaseConnection) {
+                        dbType = ConvertionHelper.getDbTypeByClassNameAndDriverJar(((TacokitDatabaseConnection)connection).getDriverClass(), null);
+                    }
                     QueryGuessCommand queryGuessCommand = null;
                     if (node.getMetadataList().size() == 0) {
                         queryGuessCommand = new QueryGuessCommand(node, null, schema, dbType);
