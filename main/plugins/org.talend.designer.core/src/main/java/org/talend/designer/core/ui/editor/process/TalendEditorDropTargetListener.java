@@ -1535,6 +1535,9 @@ public class TalendEditorDropTargetListener extends TemplateTransferDropTargetLi
             // command used to set query
             if (selectedNode.getProperties(EProperties.CONTENT_TYPE) == ERepositoryObjectType.METADATA_CON_QUERY) {
                 IElementParameter queryParam = node.getElementParameterFromField(EParameterFieldType.QUERYSTORE_TYPE);
+                if (queryParam == null) {
+                    queryParam = node.getElementParameter(TacokitDatabaseConnection.KEY_DATASET_SQL_QUERY);
+                }
 
                 QueryRepositoryObject object = (QueryRepositoryObject) selectedNode.getObject();
                 Query query = object.getQuery();

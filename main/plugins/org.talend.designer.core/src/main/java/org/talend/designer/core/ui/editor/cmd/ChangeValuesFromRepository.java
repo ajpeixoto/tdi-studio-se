@@ -45,6 +45,7 @@ import org.talend.core.model.metadata.builder.connection.Query;
 import org.talend.core.model.metadata.builder.connection.SAPConnection;
 import org.talend.core.model.metadata.builder.connection.SalesforceModuleUnit;
 import org.talend.core.model.metadata.builder.connection.SalesforceSchemaConnection;
+import org.talend.core.model.metadata.builder.connection.TacokitDatabaseConnection;
 import org.talend.core.model.metadata.builder.connection.WSDLSchemaConnection;
 import org.talend.core.model.metadata.builder.connection.XmlFileConnection;
 import org.talend.core.model.metadata.builder.connection.impl.XmlFileConnectionImpl;
@@ -1067,6 +1068,9 @@ public class ChangeValuesFromRepository extends ChangeMetadataCommand {
 
             IElementParameter queryParam = elem.getElementParameterFromField(EParameterFieldType.QUERYSTORE_TYPE,
                     currentParam.getCategory());
+            if (queryParam == null) {
+                queryParam = elem.getElementParameter(TacokitDatabaseConnection.KEY_DATASET_SQL_QUERY);
+            }
             IElementParameter queryStoreType = null;
             if (queryParam != null) {
                 queryStoreType = queryParam.getChildParameters().get(EParameterName.QUERYSTORE_TYPE.getName());
@@ -1089,7 +1093,7 @@ public class ChangeValuesFromRepository extends ChangeMetadataCommand {
                     if (queryParam != null) {
                         if (this.isGuessQuery || queries == null || (queries != null && queries.isEmpty())) {
                             queryStoreType.setValue(EmfComponent.BUILTIN);
-                        } else {
+                        } else if (queryStoreType != null){
                             queryStoreType.setValue(EmfComponent.REPOSITORY);
                             setQueryToRepositoryMode(queryParam, queries, item);
                         }
