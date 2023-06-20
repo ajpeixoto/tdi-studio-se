@@ -114,6 +114,7 @@ public class UpdateContextParameterCommand extends Command {
                     checkNewRepositoryParameters(process, names);
                     return;
                 }
+                ContextUtils.clearMissingContextCache();
                 for (IContext context : listContext) {
                         for (IContextParameter param : context.getContextParameterList()) {
                         Item item = null;

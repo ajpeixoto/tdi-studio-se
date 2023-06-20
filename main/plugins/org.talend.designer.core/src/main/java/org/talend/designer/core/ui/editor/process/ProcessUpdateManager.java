@@ -330,6 +330,7 @@ public class ProcessUpdateManager extends AbstractUpdateManager {
                     processContextVars.add(param.getName());
                 }
                 Map<String, JobContext> newGroupMap = new HashMap<>();
+                ContextUtils.clearMissingContextCache();
                 for (IContextParameter param : defaultContext.getContextParameterList()) {
                     if (!param.isBuiltIn()) {
                         String source = param.getSource();
@@ -430,7 +431,7 @@ public class ProcessUpdateManager extends AbstractUpdateManager {
         } catch (PersistenceException e) {
             ExceptionHandler.process(e);
         }
-
+        ContextUtils.clearMissingContextCache();
         for (IContext context : contextManager.getListContext()) {
             for (IContextParameter param : context.getContextParameterList()) {
                 if (!param.isBuiltIn()) {
