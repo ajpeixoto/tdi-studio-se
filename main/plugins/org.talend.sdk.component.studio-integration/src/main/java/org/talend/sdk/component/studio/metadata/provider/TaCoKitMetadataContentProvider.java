@@ -33,6 +33,7 @@ import org.talend.commons.runtime.service.ITaCoKitService;
 import org.talend.commons.utils.data.container.Container;
 import org.talend.commons.utils.data.container.RootContainer;
 import org.talend.core.model.metadata.builder.ConvertionHelper;
+import org.talend.core.model.metadata.builder.connection.TacokitDatabaseConnection;
 import org.talend.core.model.properties.ConnectionItem;
 import org.talend.core.model.properties.Property;
 import org.talend.core.model.repository.ERepositoryObjectType;
@@ -527,7 +528,7 @@ public class TaCoKitMetadataContentProvider extends AbstractMetadataContentProvi
     }
     
     public static boolean isJDBCLeafNode(ITaCoKitRepositoryNode tacoNode) {
-        if ("JDBCDataStore".equals(tacoNode.getConfigTypeNode().getName())) {
+        if (TacokitDatabaseConnection.KEY_JDBC_DATASTORE_NAME.equals(tacoNode.getConfigTypeNode().getName())) {
             return true;
         }
         return false;

@@ -114,6 +114,4 @@ public class TaCoKitConst {
     public static final String DATASTORE_PATH = "DATASTORE_PATH";
 
     public static final String UNSET_CONNECTION_NAME = "default";
-    
-    public static final String TACOKIT_JDBC_DATASTORE_NAME= "JDBCDataStore";
 }

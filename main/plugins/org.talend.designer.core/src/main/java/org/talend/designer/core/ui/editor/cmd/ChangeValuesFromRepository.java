@@ -1081,7 +1081,7 @@ public class ChangeValuesFromRepository extends ChangeMetadataCommand {
 
                 if (propertyName.split(":")[1].equals(EParameterName.PROPERTY_TYPE.getName())) { //$NON-NLS-1$
                     if (queries != null && !queries.isEmpty()) {
-                        if (queryParam != null) {
+                        if (queryParam != null && queryStoreType != null) {
                             queryStoreType.setValue(value);
                             if (value.equals(EmfComponent.REPOSITORY)) {
                                 setQueryToRepositoryMode(queryParam, queries, item);
@@ -1090,7 +1090,7 @@ public class ChangeValuesFromRepository extends ChangeMetadataCommand {
                         // query change
                     }
                 } else {
-                    if (queryParam != null) {
+                    if (queryParam != null && queryStoreType != null) {
                         if (this.isGuessQuery || queries == null || (queries != null && queries.isEmpty())) {
                             queryStoreType.setValue(EmfComponent.BUILTIN);
                         } else if (queryStoreType != null){

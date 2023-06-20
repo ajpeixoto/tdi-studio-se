@@ -27,6 +27,7 @@ import org.talend.core.context.Context;
 import org.talend.core.context.RepositoryContext;
 import org.talend.core.model.metadata.builder.connection.Connection;
 import org.talend.core.model.metadata.builder.connection.ConnectionFactory;
+import org.talend.core.model.metadata.builder.connection.TacokitDatabaseConnection;
 import org.talend.core.model.properties.ConnectionItem;
 import org.talend.core.model.properties.PropertiesFactory;
 import org.talend.core.model.properties.Property;
@@ -109,7 +110,7 @@ public class CreateTaCoKitConfigurationAction extends TaCoKitMetadataContextualA
     private ConnectionItem createConnectionItem() throws Exception {
         Connection connection = null;
         ConnectionItem connectionItem = null;
-        if(TaCoKitConst.TACOKIT_JDBC_DATASTORE_NAME.equals(configTypeNode.getName())) {
+        if(TacokitDatabaseConnection.KEY_JDBC_DATASTORE_NAME.equals(configTypeNode.getName())) {
             connection = ConnectionFactory.eINSTANCE.createTacokitDatabaseConnection();
         } else {
             connection = ConnectionFactory.eINSTANCE.createConnection();
