@@ -28,11 +28,14 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.talend.commons.exception.ExceptionHandler;
+import org.talend.components.api.properties.ComponentProperties;
 import org.talend.core.GlobalServiceRegister;
 import org.talend.core.model.components.IComponent;
 import org.talend.core.model.components.IComponentsService;
 import org.talend.core.model.metadata.IMetadataTable;
 import org.talend.core.model.metadata.builder.connection.Connection;
+import org.talend.core.model.metadata.builder.connection.TacokitDatabaseConnection;
+import org.talend.core.model.param.EConnectionParameterName;
 import org.talend.core.model.process.EParameterFieldType;
 import org.talend.core.model.process.IElement;
 import org.talend.core.model.process.IElementParameter;
@@ -376,6 +379,53 @@ public class TaCoKitDragAndDropHandler extends AbstractDragAndDropServiceHandler
             return componentMainName.concat(INPUT);
         }
         return componentMainName.concat(OUTPUT);
+    }
+    
+    @Override
+    public boolean isGenericRepositoryValue(Connection connection, List<ComponentProperties> componentProperties, String paramName) {
+        return getGenericRepositoryValue(connection, componentProperties, paramName) != null;
+    }
+
+    @Override
+    public Object getGenericRepositoryValue(Connection connection, List<ComponentProperties> componentProperties, String paramName) {
+        if (connection instanceof TacokitDatabaseConnection) {
+            TacokitDatabaseConnection tacokitDatabaseConnection = (TacokitDatabaseConnection)connection;
+            if (EConnectionParameterName.URL.getName().equals(paramName)) {
+                return tacokitDatabaseConnection.getURL();
+            }
+            if (EConnectionParameterName.SERVER_NAME.getName().equals(paramName)) {
+                return tacokitDatabaseConnection.getServerName();
+            }
+            if (EConnectionParameterName.PORT.getName().equals(paramName)) {
+                return tacokitDatabaseConnection.getPort();
+            }
+            if (EConnectionParameterName.SID.getName().equals(paramName)) {
+                return tacokitDatabaseConnection.getSID();
+            }
+            if (EConnectionParameterName.USERNAME.getName().equals(paramName)) {
+                return tacokitDatabaseConnection.getUsername();
+            }
+            if (EConnectionParameterName.PASSWORD.getName().equals(paramName)) {
+                return tacokitDatabaseConnection.getRawPassword();
+            }
+            
+            if (EConnectionParameterName.DRIVER_JAR.getName().equals(paramName)) {
+                return tacokitDatabaseConnection.getDriverJarPath();
+            }            
+            if (EConnectionParameterName.DRIVER_CLASS.getName().equals(paramName)) {
+                return tacokitDatabaseConnection.getDriverClass();
+            }
+        }       
+        return null;
+    }
+
+
+    @Override
+    public boolean isGenericPropertiesValue(Connection connection, String paramName) {
+        if (EConnectionParameterName.GENERIC_DRIVER_JAR.getDisplayName().equals(paramName)) {
+            return true;
+        }
+        return false;
     }
 
 }
