@@ -25,6 +25,7 @@ import org.eclipse.ui.PlatformUI;
 import org.talend.commons.runtime.xml.XmlUtil;
 import org.talend.components.api.properties.ComponentProperties;
 import org.talend.core.GlobalServiceRegister;
+import org.talend.core.database.EDatabaseTypeName;
 import org.talend.core.model.components.IComponent;
 import org.talend.core.model.metadata.ColumnNameChanged;
 import org.talend.core.model.metadata.IMetadataColumn;
@@ -360,24 +361,31 @@ public class RepositoryChangeMetadataCommand extends ChangeMetadataCommand {
         // for JDBC component of mr process
         if (connection instanceof DatabaseConnection) {
             String databaseType = ((DatabaseConnection) connection).getDatabaseType();
-            if ("JDBC".equals(databaseType)) {
+            if ("JDBC".equals(databaseType) || EDatabaseTypeName.GENERAL_JDBC.getDbType().equals(databaseType)) {
                 IComponent component = node.getComponent();
                 if (component.getName().startsWith("tJDBC") || component.getName().startsWith("tELTJDBC")) {
                     if (EParameterName.DRIVER_JAR.getName().equals(paramName)) {
-                        List valueList = (List) objectValue;
-                        List newValue = new ArrayList<>();
-                        for (Object value : valueList) {
-                            if (value instanceof Map) {
-                                Map map = new HashMap();
-                                String driver = String.valueOf(((Map) value).get("drivers"));
-                                map.put("JAR_NAME", TalendTextUtils.removeQuotes(driver));
-                                newValue.add(map);
+                        List newValue = new ArrayList<>();                      
+                        if (objectValue instanceof List) {
+                            List valueList = (List) objectValue;
+                            for (Object value : valueList) {
+                                if (value instanceof Map) {
+                                    Map map = new HashMap();
+                                    String driver = String.valueOf(((Map) value).get("drivers"));
+                                    if (driver != null) {
+                                        map.put("JAR_NAME", TalendTextUtils.removeQuotes(driver));
+                                        newValue.add(map);
+                                    }
+                                }
                             }
+                        } else if (objectValue instanceof String) {
+                            Map map = new HashMap();
+                            map.put("JAR_NAME", TalendTextUtils.removeQuotes((String)objectValue));
+                            newValue.add(map);
                         }
                         if (!newValue.isEmpty()) {
                             objectValue = newValue;
                         }
-
                     }
 
                 }

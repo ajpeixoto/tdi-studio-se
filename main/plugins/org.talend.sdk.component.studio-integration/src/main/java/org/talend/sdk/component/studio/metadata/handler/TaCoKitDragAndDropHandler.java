@@ -390,42 +390,8 @@ public class TaCoKitDragAndDropHandler extends AbstractDragAndDropServiceHandler
     public Object getGenericRepositoryValue(Connection connection, List<ComponentProperties> componentProperties, String paramName) {
         if (connection instanceof TacokitDatabaseConnection) {
             TacokitDatabaseConnection tacokitDatabaseConnection = (TacokitDatabaseConnection)connection;
-            if (EConnectionParameterName.URL.getName().equals(paramName)) {
-                return tacokitDatabaseConnection.getURL();
-            }
-            if (EConnectionParameterName.SERVER_NAME.getName().equals(paramName)) {
-                return tacokitDatabaseConnection.getServerName();
-            }
-            if (EConnectionParameterName.PORT.getName().equals(paramName)) {
-                return tacokitDatabaseConnection.getPort();
-            }
-            if (EConnectionParameterName.SID.getName().equals(paramName)) {
-                return tacokitDatabaseConnection.getSID();
-            }
-            if (EConnectionParameterName.USERNAME.getName().equals(paramName)) {
-                return tacokitDatabaseConnection.getUsername();
-            }
-            if (EConnectionParameterName.PASSWORD.getName().equals(paramName)) {
-                return tacokitDatabaseConnection.getRawPassword();
-            }
-            
-            if (EConnectionParameterName.DRIVER_JAR.getName().equals(paramName)) {
-                return tacokitDatabaseConnection.getDriverJarPath();
-            }            
-            if (EConnectionParameterName.DRIVER_CLASS.getName().equals(paramName)) {
-                return tacokitDatabaseConnection.getDriverClass();
-            }
+            return tacokitDatabaseConnection.getPropertyValue(paramName);
         }       
         return null;
     }
-
-
-    @Override
-    public boolean isGenericPropertiesValue(Connection connection, String paramName) {
-        if (EConnectionParameterName.GENERIC_DRIVER_JAR.getDisplayName().equals(paramName)) {
-            return true;
-        }
-        return false;
-    }
-
 }

@@ -355,6 +355,9 @@ public class ChangeValuesFromRepository extends ChangeMetadataCommand {
                 } else {
                     newParamName = getParamNameForOldJDBC(param);
                 }
+                if (connection instanceof TacokitDatabaseConnection) {
+                    newParamName = getParamNameForTacokitDatabaseConnection(param);
+                }
                 boolean isJDBCRepValue = false;
                 if (!isGenericRepositoryValue && newParamName != null) {
                     isJDBCRepValue = RepositoryToComponentProperty.isGenericRepositoryValue(connection, componentProperties,
@@ -623,19 +626,24 @@ public class ChangeValuesFromRepository extends ChangeMetadataCommand {
                                 }
                             }
 
-                            if (isJDBCRepValue && param.getName().equals(EParameterName.DRIVER_JAR.getName())
-                                    && objectValue instanceof List) {
-                                List valueList = (List) objectValue;
+                            if (isJDBCRepValue && param.getName().equals(EParameterName.DRIVER_JAR.getName())) {
                                 List newValue = new ArrayList<>();
-                                for (Object value : valueList) {
-                                    if (value instanceof Map) {
-                                        Map map = new HashMap();
-                                        String driver = String.valueOf(((Map) value).get("drivers"));
-                                        if (driver != null) {
-                                            map.put("JAR_NAME", TalendTextUtils.removeQuotes(driver));
-                                            newValue.add(map);
+                                if (objectValue instanceof List) {
+                                    List valueList = (List) objectValue;
+                                    for (Object value : valueList) {
+                                        if (value instanceof Map) {
+                                            Map map = new HashMap();
+                                            String driver = String.valueOf(((Map) value).get("drivers"));
+                                            if (driver != null) {
+                                                map.put("JAR_NAME", TalendTextUtils.removeQuotes(driver));
+                                                newValue.add(map);
+                                            }
                                         }
                                     }
+                                } else if (objectValue instanceof String) {
+                                    Map map = new HashMap();
+                                    map.put("JAR_NAME", TalendTextUtils.removeQuotes((String)objectValue));
+                                    newValue.add(map);
                                 }
                                 objectValue = newValue;
                             }
@@ -803,6 +811,27 @@ public class ChangeValuesFromRepository extends ChangeMetadataCommand {
                 }
             }
         }
+        return null;
+    }
+    
+    private String getParamNameForTacokitDatabaseConnection(IElementParameter param) {
+        String paramName = param.getName();
+        // for JDBC component of mr process
+        if (EParameterName.URL.getName().equals(paramName)
+                || EParameterName.URL.getName().equals(param.getRepositoryValue())) {
+            return TacokitDatabaseConnection.KEY_URL;
+        } else if (EParameterName.DRIVER_JAR.getName().equals(paramName)) {
+            return TacokitDatabaseConnection.KEY_DRIVER;
+        } else if (EParameterName.DRIVER_CLASS.getName().equals(paramName)) {
+            return TacokitDatabaseConnection.KEY_DRIVER_CLASS;
+        } else if (EParameterName.MAPPING.getName().equals(paramName)) {
+            return TacokitDatabaseConnection.KEY_DATABASE_MAPPING;
+        } else if (EParameterName.USER.getName().equals(paramName)) {
+            return TacokitDatabaseConnection.KEY_USER_ID;
+        } else if (EParameterName.PASS.getName().equals(paramName)) {
+            return TacokitDatabaseConnection.KEY_PASSWORD;
+        } 
+        
         return null;
     }
 
