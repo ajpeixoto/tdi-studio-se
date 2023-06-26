@@ -12,8 +12,11 @@
 // ============================================================================
 package org.talend.repository.view.di.metadata.content;
 
+import java.util.List;
+
 import org.talend.core.model.repository.ERepositoryObjectType;
 import org.talend.core.repository.model.ProjectRepositoryNode;
+import org.talend.core.service.ITCKUIService;
 import org.talend.repository.model.IRepositoryNode;
 import org.talend.repository.model.RepositoryNode;
 
@@ -50,6 +53,29 @@ public class MetadataDbConnectionsContentProvider extends AbstractMetadataConten
                 super.refreshTopLevelNode((RepositoryNode) hcRootNode);
             }
         }
+    }
+
+    @Override
+    public Object[] getChildren(Object element) {
+        if (!RepositoryNode.class.isInstance(element)) {
+            return super.getChildren(element);
+        }
+        RepositoryNode node = RepositoryNode.class.cast(element);
+        if (ProjectRepositoryNode.class.isInstance(node.getParent())) {
+            boolean isInitialized = node.isInitialized();
+            Object[] base = super.getChildren(element);
+            if (ITCKUIService.get() != null && !isInitialized && node.isInitialized()) {
+                if (ERepositoryObjectType.METADATA_CONNECTIONS == node.getContentType()) {
+                    List<IRepositoryNode> merged = ITCKUIService.get().mergeTCKDBRepositoryNode(base);
+                    // should only exec once
+                    System.out.println("aaa");
+                    node.getChildren().clear();
+                    node.getChildren().addAll(merged);
+                    return node.getChildren().toArray();
+                }
+            }
+        }
+        return super.getChildren(element);
     }
 
 }

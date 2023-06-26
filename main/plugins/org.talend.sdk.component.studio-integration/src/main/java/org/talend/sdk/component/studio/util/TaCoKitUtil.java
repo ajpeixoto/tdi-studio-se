@@ -242,6 +242,18 @@ public class TaCoKitUtil {
         return false;
     }
 
+    // TODO remove
+    public static ConfigTypeNode getTopLevelNode(ConfigTypeNode node, Map<String, ConfigTypeNode> nodes) {
+        if (node != null && StringUtils.isBlank(node.getParentId())) {
+            return node;
+        }
+        ConfigTypeNode parentNode = nodes.get(node.getParentId());
+        if (parentNode == null) {
+            return node;
+        }
+        return getTopLevelNode(parentNode, nodes);
+    }
+
     public static boolean equals(final String str1, final String str2) {
         return str1 == null ? str2 == null : str1.equals(str2);
     }
@@ -272,7 +284,8 @@ public class TaCoKitUtil {
             for (ConfigTypeNode node : nodes) {
                 String parentId = node.getParentId();
                 String configType = node.getConfigurationType();
-                if (StringUtils.isNotBlank(parentId) || StringUtils.isNotBlank(configType)) {
+                if (StringUtils.isNotBlank(parentId)
+                        || StringUtils.isNotBlank(configType)/* || "JDBCNew".equals(node.getName()) */) {
                     continue;
                 }
                 filteredNodes.add(node);

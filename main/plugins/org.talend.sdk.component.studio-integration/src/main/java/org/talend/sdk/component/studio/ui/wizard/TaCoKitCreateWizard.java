@@ -100,6 +100,7 @@ public class TaCoKitCreateWizard extends TaCoKitConfigurationWizard {
             model.setParentItemId(parentNode.getObject().getId());
         }
         factory.create(connectionItem, getWizardPropertiesPage().getDestinationPath());
+        // TODO find a way to refresh DB connection node
         RepositoryManager.refreshCreatedNode(TaCoKitConst.METADATA_TACOKIT);
         // RepositoryUpdateManager.updateFileConnection(connectionItem);
     }

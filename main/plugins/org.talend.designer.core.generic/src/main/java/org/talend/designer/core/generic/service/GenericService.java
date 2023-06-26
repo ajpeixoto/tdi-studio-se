@@ -78,6 +78,9 @@ public class GenericService implements IGenericService {
             String folder = "metadata/" + name; //$NON-NLS-1$
             int ordinal = 100;
             ERepositoryObjectType repositoryType = interService.createRepositoryType(name, displayName, name, folder, ordinal);
+            if ("snowflake".equals(name)) {
+                // continue;
+            }
             if ("JDBC".equals(name)) { //$NON-NLS-1$
                 Class<ComponentProperties> jdbcClass = ReflectionUtils.getClass(
                         "org.talend.components.jdbc.wizard.JDBCConnectionWizardProperties",
