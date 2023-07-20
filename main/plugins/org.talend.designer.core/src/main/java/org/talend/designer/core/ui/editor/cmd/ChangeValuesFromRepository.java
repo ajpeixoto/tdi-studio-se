@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -37,6 +39,7 @@ import org.talend.core.model.metadata.builder.connection.DatabaseConnection;
 import org.talend.core.model.metadata.builder.connection.FTPConnection;
 import org.talend.core.model.metadata.builder.connection.HL7Connection;
 import org.talend.core.model.metadata.builder.connection.MDMConnection;
+import org.talend.core.model.metadata.builder.connection.MetadataColumn;
 import org.talend.core.model.metadata.builder.connection.MetadataTable;
 import org.talend.core.model.metadata.builder.connection.Query;
 import org.talend.core.model.metadata.builder.connection.SAPConnection;
@@ -59,10 +62,13 @@ import org.talend.core.model.properties.ConnectionItem;
 import org.talend.core.model.properties.ContextItem;
 import org.talend.core.model.properties.Item;
 import org.talend.core.model.properties.SAPConnectionItem;
+import org.talend.core.model.repository.ERepositoryObjectType;
 import org.talend.core.model.utils.TalendTextUtils;
 import org.talend.core.runtime.services.IGenericWizardService;
 import org.talend.core.service.IJsonFileService;
 import org.talend.core.utils.TalendQuoteUtils;
+import org.talend.cwm.helper.ConnectionHelper;
+import org.talend.cwm.helper.TaggedValueHelper;
 import org.talend.designer.core.i18n.Messages;
 import org.talend.designer.core.model.components.EParameterName;
 import org.talend.designer.core.model.components.EmfComponent;
@@ -80,6 +86,7 @@ import org.talend.designer.core.utils.SAPParametersUtils;
 import org.talend.designer.core.utils.UpdateParameterUtils;
 import org.talend.metadata.managment.ui.utils.ConnectionContextHelper;
 import org.talend.repository.UpdateRepositoryUtils;
+import org.talend.repository.model.IRepositoryNode.EProperties;
 
 /**
  * DOC nrousseau class global comment. Detailled comment <br/>
@@ -331,7 +338,7 @@ public class ChangeValuesFromRepository extends ChangeMetadataCommand {
                 contextMap.put("NODE", (INode) elem);
             }
 
-            for (IElementParameter param : elementParameters) {
+            for (IElementParameter param : elementParameters) { // elementParameters: target component's element
 
                 String repositoryValue = param.getRepositoryValue();
                 if (param.getFieldType() == EParameterFieldType.PROPERTY_TYPE) {
@@ -339,6 +346,7 @@ public class ChangeValuesFromRepository extends ChangeMetadataCommand {
                 }
                 boolean isGenericRepositoryValue = RepositoryToComponentProperty.isGenericRepositoryValue(connection,
                         componentProperties, param.getName());
+                
                 String newRepValue = param.getName();
                 String newParamName;
                 if (elem instanceof ImplicitContextLoadElement) {
@@ -446,7 +454,13 @@ public class ChangeValuesFromRepository extends ChangeMetadataCommand {
                     }
 
                     if (objectValue != null) {
-                        oldValues.put(param.getName(), param.getValue());
+                        oldValues.put(param.getName(), param.getValue()); 
+                        
+                        if (!objectValue.equals("\"\"") && repositoryValue.equals("PASSWORD") && elem instanceof Node
+                                && ((INode) elem).getComponent().getName().equals("cSQLConnection")) {
+                            elem.setPropertyValue("AUTH_REQUIRED", true);
+                        }
+                        
                         if (param.getFieldType().equals(EParameterFieldType.CLOSED_LIST)
                                 && "TYPE".equals(param.getRepositoryValue())) { //$NON-NLS-1$
                             String dbVersion = "";
@@ -701,7 +715,7 @@ public class ChangeValuesFromRepository extends ChangeMetadataCommand {
                         }
                     }
                 }
-            }
+            }//  for (IElementParameter param : elementParameters): end
         }
         toUpdate = false;
         // change AS400 value
@@ -720,6 +734,11 @@ public class ChangeValuesFromRepository extends ChangeMetadataCommand {
                 }
             }
             UpdateParameterUtils.setDefaultValues(curParam, elem);
+        }
+
+        // set CDS View Parameter when DND to existing tSAPTableInput node
+        if (!allowAutoSwitch && elem.getElementParameter("CDS_VIEWS") != null) {
+            setOtherProperties();
         }
 
         if (elem instanceof Node) {
@@ -1082,6 +1101,30 @@ public class ChangeValuesFromRepository extends ChangeMetadataCommand {
                         if (table != null && table.getTableName() != null) {
                             setDBTableFieldValue(node, table.getTableName(), null);
                         }
+                    }
+                }
+            }
+            if (table != null && item != null) {
+                IElementParameter cdsParam = elem.getElementParameter("CDS_VIEWS");
+                IElementParameter listParam = elem.getElementParameter("CDS_VIEW_PARAMETERS");
+                if (cdsParam != null && listParam != null && SAPConnectionItem.class.isInstance(item)) {
+                    Set<MetadataTable> tables = ConnectionHelper.getTables(SAPConnectionItem.class.cast(item).getConnection());
+                    MetadataTable metaTable = tables.stream().filter(Objects::nonNull)
+                            .filter(t -> t.getId().equals(table.getId()))
+                            .filter(t -> ERepositoryObjectType.METADATA_SAP_CDS_VIEW.name()
+                                    .equals(TaggedValueHelper.getValueString(EProperties.CONTENT_TYPE.name(), t)))
+                            .findFirst().orElse(null);
+                    if (metaTable != null) {
+                        List<Map<String, Object>> list = (List<Map<String, Object>>) listParam.getValue();
+                        list.clear();
+                        metaTable.getOwnedElement().stream().filter(MetadataColumn.class::isInstance)
+                                .map(MetadataColumn.class::cast).map(MetadataColumn::getName).forEach(name -> {
+                                    Map<String, Object> map = new HashMap<>();
+                                    map.put("PARAMETER", TalendQuoteUtils.addQuotesIfNotExist(name));
+                                    map.put("VALUE", "\"\"");
+                                    list.add(map);
+                                });
+                        cdsParam.setValue(true);
                     }
                 }
             }

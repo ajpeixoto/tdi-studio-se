@@ -70,6 +70,8 @@ public class TaCoKitConfigurationWizardPage extends AbsTaCoKitWizardPage {
 
     private TaCoKitWizardComposite tacokitComposite;
 
+    private boolean isUpdating = false;
+
     public TaCoKitConfigurationWizardPage(final TaCoKitConfigurationRuntimeData runtimeData,
             final String form,
             final boolean isNew,
@@ -204,6 +206,17 @@ public class TaCoKitConfigurationWizardPage extends AbsTaCoKitWizardPage {
         return next;
     }
 
+    @Override
+    public IWizardPage getPreviousPage() {
+        IWizardPage previousPage = super.getPreviousPage();
+        if (EComponentCategory.BASIC == category && !isUpdating && tacokitComposite != null) {
+            tacokitComposite.setPropertyResized(true);
+            tacokitComposite.addComponents(true);
+            tacokitComposite.refresh();
+        }
+        return previousPage;
+    }
+
     private class WizardHandler implements IWizardHandler {
 
         @Override
@@ -223,7 +236,9 @@ public class TaCoKitConfigurationWizardPage extends AbsTaCoKitWizardPage {
 
         @Override
         public void updateStatus() {
+            isUpdating = true;
             getContainer().updateButtons();
+            isUpdating = false;
         }
 
         private Optional<WizardPage> getCurrentPage() {

@@ -329,6 +329,7 @@ public class ProcessUpdateManager extends AbstractUpdateManager {
                     processContextVars.add(param.getName());
                 }
                 Map<String, JobContext> newGroupMap = new HashMap<>();
+                ContextUtils.clearMissingContextCache();
                 for (IContextParameter param : defaultContext.getContextParameterList()) {
                     if (!param.isBuiltIn()) {
                         String source = param.getSource();
@@ -429,7 +430,7 @@ public class ProcessUpdateManager extends AbstractUpdateManager {
         } catch (PersistenceException e) {
             ExceptionHandler.process(e);
         }
-
+        ContextUtils.clearMissingContextCache();
         for (IContext context : contextManager.getListContext()) {
             for (IContextParameter param : context.getContextParameterList()) {
                 if (!param.isBuiltIn()) {
@@ -469,6 +470,9 @@ public class ProcessUpdateManager extends AbstractUpdateManager {
                 }
             }
         }
+        // re-check deleteParams from repositoryRenamedMap
+        repositoryRenamedMap.forEach((item, renameMap) -> renameMap.forEach((_new, _old) -> deleteParams.remove(item, _old)));
+
         // built-in
         if (contextManager instanceof JobContextManager) { // add the lost source for init process
             Set<String> lostParameters = ((JobContextManager) contextManager).getLostParameters();
@@ -503,7 +507,8 @@ public class ProcessUpdateManager extends AbstractUpdateManager {
                 }
             }
         }
-        checkNewAddParameterForRef(existedParams, contextManager, ContextUtils.isPropagateContextVariable());
+        checkNewAddParameterForRef(existedParams, repositoryRenamedMap, contextManager,
+                ContextUtils.isPropagateContextVariable());
         // see 0004661: Add an option to propagate when add or remove a variable in a repository context to
         // jobs/joblets.
         checkPropagateContextVariable(contextResults, contextManager, deleteParams, allContextItem, refContextIds);
@@ -555,7 +560,8 @@ public class ProcessUpdateManager extends AbstractUpdateManager {
         return contextResults;
     }
 
-    private void checkNewAddParameterForRef(Map<Item, Set<String>> existedParams, final IContextManager contextManager,
+    private void checkNewAddParameterForRef(Map<Item, Set<String>> existedParams,
+            Map<Item, Map<String, String>> repositoryRenamedMap, final IContextManager contextManager,
             boolean isPropagateContextVariable) {
         if (!isPropagateContextVariable) {
             return;
@@ -566,14 +572,15 @@ public class ProcessUpdateManager extends AbstractUpdateManager {
             ContextType contextType = ContextUtils.getContextTypeByName(contextItem, null);
             List<ContextParameterType> contextParameter = contextType.getContextParameter();
             Set<String> existedParName = existedParams.get(contextItem);
+            Map<String, String> renameMap = repositoryRenamedMap.get(contextItem);
             for (ContextParameterType parameterType : contextParameter) {
-                if (!existedParName.contains(parameterType.getName())) {
+                if (!existedParName.contains(parameterType.getName())
+                        && (renameMap == null || !renameMap.containsKey(parameterType.getName()))) {
                     if (newParametersMap.get(contextItem) == null) {
                         newParametersMap.put(contextItem, new HashSet<String>());
                     }
-                    // To avoid the case: serval contexts contain more than one same name parameters, but we only can
-                    // add
-                    // one of them
+                    // To avoid the case: several contexts contain more than one same name parameters
+                    // but we only can add one of them
                     IContext processContext = ((JobContextManager) contextManager).getDefaultContext();
                     if (processContext.getContextParameter(parameterType.getName()) == null) {
                         newParametersMap.get(contextItem).add(parameterType.getName());
@@ -2470,7 +2477,11 @@ public class ProcessUpdateManager extends AbstractUpdateManager {
                 Map<String, Object> objectMap = (Map<String, Object>) objectList.get(i);
                 for (int j = 0; j < keys.length; j++) {
                     String key = keys[j];
-                    sameValues &= oldMap.get(key).equals(objectMap.get(key));
+                    if (oldMap.get(key) == null || "".equals(oldMap.get(key))) {
+                        sameValues &= (objectMap.get(key) == null || "".equals(objectMap.get(key)));
+                    } else {
+                        sameValues &= oldMap.get(key).equals(objectMap.get(key));
+                    }
                     if (sameValues == false) {
                         return false;
                     }
@@ -2617,7 +2628,7 @@ public class ProcessUpdateManager extends AbstractUpdateManager {
             Connection connection = connItem.getConnection();
             if (connection.isContextMode()) {
                 Set<String> neededVars = ConnectionContextHelper.retrieveContextVar(parameters, connection, category,
-                        contextData);
+                        true, contextData);
                 if (neededVars != null && !neededVars.isEmpty()) {
                     ContextItem contextItem = ContextUtils.getContextItemById2(connection.getContextId());
                     if (contextItem != null) {

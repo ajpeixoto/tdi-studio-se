@@ -140,6 +140,10 @@ public class UnifiedComponentUtil {
                 if (("JDBC".equals(databaseName) || isAdditionalJDBC(databaseName)) && !dbTypeName.equals(databaseName)) {
                     continue;
                 }
+                //
+                if ("NetSuite".equalsIgnoreCase(dbTypeName)) { //$NON-NLS-1$
+                    continue;
+                }
 
                 if (isAdditionalJDBC(databaseName)) {
                     String compKey = StringUtils.deleteWhitespace(databaseName);
@@ -162,7 +166,8 @@ public class UnifiedComponentUtil {
                     }
                 }
                 if ("JDBC".equals(dbTypeName) || isAdditionalJDBC(dbTypeName)) {
-                    String compDBType = service.getUnifiedCompDisplayName(service.getDelegateComponent(component), component.getName());
+                    String compDBType = service.getUnifiedCompDisplayName(service.getDelegateComponent(component),
+                            component.getName());
                     if (!dbTypeName.equals(compDBType)) {
                         continue;
                     }
@@ -274,12 +279,13 @@ public class UnifiedComponentUtil {
                 node.getElementParameter("connection.driverClass").setValue(TalendQuoteUtils.addQuotes(bean.getDriverClass()));
             }
             ComponentProperties componentProperties = node.getComponentProperties();
-            Map<String, Object> map = new HashMap<String, Object>();
-            map.put("jdbcUrl", TalendQuoteUtils.addQuotes(bean.getUrl()));
-            map.put("driverClass", TalendQuoteUtils.addQuotes(bean.getDriverClass()));
-            map.put("drivers", bean.getPaths());
-            setCompPropertiesForJDBC(componentProperties, map);
-
+            if(componentProperties != null) {
+                Map<String, Object> map = new HashMap<String, Object>();
+                map.put("jdbcUrl", TalendQuoteUtils.addQuotes(bean.getUrl()));
+                map.put("driverClass", TalendQuoteUtils.addQuotes(bean.getDriverClass()));
+                map.put("drivers", bean.getPaths());
+                setCompPropertiesForJDBC(componentProperties, map);
+            }
         }
     }
 
@@ -340,7 +346,7 @@ public class UnifiedComponentUtil {
                 bean.setUrl(jo.get("url").asText());
                 JsonNode paths = jo.get("paths");
                 for (JsonNode path : paths) {
-                    JsonNode jo_path = (JsonNode) path;
+                    JsonNode jo_path = path;
                     bean.getPaths().add(jo_path.get("path").asText());
                 }
                 // optional setting excludes

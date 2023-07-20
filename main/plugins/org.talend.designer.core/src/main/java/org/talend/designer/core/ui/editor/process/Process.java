@@ -125,6 +125,7 @@ import org.talend.core.model.repository.IRepositoryViewObject;
 import org.talend.core.model.routines.RoutinesUtil;
 import org.talend.core.model.update.IUpdateManager;
 import org.talend.core.model.utils.NodeUtil;
+import org.talend.core.model.utils.TalendPropertiesUtil;
 import org.talend.core.model.utils.TalendTextUtils;
 import org.talend.core.repository.model.ProxyRepositoryFactory;
 import org.talend.core.repository.utils.ConvertJobsUtil;
@@ -140,6 +141,7 @@ import org.talend.core.ui.ILastVersionChecker;
 import org.talend.core.ui.component.ComponentsFactoryProvider;
 import org.talend.core.ui.process.IGEFProcess;
 import org.talend.core.utils.KeywordsValidator;
+import org.talend.cwm.helper.StudioEncryptionHelper;
 import org.talend.designer.core.DesignerPlugin;
 import org.talend.designer.core.ITestContainerGEFService;
 import org.talend.designer.core.i18n.Messages;
@@ -233,6 +235,8 @@ public class Process extends Element implements IProcess2, IGEFProcess, ILastVer
     private final String name = new String(Messages.getString("Process.Job")); //$NON-NLS-1$
 
     private boolean activate = true;
+
+    private boolean isRefactoringToJoblet = false;
 
     // list where is stored each unique name for the connections
     private final List<String> uniqueConnectionNameList = new ArrayList<String>();
@@ -746,6 +750,10 @@ public class Process extends Element implements IProcess2, IGEFProcess, ILastVer
         String uniqueName = nodeContainer.getNode().getUniqueName();
         removeUniqueNodeName(uniqueName);
         if (nodeContainer instanceof AbstractJobletContainer) {
+            // remove SHORT_UNIQUE_NAME and UNIQUE_NAME for joblet
+            String name = nodeContainer.getNode().getUniqueName(false);
+            removeUniqueNodeName(name);
+
             // use readedContainers to record the containers alreay be read, in case of falling into dead loop
             Set<NodeContainer> readedContainers = new HashSet<NodeContainer>();
             removeUniqueNodeNamesInJoblet((AbstractJobletContainer) nodeContainer, readedContainers);
@@ -1145,7 +1153,8 @@ public class Process extends Element implements IProcess2, IGEFProcess, ILastVer
                 isJoblet = true;
             }
         }
-        if (isDefaultValue(param)) {
+        // fix when distribution is default lose Distribution param issue
+        if (isDefaultValue(param) && !isParamDistribution(param)) {
             return;
         }
 
@@ -1154,7 +1163,8 @@ public class Process extends Element implements IProcess2, IGEFProcess, ILastVer
                 || param.getFieldType().equals(EParameterFieldType.PROPERTY_TYPE)
                 || param.getFieldType().equals(EParameterFieldType.VALIDATION_RULE_TYPE)
                 || param.getFieldType().equals(EParameterFieldType.UNIFIED_COMPONENTS)
-                || param.getName().equals(EParameterName.UPDATE_COMPONENTS.getName())) {
+                || param.getName().equals(EParameterName.UPDATE_COMPONENTS.getName())
+                || param.getName().equals(EParameterName.SHORT_UNIQUE_NAME.getName())) {
             return;
         }
         if (param.getParentParameter() != null) {
@@ -1286,7 +1296,23 @@ public class Process extends Element implements IProcess2, IGEFProcess, ILastVer
                 }
             }
         } else if (EParameterFieldType.isPassword(param.getFieldType()) && value instanceof String) {
+            // To avoid encrypt the same value (Cache original value)
+            pType.setValue(param.getOrignEncryptedValue());
             pType.setRawValue((String) value);
+            param.setOrignEncryptedValue(pType.getValue()); // For origin value is null or the encryption key upgrade          
+        } else if (param.getFieldType().equals(EParameterFieldType.COMPONENT_LIST) && value != null) {
+            String componentValue = value.toString();
+            if (TalendPropertiesUtil.isEnabledUseShortJobletName() && (param.getElement() instanceof INode)) {
+                INode node = (INode) param.getElement();
+                String completeValue = DesignerUtilities.getNodeInJobletCompleteUniqueName(node, componentValue);
+                // possible blank when joblet node removed from process
+                componentValue = completeValue;
+                if (StringUtils.isBlank(completeValue) && param.isContextMode()
+                        && !DesignerUtilities.validateJobletShortName(value.toString())) {
+                    componentValue = value.toString();
+                }
+            }
+            pType.setValue(componentValue);
         } else {
             if (value == null) {
                 pType.setValue(""); //$NON-NLS-1$
@@ -1304,6 +1330,9 @@ public class Process extends Element implements IProcess2, IGEFProcess, ILastVer
         listParamType.add(pType);
     }
 
+    public boolean isParamDistribution(IElementParameter param) {
+        return "DISTRIBUTION".equals(param.getName());
+    }
     private boolean isTable(final IElementParameter parameter) {
         return parameter.getFieldType().equals(EParameterFieldType.TABLE) ||
                 parameter.getFieldType().equals(EParameterFieldType.TACOKIT_SUGGESTABLE_TABLE)
@@ -1423,7 +1452,10 @@ public class Process extends Element implements IProcess2, IGEFProcess, ILastVer
                         boolean isActiveDatabase = false;
                         String paramName = pType.getName();
                         if (EParameterName.ACTIVE_DATABASE_DELIMITED_IDENTIFIERS.getName().equals(paramName)
-                                || EParameterName.USE_ALIAS_IN_OUTPUT_TABLE.getName().equals(paramName)) {
+                                || EParameterName.USE_ALIAS_IN_OUTPUT_TABLE.getName().equals(paramName)
+                                || EParameterName.ACTIVE_ADD_QUOTES_IN_TABLE_NAME.getName().equals(paramName)
+                                || EParameterName.ACTIVE_DELIMITED_CHARACTER.getName().equals(paramName)
+                                || EParameterName.DELIMITED_CHARACTER_TEXT.getName().equals(paramName)) {
                             canAddElementParameter = true;
                             isActiveDatabase = true;
                         }
@@ -1434,7 +1466,11 @@ public class Process extends Element implements IProcess2, IGEFProcess, ILastVer
                             param.setCategory(EComponentCategory.TECHNICAL);
                             String fieldName = pType.getField();
                             if (isActiveDatabase && fieldName == null) {
-                                fieldName = EParameterFieldType.CHECK.getName();
+                                if (EParameterName.DELIMITED_CHARACTER_TEXT.getName().equals(paramName)) {
+                                    fieldName = EParameterFieldType.TEXT.getName();
+                                } else {
+                                    fieldName = EParameterFieldType.CHECK.getName();
+                                }
                             }
                             EParameterFieldType fieldType = null;
                             if (StringUtils.isNotBlank(fieldName)) {
@@ -1637,6 +1673,8 @@ public class Process extends Element implements IProcess2, IGEFProcess, ILastVer
                 if (generic && !"tacokit".equalsIgnoreCase(String.valueOf(sourceName))) {
                     param.setValue(value);
                 } else {
+                  //To avoid encrypt the same value
+                    param.setOrignEncryptedValue(pType.getValue());
                     param.setValue(pType.getRawValue());
                 }
             } else if (param.getFieldType().equals(EParameterFieldType.SCHEMA_REFERENCE)) {
@@ -1849,10 +1887,11 @@ public class Process extends Element implements IProcess2, IGEFProcess, ILastVer
         for (Connection element : connList) {
             connec = element;
             cType = fileFact.createConnectionType();
-            cType.setSource(node.getUniqueName());
+            cType.setSource(node.getUniqueName(false));
             INode jTarget = connec.getTarget();
             String targetUniqueName = jTarget.getUniqueName();
             if (jTarget instanceof Node) {
+                targetUniqueName = ((Node) jTarget).getUniqueName(false);
                 Node jn = (Node) jTarget.getJobletNode();
                 if (jn != null) {
                     targetUniqueName = jn.getUniqueName();
@@ -2224,6 +2263,7 @@ public class Process extends Element implements IProcess2, IGEFProcess, ILastVer
         loadNotes(processType);
         loadSubjobs(processType);
 
+        checkNodeComponentListElementParameters();
         initExternalComponents();
         initJobletComponents();
         setActivate(true);
@@ -2256,6 +2296,32 @@ public class Process extends Element implements IProcess2, IGEFProcess, ILastVer
         Collection<Node> nodes = nodesHashtable.values();
         for (Node node : nodes) {
             ValidationRulesUtil.updateRejectMetatable(node, null);
+        }
+    }
+
+    public void checkNodeComponentListElementParameters() {
+        if (!TalendPropertiesUtil.isEnabledUseShortJobletName()) {
+            return;
+        }
+        // load short unique name value for component list value
+        for (INode node : getGraphicalNodes()) {
+            for (IElementParameter param : node.getElementParameters()) {
+                loadComponentListShortNameValue(node, param);
+                Collection<IElementParameter> childrenParameter = param.getChildParameters().values();
+                for (IElementParameter childParameter : childrenParameter) {
+                    loadComponentListShortNameValue(node, childParameter);
+                }
+            }
+        }
+    }
+
+    private void loadComponentListShortNameValue(INode node, IElementParameter param) {
+        if (param != null && EParameterFieldType.COMPONENT_LIST == param.getFieldType()) {
+            String originalValue = param.getValue().toString();
+            String shortUniqueName = DesignerUtilities.getNodeInJobletShortUniqueName(node, originalValue);
+            if (StringUtils.isNotBlank(shortUniqueName)) {
+                param.setValue(shortUniqueName);
+            }
         }
     }
 
@@ -2572,7 +2638,7 @@ public class Process extends Element implements IProcess2, IGEFProcess, ILastVer
         }
 
         loadElementParameters(nc, listParamType);
-        if (nodesHashtable.containsKey(nc.getUniqueName())) {
+        if (nodesHashtable.containsKey(nc.getUniqueName(false))) {
             // if the uniquename is already in the list, there must be a problem with the job.
             // simply don't load the component
             return null;
@@ -2615,7 +2681,7 @@ public class Process extends Element implements IProcess2, IGEFProcess, ILastVer
         NodeContainer nodeContainer = loadNodeContainer(nc, isJunitContainer);
 
         addNodeContainer(nodeContainer);
-        nodesHashtable.put(nc.getUniqueName(), nc);
+        nodesHashtable.put(nc.getUniqueName(false), nc);
         updateAllMappingTypes();
         nc.setNeedLoadLib(false);
         if (nc.isJoblet()) {
@@ -3368,6 +3434,16 @@ public class Process extends Element implements IProcess2, IGEFProcess, ILastVer
         this.activate = activate;
     }
 
+    @Override
+    public boolean isRefactoringToJoblet() {
+        return this.isRefactoringToJoblet;
+    }
+
+    @Override
+    public void refactoringToJoblet(boolean isRefactoring) {
+        this.isRefactoringToJoblet = isRefactoring;
+    }
+
     /**
      * Check if the given name will be unique in the process. If another link already exists with that name, false will
      * be returned.
@@ -3484,12 +3560,18 @@ public class Process extends Element implements IProcess2, IGEFProcess, ILastVer
     }
 
     public String generateUniqueNodeName(INode node) {
+        return generateUniqueNodeName(node, false);
+    }
+
+    public String generateUniqueNodeName(INode node, boolean useShortName) {
         IComponent component = node.getComponent();
         if (node instanceof Node) {
             component = ((Node) node).getDelegateComponent();
         }
         String baseName = component.getOriginalName();
-        if (EComponentType.GENERIC.equals(component.getComponentType())) {
+        if (useShortName) {
+            baseName = component.getShortName();
+        } else if (EComponentType.GENERIC.equals(component.getComponentType())) {
             baseName = component.getDisplayName();
         }
         return UniqueNodeNameGenerator.generateUniqueNodeName(baseName, uniqueNodeNameList);

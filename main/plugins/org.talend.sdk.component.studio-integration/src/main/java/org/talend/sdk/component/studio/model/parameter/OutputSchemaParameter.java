@@ -16,16 +16,19 @@ import java.util.List;
 import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
+import org.talend.core.model.components.IComponent;
 import org.talend.core.model.metadata.IMetadataTable;
 import org.talend.core.model.process.EComponentCategory;
 import org.talend.core.model.process.EConnectionType;
 import org.talend.core.model.process.EParameterFieldType;
 import org.talend.core.model.process.IElement;
+import org.talend.core.model.process.INode;
 import org.talend.core.model.process.INodeConnector;
 import org.talend.designer.core.model.components.EParameterName;
 import org.talend.designer.core.model.components.ElementParameter;
 import org.talend.designer.core.ui.editor.nodes.Node;
 import org.talend.sdk.component.studio.i18n.Messages;
+import org.talend.sdk.component.studio.util.TaCoKitSpeicalManager;
 
 /**
  * SchemaElementParameter for Component output schema.
@@ -126,8 +129,14 @@ public class OutputSchemaParameter extends SchemaElementParameter {
         if (node != null && node instanceof Node) {
             final List<? extends INodeConnector> listConnector = ((Node) node).getListConnector();
             if (listConnector != null) {
+                String componentName = null;
+                IComponent component = ((Node) node).getComponent();
+                if (component != null) {
+                    componentName = component.getName();
+                }
                 for (final INodeConnector connector : listConnector) {
-                    if (connectorName.equals(connector.getName()) && connector.getMaxLinkOutput() > 0) {
+                    if (connectorName.equals(connector.getName()) && connector.getMaxLinkOutput() > 0
+                            && TaCoKitSpeicalManager.supportGuessSchema(componentName)) {
                         return true;
                     }
                 }
@@ -154,10 +163,11 @@ public class OutputSchemaParameter extends SchemaElementParameter {
      */
     protected Optional<IMetadataTable> getMetadata() {
         IElement elem = getElement();
-        if (elem == null || !(elem instanceof Node)) {
-            return Optional.empty();
+
+        if (elem instanceof INode) {
+            final IMetadataTable metadata = ((INode) elem).getMetadataFromConnector(getContext());
+            return Optional.ofNullable(metadata);
         }
-        final IMetadataTable metadata = ((Node) elem).getMetadataFromConnector(getContext());
-        return Optional.ofNullable(metadata);
+        return Optional.empty();
     }
 }

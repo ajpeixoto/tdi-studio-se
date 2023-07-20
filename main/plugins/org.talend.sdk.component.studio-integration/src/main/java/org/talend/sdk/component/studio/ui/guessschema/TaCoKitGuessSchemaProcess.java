@@ -14,6 +14,7 @@ package org.talend.sdk.component.studio.ui.guessschema;
 
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -36,9 +37,11 @@ import org.talend.core.model.process.IElementParameter;
 import org.talend.core.model.process.INode;
 import org.talend.core.model.process.IProcess;
 import org.talend.core.model.properties.Property;
+import org.talend.designer.core.model.components.EParameterName;
 import org.talend.designer.core.model.components.ElementParameter;
 import org.talend.designer.core.model.process.DataProcess;
 import org.talend.designer.core.ui.editor.process.Process;
+import org.talend.designer.core.ui.editor.properties.controllers.AbstractGuessSchemaProcess;
 import org.talend.designer.runprocess.IProcessor;
 import org.talend.designer.runprocess.ProcessorUtilities;
 import org.talend.sdk.component.server.front.model.ActionReference;
@@ -116,31 +119,38 @@ public class TaCoKitGuessSchemaProcess {
                     IProcessor.NO_TRACES);
             
             
-            final Future<String> result = executorService.submit(() -> {
+            final Future<GuessSchemaResult> result = executorService.submit(() -> {
                 final Pattern pattern = Pattern.compile("^\\[\\s*(INFO|WARN|ERROR|DEBUG|TRACE)\\s*]");
+                String out;
+                final List<String> err = new ArrayList();
+                // read stdout stream
                 try (final BufferedReader reader =
                              new BufferedReader(new InputStreamReader(executeProcess.getInputStream()))) {
-                    return reader.lines()
+                    out = reader.lines()
+                            .peek(l -> err.add(l)) // may have interesting infos during execution, adding to stack
                             .filter(l -> !pattern.matcher(l).find())                // filter out logs
                             .filter(l -> l.startsWith("[") || l.startsWith("{"))    // ignore line with non json data
                             .collect(joining("\n"));
                 }
+                // read stderr stream
+                try (final BufferedReader reader = new BufferedReader(new InputStreamReader(executeProcess.getErrorStream()))) {
+                    err.addAll(reader.lines().parallel().collect(toList()));
+                    err.add("===== Root cause ======");
+                }
+
+                return new GuessSchemaResult(out, err.stream().collect(joining("\n")));
             });
 
-            // read error stream
-            final Future<String> error = executorService.submit(() -> {
-                try (
-                        final BufferedReader reader = new BufferedReader(
-                                new InputStreamReader(executeProcess.getErrorStream()))) {
-                    return reader.lines().collect(joining("\n"));
-                }
-            });
             executeProcess.waitFor();
-            final String resultStr = result.get();
-            if (resultStr != null && !resultStr.trim().isEmpty()) {
-                return new GuessSchemaResult(resultStr, error.get());
+            final GuessSchemaResult guessResult = result.get();
+            if (executeProcess.exitValue() != 0){
+                return new GuessSchemaResult(guessResult.getError(), guessResult.getError());
             }
-            final String errMessage = error.get();
+            final String resultStr = guessResult.getResult();
+            if (resultStr != null && !resultStr.trim().isEmpty()) {
+                return guessResult;
+            }
+            final String errMessage = guessResult.getError();
             if (errMessage != null && !errMessage.isEmpty()) {
                 throw new IllegalStateException(errMessage);
             } else {
@@ -173,30 +183,39 @@ public class TaCoKitGuessSchemaProcess {
                 List<INode> nodes = new ArrayList<>();
                 IComponent nodeComp = node.getComponent();
 
-                /**
-                 * If it is an input component and guess schema action is provided, calling the action is enough
-                 */
+                boolean isProcessor = false;
                 if (ComponentModel.class.isInstance(nodeComp)) {
                     ComponentModel compModel = (ComponentModel) nodeComp;
-                    if (ETaCoKitComponentType.input.equals(compModel.getTaCoKitComponentType())) {
-
-                        node.setIncomingConnections(new ArrayList<>());
+                    if (compModel.getTaCoKitComponentType() != null) {
+                        if(compModel.getTaCoKitComponentType() == ETaCoKitComponentType.input || compModel.getTaCoKitComponentType() == ETaCoKitComponentType.standalone) {
+                            node.setIncomingConnections(new ArrayList<>());
+                        }
+                        if(compModel.getTaCoKitComponentType() == ETaCoKitComponentType.processor) {
+                            isProcessor = true;
+                        }
                         nodes.add(node);
                         if (TaCoKitUtil.isUseExistConnection(node)) {
                             updateDatastoreParameterFromConnection(node);
                         }
                     }
                 }
-                /**
-                 * Else, still need to build the sub job
-                 */
-                if (nodes.isEmpty()) {
+                
+                //TODO consider to remove it too as why we need the input line's schema for guessing processor schema? sync columns?
+                //here follow the design of DiscoverSchemaExtended, that support to use that schema to guess, in my view, we no need to promise that thing, 1% usage improvement, but with bug risk.
+                //And here have a side effect before already: if job design is : (tsetproxy==>on_subjob_ok==>tfixedflowinput==>a tacokit processor connector), that tsetproxy will affect guess schema result, 
+                //IMHO, we should never promise that, as user will find that example not works for tck input connector. Here revert the wrong promise for standalone connector, but not processor connector.
+                if (isProcessor) {//when processor tck connector, here only keep the old action, TODO remove this special code.
                     retrieveNodes(nodes, new HashSet<>(), node);
                 }
 
                 DataProcess dataProcess = new DataProcess(originalProcess);
                 dataProcess.buildFromGraphicalProcess(nodes);
                 process = dataProcess.getDuplicatedProcess();
+                IElementParameter log4jElemParam = process.getElementParameter(EParameterName.LOG4J_ACTIVATE.getName());
+                if (log4jElemParam != null) {
+                    Boolean isEnableLog4j = AbstractGuessSchemaProcess.isEnableLog4jForGuessSchema();
+                    log4jElemParam.setValue(isEnableLog4j);
+                }
                 process.getContextManager()
                         .getListContext()
                         .addAll(originalProcess.getContextManager().getListContext());

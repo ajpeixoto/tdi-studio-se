@@ -52,6 +52,7 @@ import org.talend.core.model.process.INode;
 import org.talend.core.model.process.INodeConnector;
 import org.talend.core.model.process.INodeReturn;
 import org.talend.core.model.process.IProcess;
+import org.talend.core.model.properties.JobletProcessItem;
 import org.talend.core.model.properties.ProcessItem;
 import org.talend.core.model.temp.ECodePart;
 import org.talend.core.runtime.IAdditionalInfo;
@@ -216,6 +217,11 @@ public class ComponentModel extends AbstractBasicComponent implements IAdditiona
         return TaCoKitUtil.getDisplayName(index);
     }
 
+    @Override
+    public boolean canParallelize() {
+        return "tJDBCNewOutput".equals(getDisplayName());
+    }
+
     /**
      * Returns long component name, aka title (e.g. "Salesforce Input"). It is i18n
      * title. In v0 component it is specified by "component.{compName}.title"
@@ -302,9 +308,14 @@ public class ComponentModel extends AbstractBasicComponent implements IAdditiona
     @Override // TODO This is dummy implementation. Correct impl should be added soon
     public List<? extends IElementParameter> createElementParameters(final INode node) {
         if (isNeedMigration() && node.getProcess() != null) {
-            ProcessItem processItem = ItemCacheManager.getProcessItem(node.getProcess().getId());
+            IProcess process = node.getProcess();
+            ProcessItem processItem = ItemCacheManager.getProcessItem(process.getId());
             if (processItem != null) {
-                manager.checkNodeMigration(processItem, getName());
+                manager.checkNodeMigration(processItem, getName(), process.getComponentsType());
+            }
+            JobletProcessItem jpi = ItemCacheManager.getJobletProcessItem(process.getId());
+            if (jpi != null) {
+                manager.checkNodeItemMigration(jpi, getName(), process.getComponentsType());
             }
         }
         ElementParameterCreator creator = new ElementParameterCreator(this, detail, node, reportPath, isCatcherAvailable);
@@ -340,28 +351,48 @@ public class ComponentModel extends AbstractBasicComponent implements IAdditiona
             returnVariables.add(numberLinesMessage);
         }
 
-        if (detail.getMetadata().containsKey(TaCoKitConst.META_KEY_AFTER_VARIABLE)) {
-            String afterVariableMetaValue = detail.getMetadata().getOrDefault(TaCoKitConst.META_KEY_AFTER_VARIABLE, "");
-            for (String string : afterVariableMetaValue.split(TaCoKitConst.AFTER_VARIABLE_LINE_DELIMITER)) {
-                String[] split = string.split(TaCoKitConst.AFTER_VARIABLE_VALUE_DELIMITER);
+        createReturns(returnVariables, true);
+        createReturns(returnVariables, false);
+
+        return returnVariables;
+    }
+
+    private void createReturns(List<NodeReturn> returnVariables, boolean isAfterVar) {
+        String varKey = TaCoKitConst.META_KEY_RETURN_VARIABLE;
+        if(isAfterVar) {
+            varKey = TaCoKitConst.META_KEY_AFTER_VARIABLE;
+        }
+        if (detail.getMetadata().containsKey(varKey)) {
+            String returnVariableMetaValue = detail.getMetadata().getOrDefault(varKey, "");
+            for (String string : returnVariableMetaValue.split(TaCoKitConst.RETURN_VARIABLE_LINE_DELIMITER)) {
+                String[] split = string.split(TaCoKitConst.RETURN_VARIABLE_VALUE_DELIMITER);
+                
                 String key = split[0];
                 String type = split[1];
+                
+                String availability = AFTER;
+                
+                String description = null;
+                
                 // if description is empty we use as description the key value
-                String description = split.length < 3 || split[2].isEmpty() ? split[0] : split[2];
-
+                if(isAfterVar) {
+                    description = split.length < 3 || split[2].isEmpty() ? split[0] : split[2];
+                } else {
+                    availability = split[2];
+                    description = (split.length < 4 || split[3].isEmpty()) ? split[0] : split[3];
+                }
+                
                 NodeReturn returnNode = new NodeReturn();
                 String javaType = JavaTypesManager.getJavaTypeFromCanonicalName(type).getId();
                 returnNode.setType(javaType);
                 returnNode.setDisplayName(description);
                 returnNode.setName(key);
-                returnNode.setAvailability(AFTER);
+                returnNode.setAvailability(availability);
                 returnVariables.add(returnNode);
             }
         }
-
-        return returnVariables;
-    }
-
+	}
+    
     /**
      * Creates component connectors. It creates all possible connector even if some
      * of them are not applicable for component. In such cases not applicable
@@ -417,17 +448,23 @@ public class ComponentModel extends AbstractBasicComponent implements IAdditiona
                     modulesNeeded.addAll(dependencies
                             .getCommon()
                             .stream()
-                            .map(s -> new ModuleNeeded(getName(), "", true, s))
+                            .map(s -> new ModuleNeeded(getDisplayName(), "", true, s))
                             .collect(toList()));
-                    modulesNeeded.add(new ModuleNeeded(getName(), "", true, "mvn:org.talend.sdk.component/component-runtime-di/" + GAV.INSTANCE.getComponentRuntimeVersion()));
-                    modulesNeeded.add(new ModuleNeeded(getName(), "", true, "mvn:org.talend.sdk.component/component-runtime-design-extension/" + GAV.INSTANCE.getComponentRuntimeVersion()));
-                    modulesNeeded.add(new ModuleNeeded(getName(), "", true, "mvn:org.slf4j/slf4j-api/" + GAV.INSTANCE.getSlf4jVersion()));
+                    modulesNeeded.add(new ModuleNeeded(getDisplayName(), "", true,
+                            "mvn:org.talend.sdk.component/component-runtime-di/" + GAV.INSTANCE.getComponentRuntimeVersion()));
+                    modulesNeeded.add(new ModuleNeeded(getDisplayName(), "", true,
+                            "mvn:org.talend.sdk.component/component-runtime-design-extension/"
+                                    + GAV.INSTANCE.getComponentRuntimeVersion()));
+                    modulesNeeded.add(new ModuleNeeded(getDisplayName(), "", true,
+                            "mvn:org.slf4j/slf4j-api/" + GAV.INSTANCE.getSlf4jVersion()));
 
                     if (!hasTcomp0Component(iNode)) {
                         if (!PluginChecker.isTIS()) {
-                            modulesNeeded.add(new ModuleNeeded(getName(), "", true, "mvn:" + GAV.INSTANCE.getGroupId() + "/slf4j-standard/" + GAV.INSTANCE.getComponentRuntimeVersion()));
+                            modulesNeeded.add(new ModuleNeeded(getDisplayName(), "", true, "mvn:" + GAV.INSTANCE.getGroupId()
+                                    + "/slf4j-standard/" + GAV.INSTANCE.getComponentRuntimeVersion()));
                         } else {
-                            modulesNeeded.add(new ModuleNeeded(getName(), "", true, "mvn:org.slf4j/slf4j-log4j12/" + GAV.INSTANCE.getSlf4jVersion()));
+                            modulesNeeded.add(new ModuleNeeded(getDisplayName(), "", true,
+                                    "mvn:org.slf4j/slf4j-reload4j/" + GAV.INSTANCE.getSlf4jVersion()));
                         }
                     }
 
@@ -439,28 +476,31 @@ public class ComponentModel extends AbstractBasicComponent implements IAdditiona
                         
                         if (coordinates != null) {
                             modulesNeeded.addAll(coordinates.stream()
-                                    .map(coordinate -> new ModuleNeeded(getName(), "", true, Mvn.locationToMvn(coordinate).replace(MavenConstants.LOCAL_RESOLUTION_URL + '!', "")))
+                                    .map(coordinate -> new ModuleNeeded(getDisplayName(), "", true,
+                                            Mvn.locationToMvn(coordinate).replace(MavenConstants.LOCAL_RESOLUTION_URL + '!', "")))
                                     .collect(Collectors.toList()));
                             //TODO fix this, this is wrong here as coordinates is a list object, not string, it's on purpose?
                             if (coordinates.contains("org.apache.beam") || coordinates.contains(":beam-sdks-java-io")) {
                                 modulesNeeded.addAll(dependencies
                                         .getBeam()
                                         .stream()
-                                        .map(s -> new ModuleNeeded(getName(), "", true, s))
+                                        .map(s -> new ModuleNeeded(getDisplayName(), "", true, s))
                                         .collect(toList()));
                             }
                             
                             String content = coordinates.toString();
                             if(content.contains("org.scala-lang") && !content.contains(":scala-library:")) {
                                 //we can't add this dependency to connector as spark/beam class conflict for TPD, so add here as provided by platform like spark/beam
-                                modulesNeeded.add(new ModuleNeeded(getName(), "", true, "mvn:org.scala-lang/scala-library/2.12.12"));
+                                modulesNeeded.add(
+                                        new ModuleNeeded(getDisplayName(), "", true, "mvn:org.scala-lang/scala-library/2.12.12"));
                             }
                         }
                     }
 
                     // We're assuming that pluginLocation has format of groupId:artifactId:version
                     final String location = index.getId().getPluginLocation().trim();
-                    modulesNeeded.add(new ModuleNeeded(getName(), "", true, Mvn.locationToMvn(location).replace(MavenConstants.LOCAL_RESOLUTION_URL + '!', "")));
+                    modulesNeeded.add(new ModuleNeeded(getDisplayName(), "", true,
+                            Mvn.locationToMvn(location).replace(MavenConstants.LOCAL_RESOLUTION_URL + '!', "")));
                 }
             }
         }

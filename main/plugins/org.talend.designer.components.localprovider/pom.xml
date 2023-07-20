@@ -14,15 +14,12 @@
 		<bulkload.dir>${project.basedir}/components/tMDMBulkLoad</bulkload.dir>
 		<soap.dir>${project.basedir}/components/tSOAP</soap.dir>
 		<webservice.dir>${project.basedir}/components/tWebServiceInput</webservice.dir>
-		<webservicecore.dir>${project.basedir}/components/tWebService</webservicecore.dir>
 		<thashfile.dir>${project.basedir}/components/tHashInput</thashfile.dir>
 		<thashfile.version>3.1-20190910</thashfile.version>
-		<ftpProxy.dir>${project.basedir}/components/tFTPConnection</ftpProxy.dir>
-		<ftpProxy.version>3.6.1-talend-20200902</ftpProxy.version>
 		<talendMQRFH2.dir>${project.basedir}/components/tMomInput</talendMQRFH2.dir>
-		<talendMQRFH2.version>1.2.0-20220707</talendMQRFH2.version>
+		<talendMQRFH2.version>1.3.0-20220912</talendMQRFH2.version>
 		<talendMQConnectionUtil.dir>${project.basedir}/components/tMomConnection</talendMQConnectionUtil.dir>
-		<talendMQConnectionUtil.version>1.2.0-20220707</talendMQConnectionUtil.version>
+		<talendMQConnectionUtil.version>1.3.0-20220912</talendMQConnectionUtil.version>
 		<tldapinput.dir>${project.basedir}/components/tLDAPInput</tldapinput.dir>
 		<tproxy.dir>${project.basedir}/components/tSetProxy</tproxy.dir>
 		<tproxy.version>1.0.2</tproxy.version>
@@ -52,12 +49,6 @@
 							<directory>${thashfile.dir}</directory>
 							<includes>
 								<include>thashfile*.jar</include>
-							</includes>
-						</fileset>
-						<fileset>
-							<directory>${webservicecore.dir}</directory>
-							<includes>
-								<include>talend-ws*.jar</include>
 							</includes>
 						</fileset>
 						<fileset>
@@ -111,28 +102,12 @@
 									<outputDirectory>${webservice.dir}</outputDirectory>
 								</artifactItem>
 								<artifactItem>
-									<groupId>org.talend.components</groupId>
-									<artifactId>talend-ws</artifactId>
-									<version>1.0.6-20220304</version>
-									<type>jar</type>
-									<overWrite>true</overWrite>
-									<outputDirectory>${webservicecore.dir}</outputDirectory>
-								</artifactItem>
-								<artifactItem>
 									<groupId>org.talend.components.lib</groupId>
 									<artifactId>thashfile</artifactId>
 									<version>${thashfile.version}</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 									<outputDirectory>${thashfile.dir}</outputDirectory>
-								</artifactItem>
-								<artifactItem>
-									<groupId>org.talend.components.lib</groupId>
-									<artifactId>commons-net-ftps-proxy</artifactId>
-									<version>${ftpProxy.version}</version>
-									<type>jar</type>
-									<overWrite>true</overWrite>
-									<outputDirectory>${ftpProxy.dir}</outputDirectory>
 								</artifactItem>
 								<artifactItem>
 									<groupId>org.talend</groupId>

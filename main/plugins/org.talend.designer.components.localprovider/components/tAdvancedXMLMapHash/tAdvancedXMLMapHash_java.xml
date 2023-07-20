@@ -47,8 +47,8 @@
     <IMPORTS>
       <IMPORT
         NAME="Advanced_Persistent_Lookup"
-        MODULE="advancedPersistentLookupLib-1.4.jar" MVN="mvn:org.talend.libraries/advancedPersistentLookupLib-1.4/6.0.0" 
-        UrlPath="platform:/plugin/org.talend.libraries.persist.lookup/lib/advancedPersistentLookupLib-1.4.jar" 
+        MODULE="advancedPersistentLookupLib-1.5.jar" MVN="mvn:org.talend.libraries/advancedPersistentLookupLib/1.5" 
+        UrlPath="platform:/plugin/org.talend.libraries.persist.lookup/lib/advancedPersistentLookupLib-1.5.jar" 
         REQUIRED="true"
       />
       <IMPORT
@@ -63,8 +63,8 @@
         REQUIRED="true"
       />
       <IMPORT
-        NAME="reload4j-1.2.19"
-        MODULE="reload4j-1.2.19.jar" MVN="mvn:ch.qos.reload4j/reload4j/1.2.19" 
+        NAME="reload4j-1.2.22"
+        MODULE="reload4j-1.2.22.jar" MVN="mvn:ch.qos.reload4j/reload4j/1.2.22" 
         REQUIRED="true"
         BundleID=""
       />

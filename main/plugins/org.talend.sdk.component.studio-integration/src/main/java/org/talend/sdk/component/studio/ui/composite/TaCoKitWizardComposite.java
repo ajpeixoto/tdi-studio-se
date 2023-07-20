@@ -12,7 +12,14 @@
  */
 package org.talend.sdk.component.studio.ui.composite;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.swt.graphics.Color;
@@ -27,6 +34,7 @@ import org.talend.sdk.component.studio.metadata.model.TaCoKitConfigurationModel;
 import org.talend.sdk.component.studio.metadata.model.TaCoKitConfigurationModel.ValueModel;
 import org.talend.sdk.component.studio.model.parameter.TaCoKitElementParameter;
 import org.talend.sdk.component.studio.model.parameter.TaCoKitElementParameter.IValueChangedListener;
+import org.talend.sdk.component.studio.model.parameter.ValueConverter;
 import org.talend.sdk.component.studio.ui.composite.problemmanager.IProblemManager;
 
 /**
@@ -160,14 +168,44 @@ public class TaCoKitWizardComposite extends TaCoKitComposite {
                             if (StringUtils.isEmpty(valueModel.getValue())) {
                                 return;
                             }
-
-                            String value = valueModel.getValue();
-                            parameter.setValue(value);
+                            EParameterFieldType fieldType = parameter.getFieldType();
+                            if (EParameterFieldType.TABLE == fieldType) {
+                                List<Map<String, Object>> tableValueList = getTableParameterValue(valueModel, parameter);
+                                parameter.setValue(tableValueList);
+                            } else {
+                                parameter.setValue(valueModel.getValue());
+                            }
                         }
                     } catch (Exception e) {
                         ExceptionHandler.process(e);
                     }
                 });
+    }
+
+    private List<Map<String, Object>> getTableParameterValue(ValueModel valueModel, IElementParameter parameter) {
+        String value = valueModel.getValue();
+        List<Map<String, Object>> tableValueList = new ArrayList<Map<String, Object>>();
+        if (value == null || value instanceof String) {
+            final List<Map<String, Object>> tableValue = ValueConverter.toTable((String) valueModel.getValue());
+
+            for (Map<String, Object> map : tableValue) {
+                Set<Entry<String, Object>> entrySet = map.entrySet();
+                Iterator<Entry<String, Object>> iterator = entrySet.iterator();
+                Map<String, Object> newMap = new HashMap<String, Object>();
+                while (iterator.hasNext()) {
+                    Entry<String, Object> next = iterator.next();
+                    String k = next.getKey();
+                    String substringAfter = StringUtils.substringAfter(k, "[]");
+                    String name = parameter.getName();
+                    String newKey = name + "[]" + substringAfter;
+
+                    newMap.put(newKey, next.getValue());
+
+                }
+                tableValueList.add(newMap);
+            }
+        }
+        return tableValueList;
     }
 
     /**
@@ -191,6 +229,7 @@ public class TaCoKitWizardComposite extends TaCoKitComposite {
      */
     @Override
     protected Composite addCommonWidgets() {
+        commonComposite = composite;
         return addSchemas(composite, null);
     }
 

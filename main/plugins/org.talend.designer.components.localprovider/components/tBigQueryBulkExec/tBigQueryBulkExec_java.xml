@@ -231,7 +231,32 @@
     </PARAMETER>
    </PARAMETERS>
    <ADVANCED_PARAMETERS>
-    <PARAMETER NAME="TOKEN_NAME" FIELD="FILE" NUM_ROW="10"
+    <PARAMETER
+       NAME="USE_REGION_ENDPOINT" 
+       FIELD="CHECK" 
+       NUM_ROW="4" 
+       EQUIRED="true"  
+       GROUP="REGION_ENDPOINT_GROUP" 
+       SHOW_IF="(AUTH_MODE == 'SERVICEACCOUNT')" >
+            <DEFAULT>false</DEFAULT>
+    </PARAMETER>
+    <PARAMETER  NAME="REGION_ENDPOINT_GS" 
+       FIELD="TEXT" 
+       NUM_ROW="5" 
+       REQUIRED="false" 
+       GROUP="REGION_ENDPOINT_GROUP" 
+       SHOW_IF="(AUTH_MODE == 'SERVICEACCOUNT') AND (USE_REGION_ENDPOINT == 'true')" >
+       <DEFAULT>"https://storage.googleapis.com"</DEFAULT>
+    </PARAMETER>
+    <PARAMETER  NAME="REGION_ENDPOINT_BQ" 
+       FIELD="TEXT" 
+       NUM_ROW="6" 
+       REQUIRED="false" 
+       GROUP="REGION_ENDPOINT_GROUP" 
+       SHOW_IF="(AUTH_MODE == 'SERVICEACCOUNT') AND (USE_REGION_ENDPOINT == 'true')" >
+       <DEFAULT>"https://bigquery.googleapis.com"</DEFAULT>
+    </PARAMETER>
+    <PARAMETER NAME="TOKEN_NAME" FIELD="FILE" NUM_ROW="8"
         REQUIRED="true" SHOW_IF="AUTH_MODE == 'OAUTH'">
         <DEFAULT>"__COMP_DEFAULT_FILE_DIR__/token.properties"</DEFAULT>
     </PARAMETER>
@@ -266,7 +291,7 @@
          <IMPORT NAME="google-http-client-jackson2-1.38.0.jar" MODULE="google-http-client-jackson2-1.38.0.jar" MVN="mvn:com.google.http-client/google-http-client-jackson2/1.38.0"  REQUIRED="true" />
          <IMPORT NAME="guava-30.0-jre.jar" MODULE="guava-30.0-jre.jar" MVN="mvn:com.google.guava/guava/30.0-jre" REQUIRED="true" />
          <IMPORT NAME="failureaccess-1.0.1.jar" MODULE="failureaccess-1.0.1.jar" MVN="mvn:com.google.guava/failureaccess/1.0.1" REQUIRED="true" />
-		<IMPORT NAME="jackson-core-2.13.2.jar" MODULE="jackson-core-2.13.2.jar" MVN="mvn:com.fasterxml.jackson.core/jackson-core/2.13.2" REQUIRED="true" />
+		<IMPORT NAME="jackson-core-2.13.4.jar" MODULE="jackson-core-2.13.4.jar" MVN="mvn:com.fasterxml.jackson.core/jackson-core/2.13.4" REQUIRED="true" />
 		<!-- REQUIRED FOR GOOGLE STORAGE -->
 		<IMPORT NAME="jets3t-0.9.1" MODULE="jets3t-0.9.1.jar" MVN="mvn:org.talend.libraries/jets3t-0.9.1/6.0.0"  REQUIRED="true" />
 		<IMPORT NAME="commons-logging-1.2" MODULE="commons-logging-1.2.jar" MVN="mvn:commons-logging/commons-logging/1.2" REQUIRED="true" />
@@ -294,14 +319,14 @@
       <IMPORT NAME="google-api-services-storage-v1-rev20201112-1.31.0" MODULE="google-api-services-storage-v1-rev20201112-1.31.0.jar" MVN="mvn:com.google.apis/google-api-services-storage/v1-rev20201112-1.31.0" REQUIRED_IF="(AUTH_TYPE == 'GS_SERVICE_ACCOUNT') OR (AUTH_TYPE == 'TOKEN')" />
       <IMPORT NAME="gson-2.8.9" MODULE="gson-2.8.9.jar" MVN="mvn:com.google.code.gson/gson/2.8.9" REQUIRED="true" />
       <IMPORT NAME="javax.annotation-api" MODULE="javax.annotation-api-1.3.jar" MVN="mvn:javax.annotation/javax.annotation-api/1.3" REQUIRED_IF="(AUTH_TYPE == 'GS_SERVICE_ACCOUNT') OR (AUTH_TYPE == 'TOKEN')" />
-      <IMPORT NAME="protobuf-java-3.19.2" MODULE="protobuf-java-3.19.2.jar" MVN="mvn:com.google.protobuf/protobuf-java/3.19.2" REQUIRED_IF="(AUTH_TYPE == 'GS_SERVICE_ACCOUNT') OR (AUTH_TYPE == 'TOKEN')" />
+      <IMPORT NAME="protobuf-java-3.19.6" MODULE="protobuf-java-3.19.6.jar" MVN="mvn:com.google.protobuf/protobuf-java/3.19.6" REQUIRED_IF="(AUTH_TYPE == 'GS_SERVICE_ACCOUNT') OR (AUTH_TYPE == 'TOKEN')" />
       <IMPORT NAME="error_prone_annotation-2.1.3" MODULE="error_prone_annotation-2.1.3.jar" MVN="mvn:com.google.errorprone/error_prone_annotations/2.1.3" REQUIRED_IF="(AUTH_TYPE == 'GS_SERVICE_ACCOUNT') OR (AUTH_TYPE == 'TOKEN')" />
       <IMPORT NAME="opencensus-api-0.24.0" MODULE="opencensus-api-0.24.0.jar" MVN="mvn:io.opencensus/opencensus-api/0.24.0" REQUIRED="true" />
       <IMPORT NAME="opencensus-contrib-http-util-0.24.0" MODULE="opencensus-contrib-http-util-0.24.0.jar" MVN="mvn:io.opencensus/opencensus-contrib-http-util/0.24.0" REQUIRED="true" />
       <IMPORT NAME="grpc-context-1.22.1" MODULE="grpc-context-1.22.1.jar" MVN="mvn:io.grpc/grpc-context/1.22.1" REQUIRED="true" />
       <IMPORT NAME="proto-google-common-protos-1.17.0" MODULE="proto-google-common-protos-1.17.0.jar" MVN="mvn:com.google.api.grpc/proto-google-common-protos/1.17.0" REQUIRED_IF="(AUTH_TYPE == 'GS_SERVICE_ACCOUNT') OR (AUTH_TYPE == 'TOKEN')" />
       <IMPORT NAME="proto-google-iam-v1-0.13.0" MODULE="proto-google-iam-v1-0.13.0.jar" MVN="mvn:com.google.api.grpc/proto-google-iam-v1/0.13.0" REQUIRED_IF="(AUTH_TYPE == 'GS_SERVICE_ACCOUNT') OR (AUTH_TYPE == 'TOKEN')" />
-      <IMPORT NAME="protobuf-java-util-3.11.4" MODULE="protobuf-java-util-3.11.4.jar" MVN="mvn:com.google.protobuf/protobuf-java-util/3.11.4" REQUIRED_IF="(AUTH_TYPE == 'GS_SERVICE_ACCOUNT') OR (AUTH_TYPE == 'TOKEN')" />
+      <IMPORT NAME="protobuf-java-util-3.19.6" MODULE="protobuf-java-util-3.19.6.jar" MVN="mvn:com.google.protobuf/protobuf-java-util/3.19.6" REQUIRED_IF="(AUTH_TYPE == 'GS_SERVICE_ACCOUNT') OR (AUTH_TYPE == 'TOKEN')" />
       <IMPORT NAME="annotation-1.1.0" MODULE="annotation-1.1.0.jar" MVN="mvn:androidx.annotation/annotation/1.1.0" REQUIRED_IF="(AUTH_TYPE == 'GS_SERVICE_ACCOUNT') OR (AUTH_TYPE == 'TOKEN')" />
      </IMPORTS>
    </CODEGENERATION>

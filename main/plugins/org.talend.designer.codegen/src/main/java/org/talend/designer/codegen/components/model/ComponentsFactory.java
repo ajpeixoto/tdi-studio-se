@@ -46,6 +46,7 @@ import org.talend.commons.exception.BusinessException;
 import org.talend.commons.exception.ExceptionHandler;
 import org.talend.commons.utils.io.FilesUtils;
 import org.talend.core.GlobalServiceRegister;
+import org.talend.core.ILibraryManagerService;
 import org.talend.core.language.LanguageManager;
 import org.talend.core.model.component_cache.ComponentsCache;
 import org.talend.core.model.components.AbstractComponentsProvider;
@@ -90,6 +91,8 @@ public class ComponentsFactory implements IComponentsFactory {
 
     private static Set<IComponent> customComponentList = new HashSet<>(); // user/exchange/tck components
 
+    private static Map<IComponent, File> customComponentFolderMap = new HashMap<IComponent, File>();
+
     private IProgressMonitor monitor;
 
     private SubMonitor subMonitor;
@@ -132,6 +135,7 @@ public class ComponentsFactory implements IComponentsFactory {
             componentList.clear();
             skeletonList.clear();
             customComponentList.clear();
+            customComponentFolderMap.clear();
 
             boolean needRegenerate = false;
             if (CodeGeneratorActivator.getDefault().getBundle().getBundleContext().getProperty("osgi.dev") != null) {
@@ -169,6 +173,8 @@ public class ComponentsFactory implements IComponentsFactory {
             initComponentNameMap();
 
             isInitializing.set(false);
+            // sync custom component libs after init
+            syncCustomComponentLibs();
             // TimeMeasure.step("initComponents", "createCache");
             log.info(componentList.size() + " components loaded in " + (System.currentTimeMillis() - startTime) + " ms"); //$NON-NLS-1$ //$NON-NLS-2$
 
@@ -368,6 +374,7 @@ public class ComponentsFactory implements IComponentsFactory {
                     } else {
                         componentList.add(currentComp);
                         customComponentList.add(currentComp);
+                        customComponentFolderMap.put(currentComp, currentFolder);
                     }
                 } catch (MissingMainXMLComponentFileException e) {
                     log.trace(currentFolder.getName() + " is not a " + getCodeLanguageSuffix() + " component", e); //$NON-NLS-1$ //$NON-NLS-2$
@@ -384,6 +391,23 @@ public class ComponentsFactory implements IComponentsFactory {
                     return;
                 }
             }
+        }
+    }
+
+    private void syncCustomComponentLibs() {
+        try {
+            if (GlobalServiceRegister.getDefault().isServiceRegistered(ILibraryManagerService.class)) {
+                ILibraryManagerService libraryService = GlobalServiceRegister.getDefault()
+                        .getService(ILibraryManagerService.class);
+                if (libraryService != null) {
+                    customComponentFolderMap.forEach((component, componentFolder) -> libraryService
+                            .deployLibsFromCustomComponents(componentFolder, component.getModulesNeeded()));
+                }
+            }
+        } catch (Exception e) {
+            ExceptionHandler.process(e);
+        } finally {
+            customComponentFolderMap.clear();
         }
     }
 

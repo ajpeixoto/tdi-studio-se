@@ -144,8 +144,8 @@ import org.talend.core.model.utils.IComponentName;
 import org.talend.core.model.utils.IDragAndDropServiceHandler;
 import org.talend.core.model.utils.SQLPatternUtils;
 import org.talend.core.model.utils.TalendTextUtils;
-import org.talend.core.pendo.PendoTrackDataUtil.TrackEvent;
-import org.talend.core.pendo.PendoTrackSender;
+import org.talend.core.pendo.PendoDataTrackFactory;
+import org.talend.core.pendo.TrackEvent;
 import org.talend.core.pendo.properties.PendoUseAPIProperties;
 import org.talend.core.repository.RepositoryComponentManager;
 import org.talend.core.repository.RepositoryComponentSetting;
@@ -1104,7 +1104,7 @@ public class TalendEditorDropTargetListener extends TemplateTransferDropTargetLi
                         ERepositoryObjectType restType = ERepositoryObjectType.valueOf(ERepositoryObjectType.class,
                                 "METADATA_DATASERVICES_REST");
                         if (restType != null && type.equals(restType)) {
-                            PendoTrackSender.getInstance().sendToPendo(TrackEvent.USE_API_DEF,
+                            PendoDataTrackFactory.getInstance().sendGenericTrack(TrackEvent.USE_API_DEF,
                                     new PendoUseAPIProperties(store.component.getName()));
                         }
                     } catch (Exception e) {
@@ -1910,6 +1910,29 @@ public class TalendEditorDropTargetListener extends TemplateTransferDropTargetLi
             componentNameList.add(component.getName());
         }
         String nodeComponentName = node.getComponent().getName();
+        if (connectionItem instanceof SAPConnectionItem && "tELTSAPMap".equals(nodeComponentName)) {
+            ERepositoryObjectType type = (ERepositoryObjectType) selectedNode.getProperties(EProperties.CONTENT_TYPE);
+            Object objProperty = null;
+            if (ERepositoryObjectType.METADATA_CON_TABLE == type) {
+                if (selectedNode.getParent() != null) {
+                    objProperty = selectedNode.getParent().getProperties(EProperties.CONTENT_TYPE);
+                }
+            } else if (ERepositoryObjectType.METADATA_CON_COLUMN == type) {
+                RepositoryNode pNode = selectedNode.getParent();
+                if (pNode != null) {
+                    pNode = pNode.getParent();
+                    if (pNode != null) {
+                        pNode = pNode.getParent();
+                        if (pNode != null) {
+                            objProperty = pNode.getProperties(EProperties.CONTENT_TYPE);
+                        }
+                    }
+                }
+            }
+            if (ERepositoryObjectType.METADATA_SAP_CDS_VIEW == objProperty) {
+                componentNameList.add("tELTSAPMap");
+            }
+        }
         if (componentNameList.contains(nodeComponentName)) {
             IElementParameter param = node.getElementParameterFromField(EParameterFieldType.PROPERTY_TYPE);
             if (param != null) {
@@ -2054,6 +2077,15 @@ public class TalendEditorDropTargetListener extends TemplateTransferDropTargetLi
                     compsetting.setDefaultComponent(
                             rcSetting.getDefaultComponentName().replaceFirst("JDBC", componentKey));
                 }
+            }
+            //
+            String parentTypeLabel = null;
+            ERepositoryObjectType parentType = type.findParentType(type);
+            if (parentType != null) {
+                parentTypeLabel = parentType.getLabel();
+            }
+            if ("NetSuite".equalsIgnoreCase(type.getLabel()) || "NetSuite".equalsIgnoreCase(parentTypeLabel)) {//$NON-NLS-1$ //$NON-NLS-2$
+                typeName = "NetSuite".toLowerCase(); //$NON-NLS-1$
             }
         }
 

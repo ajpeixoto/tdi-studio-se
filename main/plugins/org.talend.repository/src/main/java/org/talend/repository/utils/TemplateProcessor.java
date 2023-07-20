@@ -47,11 +47,14 @@ public class TemplateProcessor {
 //          engine.setProperty("resource.loader", "classpath"); //$NON-NLS-1$ //$NON-NLS-2$
 //          engine.setProperty("classpath.resource.loader.class", //$NON-NLS-1$
 //                  "org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader"); //$NON-NLS-1$
+            engine.setProperty("runtime.conversion.handler", "none");
+            engine.setProperty("space.gobbling", "bc");
+            engine.setProperty("directive.if.emptycheck", false);
             if (escapeXml) {
                 engine.setProperty(RuntimeConstants.EVENTHANDLER_REFERENCEINSERTION, EscapeXmlReference.class.getName());
             }
             if (SharedStudioUtils.isSharedStudioMode()) {
-                engine.setProperty(RuntimeConstants.RUNTIME_LOG,
+                engine.setProperty(RuntimeConstants.RUNTIME_LOG_INSTANCE,
                         Platform.getConfigurationLocation().getURL().getFile() + "/velocity.log");
             }
             engine.init();

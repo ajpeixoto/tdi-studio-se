@@ -75,6 +75,7 @@ import org.talend.core.utils.TalendQuoteUtils;
 import org.talend.datatools.xml.utils.ATreeNode;
 import org.talend.datatools.xml.utils.XPathPopulationUtil;
 import org.talend.designer.core.model.utils.emf.talendfile.ContextType;
+import org.talend.designer.mapper.ui.color.ColorInfo;
 import org.talend.metadata.managment.ui.preview.AsynchronousPreviewHandler;
 import org.talend.metadata.managment.ui.preview.IPreviewHandlerListener;
 import org.talend.metadata.managment.ui.preview.ProcessDescription;
@@ -229,6 +230,7 @@ public class JSONFileStep2Form extends AbstractJSONFileStepForm implements IRefr
 
         }
         treePopulator.setEncoding(getConnectionEncoding());
+        treePopulator.setOriginfilePath(jsonFilePath);
         treePopulator.populateTree(wizard.getTempJsonPath(), treeNode);
         fieldsModel.setJSONXPathLoopDescriptor(jsonXPathLoopDescriptor.getSchemaTargets());
         fieldsTableEditorView.getTableViewerCreator().layout();
@@ -537,8 +539,9 @@ public class JSONFileStep2Form extends AbstractJSONFileStepForm implements IRefr
     private ProcessDescription getProcessDescription(boolean defaultContext) {
         JSONFileConnection connection2 = JSONConnectionContextUtils.getJSONOriginalValueConnection(getConnection(),
                 this.connectionItem, isContextMode(), defaultContext);
+        String originalJSONContent = JSONConnectionContextUtils.getOriginalJSONContent(getConnection());
         ProcessDescription processDescription = JSONShadowProcessHelper.getProcessDescription(connection2,
-                wizard.getTempJsonPath());
+                wizard.getTempJsonPath(), originalJSONContent);
         return processDescription;
     }
 
@@ -861,7 +864,7 @@ public class JSONFileStep2Form extends AbstractJSONFileStepForm implements IRefr
         StyledText text = new StyledText(outputComposite, SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL | SWT.READ_ONLY);
         GridData gridData = new GridData(GridData.FILL_BOTH);
         text.setLayoutData(gridData);
-        outputComposite.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
+        outputComposite.setBackground(ColorInfo.EDITABLE_WIDGET_BACKGROUND());
 
         text.setText(Messages.JSONFileStep2Form_Output_ErrorInfo);
         text.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_RED));
@@ -1003,6 +1006,15 @@ public class JSONFileStep2Form extends AbstractJSONFileStepForm implements IRefr
             resetStatusIfNecessary();
             String tempJson = this.wizard.getTempJsonPath();
             this.treePopulator.setEncoding(getConnectionEncoding());
+            try {
+                if (isContextMode()) {
+                    ContextType contextType = ConnectionContextHelper.getContextTypeForContextMode(getConnection(), getConnection().getContextName());
+                    jsonFilePath = TalendQuoteUtils.removeQuotes(ContextParameterUtils.getOriginalValue(contextType, jsonFilePath));
+                }
+            } catch (Exception e) {
+                ExceptionHandler.process(e);
+            }
+            this.treePopulator.setOriginfilePath(jsonFilePath);
             this.treePopulator.populateTree(tempJson, treeNode);
 
             ScrollBar verticalBar = availableJSONTree.getVerticalBar();

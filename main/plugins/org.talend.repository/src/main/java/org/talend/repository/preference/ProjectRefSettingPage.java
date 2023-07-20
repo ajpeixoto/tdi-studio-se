@@ -128,6 +128,8 @@ public class ProjectRefSettingPage extends ProjectSettingPage {
     private boolean isReadOnly = false;
 
     private Exception errorException;
+    
+    private boolean dataSaved = false;
 
     @Override
     protected Control createContents(Composite parent) {
@@ -317,6 +319,20 @@ public class ProjectRefSettingPage extends ProjectSettingPage {
         viewer.refresh();
     }
 
+    private static boolean sameGitRepo(org.talend.core.model.properties.Project refProject) {
+        IGITProviderService gitSvc = IGITProviderService.get();
+        try {
+            if (gitSvc != null && gitSvc.isGITProject(ProjectManager.getInstance().getCurrentProject()) && gitSvc.isStandardMode()) {
+                String mainProjectGitUrl = gitSvc.getCleanGitRepositoryUrl(ProjectManager.getInstance().getCurrentProject().getEmfProject());
+                String refProjectGitUrl = gitSvc.getCleanGitRepositoryUrl(refProject);
+                return StringUtils.equals(refProjectGitUrl, mainProjectGitUrl);
+            }
+        } catch (Exception e) {
+            ExceptionHandler.process(e);
+        }
+        return false;
+    }
+    
     private List<ProjectReferenceBean> getReferenceProjectData(Project project) {
         List<ProjectReferenceBean> result = new ArrayList<ProjectReferenceBean>();
         List<ProjectReference> list = project.getProjectReferenceList();
@@ -449,6 +465,13 @@ public class ProjectRefSettingPage extends ProjectSettingPage {
                 IRepositoryService repositoryService = (IRepositoryService) GlobalServiceRegister.getDefault()
                         .getService(IRepositoryService.class);
                 if (repositoryService != null) {
+                    // for standard mode, same git repository, must be on same branch
+                    if (sameGitRepo(lastSelectedProject.getEmfProject())) {
+                        List<String> arr = new ArrayList<String>();
+                        String branchSelection = ProjectManager.getInstance().getMainProjectBranch(ProjectManager.getInstance().getCurrentProject());
+                        arr.add(branchSelection);
+                        return arr;
+                    }
                     return repositoryService.getProjectBranch(lastSelectedProject, false);
                 }
                 return null;
@@ -596,7 +619,7 @@ public class ProjectRefSettingPage extends ProjectSettingPage {
             if (checkOtherEditorsOpened()) {
                 return false;
             }
-
+            dataSaved = false;
             MessageDialog.openInformation(Display.getCurrent().getActiveShell(),
                     Messages.getString("RepoReferenceProjectSetupAction.TitleReferenceChanged"), //$NON-NLS-1$
                     Messages.getString("RepoReferenceProjectSetupAction.MsgReferenceChanged")); //$NON-NLS-1$
@@ -615,7 +638,9 @@ public class ProjectRefSettingPage extends ProjectSettingPage {
                         public void run(IProgressMonitor monitor) throws CoreException {
                             try {
                                 relogin(mainProjectLabel, false, monitor);
-                                saveData();
+                                if (!dataSaved) {
+                                    saveData();
+                                }
                             } catch (Exception ex) {
                                 errorException = ex;
                                 synSetErrorMessage(errorException);
@@ -822,6 +847,8 @@ public class ProjectRefSettingPage extends ProjectSettingPage {
             ProxyRepositoryFactory.getInstance().logOnProject(switchProject, monitor);
         } catch (LoginException e) {
             if (LoginException.RESTART.equals(e.getKey())) {
+                saveData();
+                dataSaved = true;
                 Display.getDefault().asyncExec(() -> PlatformUI.getWorkbench().restart());
                 return;
             } else {

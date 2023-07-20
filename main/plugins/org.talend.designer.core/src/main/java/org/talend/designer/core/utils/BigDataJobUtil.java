@@ -25,6 +25,7 @@ import org.talend.core.model.process.IElementParameter;
 import org.talend.core.model.process.IProcess;
 import org.talend.core.model.process.IProcess2;
 import org.talend.core.model.repository.ERepositoryObjectType;
+import org.talend.hadoop.distribution.constants.apache.ESparkMode;
 
 /**
  * created by nrousseau on Mar 24, 2018 Detailled comment
@@ -65,8 +66,9 @@ public class BigDataJobUtil {
                 || isBDJobWithFramework(ERepositoryObjectType.PROCESS_STORM, HadoopConstants.FRAMEWORK_SPARKSTREAMING)) {
             List<? extends IElementParameter> parameters = process.getElementParametersWithChildrens();
             for (IElementParameter pt : parameters) {
-                if (pt.getName().equals("DISTRIBUTION") //$NON-NLS-1$
-                        && EHadoopDistributions.MICROSOFT_HD_INSIGHT.getName().equals(pt.getValue())) {
+                boolean isHDISparkMode = HadoopConstants.SPARK_MODE.equals(pt.getName()) && HadoopConstants.SPARK_MODE_HDI.equals(pt.getValue());
+                boolean isHDIDistribution = pt.getName().equals("DISTRIBUTION") && EHadoopDistributions.MICROSOFT_HD_INSIGHT.getName().equals(pt.getValue());
+                if (isHDISparkMode || isHDIDistribution) {
                     isSparkWithHDInsight = true;
                 }
             }
@@ -80,8 +82,9 @@ public class BigDataJobUtil {
                 || isBDJobWithFramework(ERepositoryObjectType.PROCESS_STORM, HadoopConstants.FRAMEWORK_SPARKSTREAMING)) {
             List<? extends IElementParameter> parameters = process.getElementParametersWithChildrens();
             for (IElementParameter pt : parameters) {
-                if (pt.getName().equals("DISTRIBUTION") //$NON-NLS-1$
-                        && EHadoopDistributions.AZURE_SYNAPSE.getName().equals(pt.getValue())) {
+            	boolean isSynapseSparkMode = HadoopConstants.SPARK_MODE.equals(pt.getName()) && HadoopConstants.SPARK_MODE_SYNAPSE.equals(pt.getValue());
+		boolean isSynapseDistribution = pt.getName().equals("DISTRIBUTION") && EHadoopDistributions.AZURE_SYNAPSE.getName().equals(pt.getValue());
+                if (isSynapseSparkMode || isSynapseDistribution) {
                     isSparkWithSynapse = true;
                 }
             }
@@ -96,11 +99,10 @@ public class BigDataJobUtil {
             if (isBDJobWithFramework(ERepositoryObjectType.PROCESS_MR, HadoopConstants.FRAMEWORK_MAPREDUCE)) {
                 List<? extends IElementParameter> parameters = process.getElementParametersWithChildrens();
                 for (IElementParameter pt : parameters) {
-                    if (pt.getName().equals("DISTRIBUTION") //$NON-NLS-1$
-                            && EHadoopDistributions.MICROSOFT_HD_INSIGHT.getName().equals(pt.getValue())) {
-                        isMRWithHDInsight = true;
-                        break;
-                    }
+             boolean isHDIDistribution = pt.getName().equals("DISTRIBUTION") && EHadoopDistributions.MICROSOFT_HD_INSIGHT.getName().equals(pt.getValue());
+                if (isHDIDistribution) {
+                    isMRWithHDInsight = true;
+                   }
                 }
             }
         }

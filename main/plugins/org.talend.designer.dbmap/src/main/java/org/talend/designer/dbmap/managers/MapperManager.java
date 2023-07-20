@@ -57,12 +57,12 @@ import org.talend.designer.dbmap.ui.automap.AutoMapper;
 import org.talend.designer.dbmap.ui.dialog.AliasDialog;
 import org.talend.designer.dbmap.ui.visualmap.TableEntryProperties;
 import org.talend.designer.dbmap.ui.visualmap.table.DataMapTableView;
-import org.talend.designer.dbmap.ui.visualmap.table.EntryState;
 import org.talend.designer.dbmap.ui.visualmap.table.InputDataMapTableView;
 import org.talend.designer.dbmap.ui.visualmap.table.OutputDataMapTableView;
 import org.talend.designer.dbmap.ui.visualmap.zone.Zone;
 import org.talend.designer.dbmap.ui.visualmap.zone.scrollable.TablesZoneView;
 import org.talend.designer.dbmap.utils.DataMapExpressionParser;
+import org.talend.designer.mapper.ui.visualmap.table.EntryState;
 import org.talend.repository.model.IRepositoryService;
 import org.talend.repository.model.RepositoryConstants;
 
@@ -781,8 +781,23 @@ public class MapperManager extends AbstractMapperManager {
         uiManager.refreshSqlExpression();
     }
 
-    public void useDelimitedIdentifiers(boolean useDelimitedIdentifiers) {
-        getComponent().getGenerationManager().setUseDelimitedIdentifiers(useDelimitedIdentifiers);
+    public void setAddQuotesInColumns(boolean setAddQuotesInColumns) {
+        getComponent().getGenerationManager().setAddQuotesInColumns(setAddQuotesInColumns);
+        uiManager.refreshSqlExpression();
+    }
+
+    public void setAddQuotesInTableNames(boolean setAddQuotesInTableNames) {
+        getComponent().getGenerationManager().setAddQuotesInTableNames(setAddQuotesInTableNames);
+        uiManager.refreshSqlExpression();
+    }
+
+    public void setDelimitedCharacter(boolean delimitedCharacter) {
+        getComponent().getGenerationManager().setDelimitedCharacter(delimitedCharacter);
+        uiManager.refreshSqlExpression();
+    }
+
+    public void setDelimitedCharacterText(String delimitedCharacterText) {
+        getComponent().getGenerationManager().setDelimitedCharacterText(delimitedCharacterText);
         uiManager.refreshSqlExpression();
     }
 

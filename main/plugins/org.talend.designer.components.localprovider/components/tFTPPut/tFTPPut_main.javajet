@@ -129,8 +129,6 @@ try{
                             }
                         }catch(com.jcraft.jsch.SftpException e_<%=cid%>) {
 globalMap.put("<%=cid%>_ERROR_MESSAGE",e_<%=cid%>.getMessage());
-                            if (e_<%=cid%>.id != 4 &&   // if exception is not resume (normal) pb.
-                                (e_<%=cid%>.getMessage() == null || !e_<%=cid%>.getMessage().startsWith("failed to resume"))) { 
                             <%if(isLog4jEnabled){%>
                                 log.error("<%=cid%> - File transfer fail."+e_<%= cid %>.getMessage());
                             <%}%>
@@ -155,7 +153,6 @@ globalMap.put("<%=cid%>_ERROR_MESSAGE",e_<%=cid%>.getMessage());
                     <%
                         }
                     %>
-                        } // end if exception not resume pb
                         }catch(java.lang.Exception e_<%=cid%>){
 globalMap.put("<%=cid%>_ERROR_MESSAGE",e_<%=cid%>.getMessage());
                            if(!(e_<%=cid%> instanceof com.jcraft.jsch.SftpException)) {
@@ -182,9 +179,46 @@ globalMap.put("<%=cid%>_ERROR_MESSAGE",e_<%=cid%>.getMessage());
             ftpsoverwrite = overwrite; //to avoid migration, different dropdowns with same purpose
         }
 %>
+        class FTPSupplier<T>  {
+
+            private final boolean dieOnError;
+
+            private final org.apache.commons.net.ftp.FTPClient client;
+
+            public FTPSupplier(org.apache.commons.net.ftp.FTPClient client, boolean dieOnError) {
+                this.client = client;
+                this.dieOnError = dieOnError;
+            }
+
+            public T executeAndCheckResult(org.talend.util.SupplierWithException<T, Exception> supplier) throws Exception {
+                T result = supplier.get();
+                if (client.getReplyCode() / 100 == 5) {
+                    String errorCode = "FTP operation failed, message: " + client.getReplyString();
+<%
+                    if (isLog4jEnabled) {
+%>
+                        log.error(errorCode);
+<%
+                    } else {
+%>
+                        System.err.println(errorCode);
+<%
+                    }
+%>
+                    if (dieOnError) {
+                        throw new RuntimeException(errorCode);
+                    }
+                }
+
+                return result;
+            }
+        }
+
         String currentStatus_<%=cid %> = "No file transfered.";
         globalMap.put("<%=cid %>_CURRENT_STATUS", currentStatus_<%=cid %>);
         java.util.Set<String> keySet<%=cid %> = map<%=cid %>.keySet();
+        FTPSupplier<Object> ftpExecutorAndChecker_<%=cid %> = new FTPSupplier<>(ftp_<%=cid%>, <%=dieOnError %>);
+        final org.apache.commons.net.ftp.FTPClient effectivelyFinalFtp_<%=cid %> = ftp_<%=cid %>;
 
         for (String key<%=cid %> : keySet<%=cid %>){
             if(key<%=cid %> == null || "".equals(key<%=cid%>)){
@@ -228,7 +262,7 @@ globalMap.put("<%=cid%>_ERROR_MESSAGE",e_<%=cid%>.getMessage());
 
             java.util.Set<String> remoteExistsFiles_<%=cid%> = new java.util.HashSet<>();
 
-            final String[] ftpFileNames_<%=cid%> = ftp_<%=cid %>.listNames();
+            final String[] ftpFileNames_<%=cid%> = (String[])ftpExecutorAndChecker_<%=cid %>.executeAndCheckResult(() -> effectivelyFinalFtp_<%=cid %>.listNames());
             if (ftpFileNames_<%=cid%> != null) {
                 for (String ftpFileName : ftpFileNames_<%=cid%>) {
                     if("".equals(map<%=cid %>.get(key<%=cid %>))){
@@ -245,6 +279,13 @@ globalMap.put("<%=cid%>_ERROR_MESSAGE",e_<%=cid%>.getMessage());
 
             if(listings<%=cid %> != null && listings<%=cid %>.length > 0){
                 for (int m<%=cid %> = 0; m<%=cid %> < listings<%=cid %>.length; m<%=cid %>++){
+<%
+                if (!ftps) {
+%>
+                  try {
+<%
+                }
+%>
                     if (listings<%=cid %>[m<%=cid %>].getName().matches(mask<%=cid %>)){
                         java.io.File file_in_localDir_<%=cid%> = listings<%=cid %>[m<%=cid %>];
                         java.io.FileInputStream file_stream_<%=cid %> = new java.io.FileInputStream(file_in_localDir_<%=cid%>);
@@ -257,15 +298,15 @@ globalMap.put("<%=cid%>_ERROR_MESSAGE",e_<%=cid%>.getMessage());
                         else {
                             dest_<%=cid%> = destRename_<%= cid %>;
                         }
-                        globalMap.put("<%=cid %>_CURRENT_FILE_EXISTS", remoteExistsFiles_<%=cid%>.contains(dest_<%=cid%>));                    
+                        globalMap.put("<%=cid %>_CURRENT_FILE_EXISTS", remoteExistsFiles_<%=cid%>.contains(dest_<%=cid%>));
                         
 <%
                         if (!ftps && append) {
 %>
                             if ((remoteExistsFiles_<%=cid%>.contains(dest_<%=cid%>))){
-                                ftp_<%=cid %>.appendFile(dest_<%=cid%>, file_stream_<%=cid %>);
+                                ftpExecutorAndChecker_<%=cid %>.executeAndCheckResult(() -> effectivelyFinalFtp_<%=cid %>.appendFile(dest_<%=cid%>, file_stream_<%=cid %>));
                             } else {
-                                ftp_<%=cid %>.storeFile(dest_<%=cid%>, file_stream_<%=cid %>);
+                                ftpExecutorAndChecker_<%=cid %>.executeAndCheckResult(() -> effectivelyFinalFtp_<%=cid %>.storeFile(dest_<%=cid%>, file_stream_<%=cid %>));
                             }
                                 <%if(isLog4jEnabled){%>
                                     log.debug("<%=cid%> - Uploaded file '" + dest_<%=cid%> + "' successfully.");
@@ -276,22 +317,22 @@ globalMap.put("<%=cid%>_ERROR_MESSAGE",e_<%=cid%>.getMessage());
                         } else if ("size_differ".equals(ftpsoverwrite)) {
 %>
                             if ((remoteExistsFiles_<%=cid%>.contains(dest_<%=cid%>))){
-                                long ftpSize = java.util.Arrays.stream(ftp_<%=cid %>.listFiles(dest_<%=cid%>))
+                                long ftpSize = java.util.Arrays.stream((org.apache.commons.net.ftp.FTPFile[]) (ftpExecutorAndChecker_<%=cid %>.executeAndCheckResult(() -> effectivelyFinalFtp_<%=cid %>.listFiles(dest_<%=cid%>))))
                                         .filter(org.apache.commons.net.ftp.FTPFile::isFile)
                                         .findFirst()
                                         .get().getSize();
                                 long localSize = file_in_localDir_<%=cid%>.length();
                                 if (ftpSize != localSize) {
-                                    ftp_<%=cid %>.deleteFile(dest_<%=cid%>);
+                                    ftpExecutorAndChecker_<%=cid %>.executeAndCheckResult(() -> effectivelyFinalFtp_<%=cid %>.deleteFile(dest_<%=cid%>));
                                 }
                             } 
-                            ftp_<%=cid %>.storeFile(dest_<%=cid%>, file_stream_<%=cid %>);
+                            ftpExecutorAndChecker_<%=cid %>.executeAndCheckResult(() -> effectivelyFinalFtp_<%=cid %>.storeFile(dest_<%=cid%>, file_stream_<%=cid %>));
                             remoteExistsFiles_<%=cid%>.add(dest_<%=cid%>);
 <%
                         } else if("never".equals(ftpsoverwrite)){
 %>
                             if (!(remoteExistsFiles_<%=cid%>.contains(dest_<%=cid%>))){
-                                ftp_<%=cid %>.storeFile(dest_<%=cid%>, file_stream_<%=cid %>);
+                                ftpExecutorAndChecker_<%=cid %>.executeAndCheckResult(() -> effectivelyFinalFtp_<%=cid %>.storeFile(dest_<%=cid%>, file_stream_<%=cid %>));
                                 <%if(isLog4jEnabled){%>
                                     log.debug("<%=cid%> - Uploaded file '" + dest_<%=cid%> + "' successfully.");
                                 <%}%>
@@ -300,9 +341,9 @@ globalMap.put("<%=cid%>_ERROR_MESSAGE",e_<%=cid%>.getMessage());
                             } 
                         <%}else if("always".equals(ftpsoverwrite)){%>
                             if ((remoteExistsFiles_<%=cid%>.contains(dest_<%=cid%>))){
-                                ftp_<%=cid %>.deleteFile(dest_<%=cid%>);
+                                ftpExecutorAndChecker_<%=cid %>.executeAndCheckResult(() -> effectivelyFinalFtp_<%=cid %>.deleteFile(dest_<%=cid%>));
                             }
-                            ftp_<%=cid %>.storeFile(dest_<%=cid%>, file_stream_<%=cid %>);
+                            ftpExecutorAndChecker_<%=cid %>.executeAndCheckResult(() -> effectivelyFinalFtp_<%=cid %>.storeFile(dest_<%=cid%>, file_stream_<%=cid %>));
 
                             <%if(isLog4jEnabled){%>
                                 log.debug("<%=cid%> - Overwrote file '" + dest_<%=cid%> + "' successfully.");
@@ -314,6 +355,7 @@ globalMap.put("<%=cid%>_ERROR_MESSAGE",e_<%=cid%>.getMessage());
 <%
                         if (!ftps) {
 %>
+                            currentStatus_<%=cid %> = "File rename OK.";
                             msg_<%=cid%>.add("file: " + file_in_localDir_<%=cid%>.getAbsolutePath() + ", size: "
                                             + file_in_localDir_<%=cid%>.length() + " bytes upload successfully");
 <%
@@ -321,6 +363,17 @@ globalMap.put("<%=cid%>_ERROR_MESSAGE",e_<%=cid%>.getMessage());
 %>
                         nb_file_<%=cid%>++;
                     }
+<%
+                if (!ftps) {
+%>
+                  }catch(java.io.IOException e_<%=cid%>){
+                    currentStatus_<%=cid %> = "File rename fail.";
+                    globalMap.put("<%=cid %>_CURRENT_STATUS", currentStatus_<%=cid %>);
+                    throw e_<%=cid%>;
+                  }
+<%
+                }
+%>
                 }
             }else{
                 <%if(isLog4jEnabled){%>
@@ -329,6 +382,7 @@ globalMap.put("<%=cid%>_ERROR_MESSAGE",e_<%=cid%>.getMessage());
                 System.err.println("No matches found for mask '" + key<%=cid %> + "'!");
             }
                     }
+	globalMap.put("<%=cid %>_CURRENT_STATUS", currentStatus_<%=cid %>);
  <%}%>
     }catch(java.lang.Exception e_<%=cid%>){
 globalMap.put("<%=cid%>_ERROR_MESSAGE",e_<%=cid%>.getMessage());

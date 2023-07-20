@@ -12,11 +12,6 @@
 // ============================================================================
 package org.talend.designer.mapper;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.oro.text.regex.Pattern;
 import org.apache.oro.text.regex.PatternMatcher;
 import org.apache.oro.text.regex.Perl5Matcher;
@@ -33,19 +28,7 @@ import org.talend.core.model.components.IODataComponent;
 import org.talend.core.model.components.IODataComponentContainer;
 import org.talend.core.model.genhtml.HTMLDocUtils;
 import org.talend.core.model.metadata.IMetadataTable;
-import org.talend.core.model.process.BlockCode;
-import org.talend.core.model.process.HashConfiguration;
-import org.talend.core.model.process.HashableColumn;
-import org.talend.core.model.process.IComponentDocumentation;
-import org.talend.core.model.process.IConnection;
-import org.talend.core.model.process.IElementParameter;
-import org.talend.core.model.process.IExternalData;
-import org.talend.core.model.process.IHashConfiguration;
-import org.talend.core.model.process.IHashableColumn;
-import org.talend.core.model.process.IHashableInputConnections;
-import org.talend.core.model.process.ILookupMode;
-import org.talend.core.model.process.IMatchingMode;
-import org.talend.core.model.process.Problem;
+import org.talend.core.model.process.*;
 import org.talend.core.model.process.node.IExternalMapEntry;
 import org.talend.core.model.process.node.IExternalMapTable;
 import org.talend.core.model.temp.ECodePart;
@@ -63,20 +46,18 @@ import org.talend.designer.mapper.i18n.Messages;
 import org.talend.designer.mapper.language.LanguageProvider;
 import org.talend.designer.mapper.language.generation.GenerationManager;
 import org.talend.designer.mapper.language.generation.GenerationManagerFactory;
-import org.talend.designer.mapper.model.emf.mapper.AbstractInOutTable;
-import org.talend.designer.mapper.model.emf.mapper.InputTable;
-import org.talend.designer.mapper.model.emf.mapper.MapperData;
-import org.talend.designer.mapper.model.emf.mapper.MapperFactory;
-import org.talend.designer.mapper.model.emf.mapper.MapperTableEntry;
-import org.talend.designer.mapper.model.emf.mapper.OutputTable;
-import org.talend.designer.mapper.model.emf.mapper.UiProperties;
-import org.talend.designer.mapper.model.emf.mapper.VarTable;
+import org.talend.designer.mapper.model.emf.mapper.*;
 import org.talend.designer.mapper.model.table.LOOKUP_MODE;
 import org.talend.designer.mapper.model.table.TMAP_LOOKUP_MODE;
 import org.talend.designer.mapper.model.tableentry.TableEntryLocation;
 import org.talend.designer.mapper.utils.DataMapExpressionParser;
 import org.talend.designer.mapper.utils.MapperHelper;
 import org.talend.designer.mapper.utils.problems.ProblemsAnalyser;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * DOC amaumont class global comment. Detailled comment <br/>
@@ -95,6 +76,7 @@ public class MapperComponent extends AbstractMapComponent implements IHashableIn
     private GenerationManager generationManager;
 
     private boolean shouldGenerateDatasetCode;
+
 
     /**
      * DOC amaumont MapperComponent constructor comment.
@@ -502,7 +484,7 @@ public class MapperComponent extends AbstractMapComponent implements IHashableIn
      * @param newColumnName
      */
     private void replaceLocationsInAllExpressions(TableEntryLocation oldLocation, TableEntryLocation newLocation,
-            boolean tableRenamed) {
+                                                  boolean tableRenamed) {
         // replace old location by new location for all expressions in mapper
         List<ExternalMapperTable> tables = new ArrayList<ExternalMapperTable>(externalData.getInputTables());
         tables.addAll(new ArrayList<ExternalMapperTable>(externalData.getVarsTables()));
@@ -550,7 +532,7 @@ public class MapperComponent extends AbstractMapComponent implements IHashableIn
     }
 
     public String replaceLocation(TableEntryLocation oldLocation, TableEntryLocation newLocation, String currentExpression,
-            DataMapExpressionParser dataMapExpressionParser, boolean tableRenamed) {
+                                  DataMapExpressionParser dataMapExpressionParser, boolean tableRenamed) {
         if (currentExpression == null || currentExpression.trim().length() == 0) {
             return null;
         }
@@ -870,15 +852,14 @@ public class MapperComponent extends AbstractMapComponent implements IHashableIn
     }
 
     public void loadDatasetConditions(boolean isJobValidForDataset) {
-        this.shouldGenerateDatasetCode = isDatasetCompatible(isJobValidForDataset);
+        this.shouldGenerateDatasetCode = isDatasetCompatible(isJobValidForDataset) && !hasMapperNodeJoinExpression();
     }
 
-    public boolean isDatasetCompatible(boolean isJobValidForDataset) {
+    private boolean isDatasetCompatible(boolean isJobValidForDataset) {
         //spark 2.0 and batch
         if (!isJobValidForDataset) {
             return false;
         }
-
         // exactly two input connections
         if (this.externalData.getInputTables().size() != 2) {
             return false;
@@ -905,6 +886,47 @@ public class MapperComponent extends AbstractMapComponent implements IHashableIn
             return false;
         }
         return true;
+    }
+
+    private StringBuilder getInputNames(){
+        StringBuilder reduceString = this.getExternalData()
+                .getInputTables()
+                .stream()
+                .reduce(new StringBuilder(),
+                        (stringBuilder, iExternalMapTable) -> stringBuilder.append(iExternalMapTable.getName()).append("|")
+                        , (stringBuilder, stringBuilder2) -> stringBuilder.append(stringBuilder2));
+        reduceString.setLength(reduceString.length() > 0 ? reduceString.length() - 1 : 0);
+        return reduceString;
+    }
+    private boolean isSimpleExpression(String expression){
+        java.util.regex.Pattern simpleExpressionPattern =  java.util.regex.Pattern.compile("(" + getInputNames() + ")(\\.[_\\w]+)*");
+        return simpleExpressionPattern.matcher(expression.trim()).matches();
+
+    }
+
+    /**
+     * This method checks if there is a complex expression( function used for one of the join keys) inside the mappers object.
+     * @return a boolean
+     */
+    private boolean hasMapperNodeJoinExpression() {
+        List<? extends IConnection> incomingConnections = this.getIncomingConnections(EConnectionType.FLOW_MAIN);
+        if(incomingConnections.isEmpty()) {
+            return  false;
+        }
+        String mainConnectionName = incomingConnections.get(0).getName();
+        return this.getExternalData()
+                .getInputTables()
+                .stream()
+                .filter(iExternalMapTable -> !iExternalMapTable.getName().equals(mainConnectionName))
+                .filter(iExternalMapTable -> iExternalMapTable instanceof ExternalMapperTable)
+                .filter(iExternalMapTable -> ((ExternalMapperTable) iExternalMapTable).getMetadataTableEntries() != null)
+                .flatMap(iExternalMapTable -> ((ExternalMapperTable) iExternalMapTable)
+                        .getMetadataTableEntries()
+                        .stream()
+                        .map(externalMapperTableEntry -> externalMapperTableEntry.getExpression())
+                        .filter(expression -> expression != null && !expression.equals("") && !isSimpleExpression(expression)))
+                .findFirst()
+                .isPresent();
     }
 
     private boolean matchingModeIsAllRows(ExternalMapperData data) {

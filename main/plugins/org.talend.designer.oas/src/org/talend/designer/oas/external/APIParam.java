@@ -15,7 +15,7 @@ public class APIParam {
     private Integer length;
 
     private String defaultValue;
-
+    
     public APIParam(String name, EParamType type, EParamKind paramKind) {
         super();
         this.name = name;

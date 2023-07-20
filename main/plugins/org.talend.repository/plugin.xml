@@ -3644,11 +3644,11 @@
 	   	   <projecttask
                beforeLogon="false"
                breaks="7.3.0"
-               class="org.talend.repository.model.migration.UncheckBson2JsonTask"
+               class="org.talend.repository.model.migration.NewUncheckBson2JsonTask"
                description="uncheck the convert Bson document to json string option in tMongoDBInput"
-               id="org.talend.repository.model.migration.UncheckBson2JsonTask"
+               id="org.talend.repository.model.migration.NewUncheckBson2JsonTask"
                name="UncheckBson2JsonTask"
-               version="7.3.1">
+               version="8.0.1">
        </projecttask>
         <projecttask
               beforeLogon="false"
@@ -3803,31 +3803,92 @@
               name="Encrypt passwords for nexus proxy password in project setting preference"
               version="7.3.1">
         </projecttask>
+        <projecttask
+              beforeLogon="true"
+              breaks="8.0.1"
+              class="org.talend.repository.model.migration.tFileInputJsonJDK17Task"
+              id="org.talend.repository.model.migration.tFileInputJsonJDK17Task"
+              name="tFtileInputJson convert USE_NASHORN to JDK_VERSION"
+              version="8.0.1">
+        </projecttask>
+        <projecttask
+              beforeLogon="true"
+              breaks="8.0.1"
+              class="org.talend.repository.model.migration.MSCRMSetDefaultVersionTDI48883MigrationTask"
+              id="org.talend.repository.model.migration.MSCRMSetDefaultVersionTDI48883MigrationTask"
+              name="Set default version in tMicrosoftCRMXxx"
+              version="8.0.1">
+        </projecttask>
+        <projecttask
+               beforeLogon="true"
+               breaks="8.0.1"
+               class="org.talend.repository.model.migration.NetSuiteLegacyRenameMigrationTask"
+               id="org.talend.repository.model.migration.NetSuiteLegacyRenameMigrationTask"
+               name="Rename Netsuite components to NetSuiteLegacy"
+               version="8.0.1">
+        </projecttask>
+        <projecttask
+              beforeLogon="false"
+              breaks="8.0.1"
+              class="org.talend.repository.model.migration.ChangeReturnKeysDefault4tAS400Output"
+              description="Chanage default value of Return generated keys for tAS400Outpu"
+              id="org.talend.repository.model.migration.ChangeReturnKeysDefault4tAS400Output"
+              name="ChangeReturnKeysDefault4tAS400Output"
+              version="8.0.1">
+        </projecttask>
+        <projecttask
+              beforeLogon="false"
+              breaks="8.0.0"
+              class="org.talend.repository.model.migration.RemoveDuplicateContextReferencesMigrationTask"
+              description="Remove duplicate context references from item"
+              id="org.talend.repository.model.migration.RemoveDuplicateContextReferencesMigrationTask"
+              name="RemoveDuplicateContextReferencesMigrationTask"
+              version="8.0.1">
+        </projecttask>
+        <projecttask
+              beforeLogon="false"
+              breaks="8.0.0"
+              class="org.talend.repository.model.migration.Change4OptionalTrustStore4tSetKeystore"
+              description="change ui for tsetkeystore optional truststore"
+              id="org.talend.repository.model.migration.Change4OptionalTrustStore4tSetKeystore"
+              name="Change4OptionalTrustStore4tSetKeystore"
+              version="8.0.1">
+        </projecttask>
+        <projecttask
+              beforeLogon="true"
+              breaks="8.0.0"
+              class="org.talend.repository.model.migration.RemoveUnwantedUsageDataMigrationTask"
+              description="Remove unwanted old entried from prefrence store for Usage Data Collection"
+              id="org.talend.repository.model.migration.RemoveUnwantedUsageDataMigrationTask"
+              name="RemoveUnwantedUsageDataMigrationTask"
+              version="8.0.1">
+        </projecttask>
+        <projecttask
+              beforeLogon="false"
+              breaks="8.0.1"
+              class="org.talend.repository.model.migration.ReplaceSQSCheckBoxWithDropDownListMigrationTask"
+              description="Replace SQS components &apos;inherit credentials&apos; checkbox for drop down list"
+              id="org.talend.repository.model.migration.ReplaceSQSCheckBoxWithDropDownListMigrationTask"
+              name="ReplaceSQSCheckBoxWithDropDownListMigrationTask"
+              version="8.0.1">
+        </projecttask>
    </extension>
 
    <extension
          point="org.talend.core.runtime.librariesNeeded">
       <libraryNeeded
-          context="JBoss ESB Export"
-          language="java"
-          message="Library needed to export to JBoss ESB"
-          name="jbossesb-rosetta.jar"  mvn_uri="mvn:org.talend.libraries/jbossesb-rosetta/6.0.0"
-          required="true"/>
-      
-      <libraryNeeded
         context="plugin:org.talend.libraries.apache"
-        id="reload4j-1.2.19.jar"
-        name="reload4j-1.2.19.jar"
-        mvn_uri="mvn:ch.qos.reload4j/reload4j/1.2.19"
-        uripath="platform:/plugin/org.talend.libraries.apache/lib/reload4j-1.2.19.jar">
+        id="reload4j-1.2.22.jar"
+        name="reload4j-1.2.22.jar"
+        mvn_uri="mvn:ch.qos.reload4j/reload4j/1.2.22"
+        uripath="platform:/plugin/org.talend.libraries.apache/lib/reload4j-1.2.22.jar">
       </libraryNeeded>
     
       <libraryNeeded
         context="plugin:org.talend.libraries.apache"
-        id="slf4j-log4j12-1.7.29.jar"
-        name="slf4j-log4j12-1.7.29.jar"
-        mvn_uri="mvn:org.slf4j/slf4j-log4j12/1.7.29"
-        uripath="platform:/plugin/org.talend.libraries.apache/lib/slf4j-log4j12-1.7.29.jar">
+        id="slf4j-reload4j-1.7.34.jar"
+        name="slf4j-reload4j-1.7.34.jar"
+        mvn_uri="mvn:org.slf4j/slf4j-reload4j/1.7.34">
       </libraryNeeded>
     
        <libraryNeeded
@@ -3840,18 +3901,16 @@
     
       <libraryNeeded
         context="plugin:org.talend.libraries.apache"
-        id="jul-to-slf4j-1.7.29.jar"
-        name="jul-to-slf4j-1.7.29.jar"
-        mvn_uri="mvn:org.slf4j/jul-to-slf4j/1.7.29"
-        uripath="platform:/plugin/org.talend.libraries.apache/lib/jul-to-slf4j-1.7.29.jar">
+        id="jul-to-slf4j-1.7.34.jar"
+        name="jul-to-slf4j-1.7.34.jar"
+        mvn_uri="mvn:org.slf4j/jul-to-slf4j/1.7.34">
       </libraryNeeded>
     
       <libraryNeeded
         context="plugin:org.talend.libraries.apache"
-        id="jcl-over-slf4j-1.7.29.jar"
-        name="jcl-over-slf4j-1.7.29.jar"
-        mvn_uri="mvn:org.slf4j/jcl-over-slf4j/1.7.29"
-        uripath="platform:/plugin/org.talend.libraries.apache/lib/jcl-over-slf4j-1.7.29.jar">
+        id="jcl-over-slf4j-1.7.34.jar"
+        name="jcl-over-slf4j-1.7.34.jar"
+        mvn_uri="mvn:org.slf4j/jcl-over-slf4j/1.7.34">
       </libraryNeeded>
     
       <libraryNeeded
@@ -3904,10 +3963,9 @@
       
       <libraryNeeded
         context="plugin:org.talend.librariesmanager"
-        id="slf4j-api-1.7.29.jar"
-        name="slf4j-api-1.7.29.jar"
-        mvn_uri="mvn:org.slf4j/slf4j-api/1.7.29"
-        uripath="platform:/plugin/org.talend.librariesmanager/lib/slf4j-api-1.7.29.jar">
+        id="slf4j-api-1.7.34.jar"
+        name="slf4j-api-1.7.34.jar"
+        mvn_uri="mvn:org.slf4j/slf4j-api/1.7.34">
       </libraryNeeded>         
    </extension>
    <!--

@@ -233,7 +233,7 @@ public class ComponentSettingsView extends ViewPart implements IComponentSetting
             if (EComponentType.GENERIC.equals(component.getComponentType())) {
                 generic = true;
                 if (GlobalServiceRegister.getDefault().isServiceRegistered(IGenericWizardService.class)) {
-                    wizardService = (IGenericWizardService) GlobalServiceRegister.getDefault().getService(
+                    wizardService = GlobalServiceRegister.getDefault().getService(
                             IGenericWizardService.class);
                 }
             }
@@ -555,13 +555,13 @@ public class ComponentSettingsView extends ViewPart implements IComponentSetting
             Node node = (Node) elem;
             label = node.getLabel();
 
-            String uniqueName = node.getUniqueName();
+            String uniqueName = node.getUniqueName(false);
             if (!label.equals(uniqueName)) {
                 label = label + "(" + uniqueName + ")"; //$NON-NLS-1$ //$NON-NLS-2$
             }
             if (node.getComponent() != node.getDelegateComponent()) {
-                String dispalyName = UnifiedComponentUtil.getUnifiedComponentDisplayName(node.getDelegateComponent(), node
-                        .getComponent().getName());
+                String dispalyName = UnifiedComponentUtil.getUnifiedComponentDisplayName(node.getDelegateComponent(),
+                        node.getComponent().getName());
                 if (dispalyName != null) {
                     label = label + "(" + dispalyName + ")";
                 }
