@@ -65,6 +65,8 @@ public class TaCoKitConst {
      */
     public static final String GUESS_SCHEMA_PARAMETER_OUTPUT_CONNECTION_NAME = "___TACOKIT_GUESS_SCHEMA_PARAMETER_OUTPUT_CONNECTION_NAME___"; //$NON-NLS-1$
 
+    public static final String GUESS_SCHEMA_PARAMETER_OUTPUT_EXECUTE_MOCKJOB = "___TACOKIT_GUESS_SCHEMA_PARAMETER_OUTPUT_EXECUTE_MOCKJOB___"; //$NON-NLS-1$
+
     public static final String TYPE_STRING = "STRING"; //$NON-NLS-1$
 
     public static final String COMPONENT_NAME_SEPARATOR = "";
