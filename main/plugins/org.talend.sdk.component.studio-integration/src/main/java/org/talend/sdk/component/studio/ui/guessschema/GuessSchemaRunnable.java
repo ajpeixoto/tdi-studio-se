@@ -23,10 +23,16 @@ public class GuessSchemaRunnable implements IRunnableWithProgress {
 
     private boolean canceled = false;
 
-    public GuessSchemaRunnable(final IContext context,
-            final IElementParameter elementParameter) {
+    private boolean executeProcessorMockJob;
+
+    public GuessSchemaRunnable(final IContext context, final IElementParameter elementParameter) {
         this.context = context;
         this.elementParameter = elementParameter;
+    }
+    public GuessSchemaRunnable(final IContext context, final IElementParameter elementParameter, final boolean executeProcessorMockJob) {
+        this.context = context;
+        this.elementParameter = elementParameter;
+        this.executeProcessorMockJob = executeProcessorMockJob;
     }
 
     @Override
@@ -35,7 +41,7 @@ public class GuessSchemaRunnable implements IRunnableWithProgress {
             Node node = Node.class.cast(elementParameter.getElement());
             Property newmockProperty = AbstractGuessSchemaProcess.getNewmockProperty();
             TaCoKitGuessSchemaProcess gsp = new TaCoKitGuessSchemaProcess(newmockProperty, node, context,
-                    discoverSchemaActionName(), elementParameter.getContext());
+                    discoverSchemaActionName(), elementParameter.getContext(), executeProcessorMockJob);
 
             final Future<GuessSchemaResult> result = gsp.run();
             while (!result.isDone()) {
