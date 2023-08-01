@@ -17,6 +17,7 @@ import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 
 import java.io.BufferedReader;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,6 +30,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
+
+import javax.json.bind.Jsonb;
+import javax.json.bind.JsonbBuilder;
 
 import org.talend.core.model.components.IComponent;
 import org.talend.core.model.process.ElementParameterParser;
@@ -66,8 +70,8 @@ public class TaCoKitGuessSchemaProcess {
             .getExecutor());
 
     public TaCoKitGuessSchemaProcess(final Property property, final INode node, final IContext context,
-            final String discoverSchemaAction, final String connectionName) {
-        this.guessSchemaTask = new Task(property, context, node, discoverSchemaAction, connectionName, executorService);
+            final String discoverSchemaAction, final String connectionName, final boolean executeProcessorMockJob) {
+        this.guessSchemaTask = new Task(property, context, node, discoverSchemaAction, connectionName, executorService,executeProcessorMockJob);
     }
 
     public Future<GuessSchemaResult> run() {
@@ -98,14 +102,17 @@ public class TaCoKitGuessSchemaProcess {
         
         private Map<String, IElementParameter> clonedDatastoreParameters = new HashMap<String, IElementParameter>();
 
+        private boolean executeProcessorMockJob;
+
         public Task(final Property property, final IContext context, final INode node, final String actionName,
-                final String connectionName, final ExecutorService executorService) {
+                final String connectionName, final ExecutorService executorService, final boolean executeProcessorMockJob) {
             this.property = property;
             this.context = context;
             this.node = node;
             this.actionName = actionName;
             this.connectionName = connectionName;
             this.executorService = executorService;
+            this.executeProcessorMockJob = executeProcessorMockJob;
         }
 
         @Override
@@ -123,25 +130,35 @@ public class TaCoKitGuessSchemaProcess {
             
             
             final Future<GuessSchemaResult> result = executorService.submit(() -> {
-                final Pattern pattern = Pattern.compile("^\\[\\s*(INFO|WARN|ERROR|DEBUG|TRACE)\\s*]");
-                String out;
+                final Pattern schemaPattern = Pattern.compile("\\[\\{.*\"talendType\".*\\}]");
+                final Pattern errorPattern = Pattern.compile("\\{.*\"possibleHandleErrorWith\".*\\}");
                 final List<String> err = new ArrayList();
+                final GuessSchemaResult guessSchemaResult = new GuessSchemaResult();
                 // read stdout stream
-                try (final BufferedReader reader =
-                             new BufferedReader(new InputStreamReader(executeProcess.getInputStream()))) {
-                    out = reader.lines()
-                            .peek(l -> err.add(l)) // may have interesting infos during execution, adding to stack
-                            .filter(l -> !pattern.matcher(l).find())                // filter out logs
-                            .filter(l -> l.startsWith("[") || l.startsWith("{"))    // ignore line with non json data
-                            .collect(joining("\n"));
+                String out;
+                try (final BufferedReader reader = new BufferedReader(new InputStreamReader(executeProcess.getInputStream()))) {
+                    out = reader.lines().collect(joining("\n"));
+                    err.add(out);
                 }
                 // read stderr stream
                 try (final BufferedReader reader = new BufferedReader(new InputStreamReader(executeProcess.getErrorStream()))) {
                     err.addAll(reader.lines().parallel().collect(toList()));
-                    err.add("===== Root cause ======");
+                }
+                guessSchemaResult.setError(err.stream().collect(joining("\n")));
+                final String flattened = out.replaceAll("\n", "");
+                if (schemaPattern.matcher(flattened).find()) {
+                    guessSchemaResult.setResult(schemaPattern.matcher(flattened).toMatchResult().group());
+                }
+                if (errorPattern.matcher(flattened).find()) {
+                    try (final Jsonb jsonb = JsonbBuilder.create()) {
+                        DiscoverSchemaException e = jsonb.fromJson(errorPattern.matcher(flattened).toMatchResult()
+                                                                           .group(), DiscoverSchemaException.class);
+                        guessSchemaResult.setExecuteMock("execute".equals(e.possibleHandleErrorWith));
+                        guessSchemaResult.setMessage(e.getMessage());
+                    }
                 }
 
-                return new GuessSchemaResult(out, err.stream().collect(joining("\n")));
+                return guessSchemaResult;
             });
 
             executeProcess.waitFor();
@@ -259,6 +276,11 @@ public class TaCoKitGuessSchemaProcess {
                     outputConnectionName.setName(TaCoKitConst.GUESS_SCHEMA_PARAMETER_OUTPUT_CONNECTION_NAME);
                     outputConnectionName.setValue(connectionName);
                     elementParameters.add(outputConnectionName);
+
+                    final IElementParameter executeProcessorMockJobParam = new ElementParameter(newNode);
+                    executeProcessorMockJobParam.setName(TaCoKitConst.GUESS_SCHEMA_PARAMETER_OUTPUT_EXECUTE_MOCKJOB);
+                    executeProcessorMockJobParam.setValue(executeProcessorMockJob);
+                    elementParameters.add(executeProcessorMockJobParam);
                 }
 
             } finally {
@@ -336,14 +358,39 @@ public class TaCoKitGuessSchemaProcess {
 
     public static class GuessSchemaResult {
 
+        /**
+         * Should only contain the columns list
+         */
         private String result;
 
+        /**
+         * Error stack trace for ExceptionDialog details
+         */
         private String error;
 
-        public GuessSchemaResult(String result, String error) {
-            super();
+        /**
+         * Human-readable message
+         */
+        private String message;
+
+        /**
+         * Should we execute a mock job for guessing schema?
+         */
+        private boolean executeMock;
+
+        public GuessSchemaResult() {
+
+        }
+
+        public GuessSchemaResult(final String result, final String error) {
             this.result = result;
             this.error = error;
+        }
+
+        public GuessSchemaResult(final String result, final String error, final boolean executeMock) {
+            this.result = result;
+            this.error = error;
+            this.executeMock = executeMock;
         }
 
         public String getResult() {
@@ -362,5 +409,43 @@ public class TaCoKitGuessSchemaProcess {
             this.error = error;
         }
 
+        public boolean isExecuteMock() {
+            return executeMock;
+        }
+
+        public void setExecuteMock(final boolean executeMock) {
+            this.executeMock = executeMock;
+        }
+
+        public String getMessage() {
+            return message;
+        }
+
+        public void setMessage(final String message) {
+            this.message = message;
+        }
     }
+
+    /**
+     * TODO Delete this class, this is a stub for component-runtime related class
+     */
+
+    public static class DiscoverSchemaException extends RuntimeException {
+
+        private String possibleHandleErrorWith = "exception";
+
+        public DiscoverSchemaException(final String message) {
+            super(message);
+        }
+
+        public DiscoverSchemaException(final String message, final Throwable cause) {
+            super(message, cause);
+        }
+
+        public DiscoverSchemaException(final Throwable cause) {
+            super(cause);
+        }
+    }
+
 }
+

@@ -49,6 +49,7 @@
     final String actionName = (String)guessSchemaNode.getElementParameter("___TACOKIT_GUESS_SCHEMA_PARAMETER_ACTION_NAME___").getValue();
     final String tacokitComponentType = (String)guessSchemaNode.getElementParameter("___TACOKIT_GUESS_SCHEMA_PARAMETER_COMPONENT_TYPE___").getValue();
     final String outputConnectionName = (String)guessSchemaNode.getElementParameter("___TACOKIT_GUESS_SCHEMA_PARAMETER_OUTPUT_CONNECTION_NAME___").getValue();
+    final Boolean executeProcessorMockJob = (Boolean)guessSchemaNode.getElementParameter("___TACOKIT_GUESS_SCHEMA_PARAMETER_OUTPUT_EXECUTE_MOCKJOB___").getValue();
     final IComponent guessSchemaComponent = guessSchemaNode.getComponent();
     final boolean guessSchemaUseLookup = guessSchemaComponent.useLookup();
 %>
@@ -97,9 +98,17 @@ System.setOut(new java.io.PrintStream(new java.io.OutputStream() {
         tacokitGuessSchema.close();
     }
 <% } else { %>
+<% if (!executeProcessorMockJob) { %>
     try {
         tacokitGuessSchema.guessComponentSchema(schema_<%=cid%>, "<%=outputConnectionName%>");
     } finally {
         tacokitGuessSchema.close();
     }
+<%  } else { %>
+         // Enforce max batch size to 1 for guess schema
+         globalMap.put("MAX_BATCH_SIZE_<%=guessSchemaCid%>", 1);
+        <%@include file="./tTaCoKitGuessSchema_begin_for_processor.javajet"%>
+        globalMap.put("___tacokitGuessSchema___", tacokitGuessSchema);
+        int _recordsCount_<%=guessSchemaCid%> = 0;
+
 <% } %>

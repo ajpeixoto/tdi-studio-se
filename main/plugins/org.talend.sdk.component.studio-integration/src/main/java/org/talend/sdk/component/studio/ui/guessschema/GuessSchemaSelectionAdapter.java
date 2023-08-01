@@ -106,7 +106,7 @@ public class GuessSchemaSelectionAdapter extends SelectionAdapter {
             return;
         }
 
-        final GuessSchemaRunnable guessSchema = new GuessSchemaRunnable(context, elementParameter);
+        GuessSchemaRunnable guessSchema = new GuessSchemaRunnable(context, elementParameter);
         try {
             new ProgressMonitorDialog(this.composite.getShell())
                     .run(true, true, guessSchema); //this block until the guessSchema is done
@@ -128,7 +128,38 @@ public class GuessSchemaSelectionAdapter extends SelectionAdapter {
             return; // task was canceled
         }
 
-        final GuessSchemaResult schema = guessSchema.getSchema();
+        GuessSchemaResult schema = guessSchema.getSchema();
+        /**
+         * Handle mock job execution
+         * recreate a new runnable
+         */
+        if (schema.isExecuteMock()){
+
+            if (ExceptionMessageDialog.openConfirm(composite.getShell(), "Execute Mock job", schema.getMessage(), new Exception(schema.getError()))) {
+                guessSchema = new GuessSchemaRunnable(context, elementParameter, true);
+                try {
+                    new ProgressMonitorDialog(this.composite.getShell())
+                            .run(true, true, guessSchema); //this block until the guessSchema is done
+                } catch (InvocationTargetException | InterruptedException e) {
+                    Display.getDefault().asyncExec(() -> {
+                        ExceptionMessageDialog.openError(composite.getShell(),
+                                                         Messages.getString("guessSchema.dialog.error.title"), //$NON-NLS-1$
+                                                         Messages.getString("guessSchema.dialog.error.msg.default"), e); //$NON-NLS-1$
+                    });
+
+                    if (InterruptedException.class.isInstance(e)) {
+                        Thread.currentThread().interrupt();
+                    }
+
+                    return; // Guess schema failed
+                }
+                schema = guessSchema.getSchema();
+                //
+                // ... TODO Clean up duplicated code, this just for structuring ...
+                //
+            }
+        }
+
         if (schema == null || TaCoKitUtil.isBlank(schema.getResult())) {
             String errorMessage = schema.getError();
             if (!TaCoKitUtil.isBlank(errorMessage)) {
@@ -139,6 +170,7 @@ public class GuessSchemaSelectionAdapter extends SelectionAdapter {
                     Messages.getString("guessSchema.dialog.info.NoSchema.msg")); //$NON-NLS-1$
             return;
         }
+
 
         final Node node = Node.class.cast(elementParameter.getElement());
         IMetadataTable newMeta = buildMetadata(schema.getResult());
