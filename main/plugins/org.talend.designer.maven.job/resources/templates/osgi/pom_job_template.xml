@@ -55,7 +55,12 @@
 					<dependency>
 						<groupId>org.codehaus.plexus</groupId>
 						<artifactId>plexus-utils</artifactId>
-						<version>3.0.24</version>
+						<version>4.0.0</version>
+					</dependency>
+					<dependency>
+						<groupId>org.codehaus.plexus</groupId>
+						<artifactId>plexus-xml</artifactId>
+						<version>4.0.0</version>
 					</dependency>
 					<dependency>
 				      <groupId>org.apache.commons</groupId>
@@ -75,12 +80,12 @@
 					<dependency>
 						<groupId>org.codehaus.plexus</groupId>
 						<artifactId>plexus-archiver</artifactId>
-						<version>3.6.0</version>
+						<version>4.8.0</version>
 					</dependency>
 					<dependency>
 						<groupId>org.codehaus.plexus</groupId>
 					    <artifactId>plexus-io</artifactId>
-					    <version>3.0.0</version>
+					    <version>3.4.1</version>
 					</dependency>
 				</dependencies>
 				<configuration>
@@ -102,6 +107,44 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
+                <version>3.6.0</version>
+                <dependencies>
+                   <dependency>
+                        <groupId>org.apache.maven.shared</groupId>
+                        <artifactId>maven-shared-utils</artifactId>
+                        <version>3.3.3</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.codehaus.plexus</groupId>
+                        <artifactId>plexus-utils</artifactId>
+                        <version>4.0.0</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.codehaus.plexus</groupId>
+                        <artifactId>plexus-xml</artifactId>
+                        <version>4.0.0</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.apache.commons</groupId>
+                        <artifactId>commons-compress</artifactId>
+                        <version>1.21</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.apache.maven</groupId>
+                        <artifactId>maven-compat</artifactId>
+                        <version>3.8.1</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.codehaus.plexus</groupId>
+                        <artifactId>plexus-archiver</artifactId>
+                        <version>4.8.0</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.apache.maven</groupId>
+                        <artifactId>maven-core</artifactId>
+                        <version>3.8.1</version>
+                    </dependency>
+                </dependencies>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -135,6 +178,44 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-assembly-plugin</artifactId>
+                        <version>3.6.0</version>
+                        <dependencies>
+                            <dependency>
+                               <groupId>org.apache.maven.shared</groupId>
+                               <artifactId>maven-shared-utils</artifactId>
+                               <version>3.3.3</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>org.codehaus.plexus</groupId>
+                                <artifactId>plexus-utils</artifactId>
+                                <version>4.0.0</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>org.codehaus.plexus</groupId>
+                                <artifactId>plexus-xml</artifactId>
+                                <version>4.0.0</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>org.apache.commons</groupId>
+                                <artifactId>commons-compress</artifactId>
+                                <version>1.21</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>org.apache.maven</groupId>
+                                <artifactId>maven-compat</artifactId>
+                                <version>3.8.1</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>org.codehaus.plexus</groupId>
+                                <artifactId>plexus-archiver</artifactId>
+                                <version>4.8.0</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>org.apache.maven</groupId>
+                                <artifactId>maven-core</artifactId>
+                                <version>3.8.1</version>
+                            </dependency>
+                        </dependencies>
                         <executions>
                             <execution>
                                 <phase>package</phase>
