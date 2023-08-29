@@ -50,6 +50,17 @@
         <enabled>true</enabled>
       </snapshots>
     </repository>
+    
+    <repository>
+        <id>snapshots</id>
+        <releases>
+            <enabled>false</enabled>
+        </releases>
+        <snapshots>
+            <enabled>true</enabled>
+        </snapshots>
+        <url>https://artifacts-zl.talend.com/nexus/content/repositories/snapshots/</url>
+    </repository>
   </repositories>
 
   <dependencies>
