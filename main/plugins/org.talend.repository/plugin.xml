@@ -3881,6 +3881,25 @@
               name="ReplaceSQSCheckBoxWithDropDownListMigrationTask"
               version="8.0.1">
         </projecttask>
+
+        <projecttask
+              beforeLogon="false"
+              breaks="7.3.1"
+              class="org.talend.repository.model.migration.UpdateDynamicSettingsForEsbComponents"
+              description="Update dynamic settings for tRESTClient and tESBConsumer"
+              id="org.talend.repository.model.migration.UpdateDynamicSettingsForEsbComponents"
+              name="UpdateDynamicSettingsForEsbComponents"
+              version="8.0.1">
+        </projecttask>
+       <projecttask
+               beforeLogon="false"
+               breaks="8.0.1"
+               class="org.talend.repository.model.migration.ChangeDefaultValueLocalFileCopyInPostgresql"
+               description="Change local file for copy checkbox in Postgresql bulk components"
+               id="org.talend.repository.model.migration.ChangeDefaultValueLocalFileCopyInPostgresql"
+               name="ChangeDefaultValueLocalFileCopyInPostgresql"
+               version="8.0.1">
+       </projecttask>
    </extension>
 
    <extension
@@ -4256,12 +4275,6 @@
       <ExtraBuildChecker
             ExtraBuildChecker="org.talend.repository.ui.wizards.exportjob.extrachecker.LimitESBConsumerJobChecker">
       </ExtraBuildChecker>
-   </extension>
-   <extension
-         point="org.talend.core.repository.login.task">
-      <loginTask
-            class="org.talend.repository.ui.login.ExchangeLoginTask">
-      </loginTask>
    </extension>
    <extension
          point="org.eclipse.ui.preferencePages">
