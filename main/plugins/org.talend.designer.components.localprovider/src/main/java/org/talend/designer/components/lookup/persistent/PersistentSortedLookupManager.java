@@ -95,6 +95,16 @@ public class PersistentSortedLookupManager<B extends IPersistableComparableLooku
     //
     private ILookupManagerUnit<B>[] lookupList;
 
+    private List<ILookupManagerUnit<B>> lookupCompleteList = new ArrayList<>();
+
+    public List<ILookupManagerUnit<B>> getLookupCompleteList() {
+        return lookupCompleteList;
+    }
+
+    public void setLookupCompleteList(List<ILookupManagerUnit<B>> lookupCompleteList) {
+        this.lookupCompleteList = lookupCompleteList;
+    }
+
     private int bufferSize = 10000000;
 
     private IPersistableLookupRow<B>[] buffer = null;
