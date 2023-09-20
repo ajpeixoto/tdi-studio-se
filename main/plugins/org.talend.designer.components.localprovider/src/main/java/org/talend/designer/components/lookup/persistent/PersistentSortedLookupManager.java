@@ -392,6 +392,7 @@ public class PersistentSortedLookupManager<B extends IPersistableComparableLooku
 
         }
         lookupListSize = lookupList.length;
+        lookupCompleteList.addAll(Arrays.asList(lookupList));
     }
 
     private void writeDescriptors(DataOutputStream valuesDataOutputStream, ObjectOutputStream valuesObjectOutputStream)
@@ -545,11 +546,12 @@ public class PersistentSortedLookupManager<B extends IPersistableComparableLooku
     }
 
     public void endGet() throws IOException {
-        for (ILookupManagerUnit<B> orderedBeanLookup : lookupList) {
+        for (ILookupManagerUnit<B> orderedBeanLookup : lookupCompleteList) {
             orderedBeanLookup.close();
         }
         clear();
         lookupList = null;
+        lookupCompleteList = null;
     }
 
     public void clear() throws IOException {
