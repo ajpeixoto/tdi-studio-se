@@ -59,6 +59,7 @@ import org.talend.core.model.components.IComponent;
 import org.talend.core.model.components.IMultipleComponentItem;
 import org.talend.core.model.components.IMultipleComponentManager;
 import org.talend.core.model.components.IODataComponent;
+import org.talend.core.model.context.ContextUtils;
 import org.talend.core.model.general.ILibrariesService;
 import org.talend.core.model.general.ModuleNeeded;
 import org.talend.core.model.metadata.IEbcdicConstant;
@@ -3148,8 +3149,8 @@ public class Node extends Element implements IGraphicalNode {
                         final ContextType contextType = (ContextType) context.get(0);
                         for (Object p : contextType.getContextParameter()) {
                             if (p instanceof ContextParameterType) {
-                                ContextParameterType op = ContextParameterUtils.getOriginalParam((ContextParameterType) p);
-                                contextParameterNamesList.add(op.getName());
+                                ContextUtils.populateContextParameter((ContextParameterType) p);
+                                contextParameterNamesList.add(((ContextParameterType) p).getName());
                             }
                         }
                         return contextParameterNamesList.toArray(new String[0]);
