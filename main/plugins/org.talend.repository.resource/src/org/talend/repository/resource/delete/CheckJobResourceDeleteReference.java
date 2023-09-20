@@ -20,6 +20,7 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.talend.commons.exception.ExceptionHandler;
 import org.talend.commons.exception.PersistenceException;
+import org.talend.core.model.context.ContextUtils;
 import org.talend.core.model.metadata.types.JavaTypesManager;
 import org.talend.core.model.properties.Item;
 import org.talend.core.model.properties.ProcessItem;
@@ -108,6 +109,7 @@ public class CheckJobResourceDeleteReference extends AbstractCheckDeleteItemRefe
         for (ContextType context : contexts) {
             List<ContextParameterType> contextParameter = context.getContextParameter();
             for (ContextParameterType contextParameterType : contextParameter) {
+                ContextUtils.populateContextParameter(contextParameterType);
                 if (JavaTypesManager.RESOURCE.getId().equals(contextParameterType.getType())
                         || JavaTypesManager.RESOURCE.getLabel().equals(contextParameterType.getType())) {
                     resourceList.add(contextParameterType.getValue());

@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.emf.common.util.EList;
+import org.talend.core.model.context.ContextUtils;
 import org.talend.core.model.properties.ProcessItem;
 import org.talend.designer.core.model.utils.emf.talendfile.ContextParameterType;
 import org.talend.designer.core.model.utils.emf.talendfile.ContextType;
@@ -54,6 +55,7 @@ public class JobContextUtils {
         ProcessType process = processItem.getProcess();
         if (process != null && contextGroup != null) {
             EList<?> context = process.getContext();
+            ContextUtils.populateContexts(context);
             if (context != null) {
                 for (Object next : context) {
                     ContextType ct = (ContextType) next;

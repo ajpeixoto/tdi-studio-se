@@ -36,6 +36,7 @@ import org.talend.core.model.components.ModifyComponentsAction;
 import org.talend.core.model.components.conversions.IComponentConversion;
 import org.talend.core.model.components.filters.IComponentFilter;
 import org.talend.core.model.components.filters.NameComponentFilter;
+import org.talend.core.model.context.ContextUtils;
 import org.talend.core.model.migration.AbstractAllJobMigrationTask;
 import org.talend.core.model.properties.Item;
 import org.talend.core.model.utils.ContextParameterUtils;
@@ -291,6 +292,7 @@ public class SpecialUpdateELTConnectorNameToDefaultName4JDBCMigrationTask extend
     private List<String> getContextList(ProcessType processType) {
         List<String> contextList = new ArrayList<String>();
         EList<ContextType> context = processType.getContext();
+        ContextUtils.populateContexts(context);
         for (ContextType ct : context) {
             EList<ContextParameterType> contextParameter = ct.getContextParameter();
             contextParameter.forEach(c -> contextList.add(ContextParameterUtils.JAVA_NEW_CONTEXT_PREFIX + c.getName()));

@@ -9,6 +9,7 @@ import java.util.Map;
 
 import org.eclipse.emf.common.util.EList;
 import org.talend.commons.exception.ExceptionHandler;
+import org.talend.core.model.context.ContextUtils;
 import org.talend.core.model.migration.AbstractItemMigrationTask;
 import org.talend.core.model.properties.Item;
 import org.talend.core.model.properties.JobletProcessItem;
@@ -60,6 +61,7 @@ public class AddMissingContextMigrationTask extends AbstractItemMigrationTask {
             Map<String, ContextParameterTypeImpl> contextMap = new HashMap<String, ContextParameterTypeImpl>();
             List<ContextParameterTypeImpl> contextParams = contexts.get(i).getContextParameter();
             for (ContextParameterTypeImpl cp : contextParams) {
+                ContextUtils.populateContextParameter(cp);
                 String contextName = cp.getName();
                 contextMap.put(contextName, cp);
                 if (allContextMap.get(contextName) == null) {

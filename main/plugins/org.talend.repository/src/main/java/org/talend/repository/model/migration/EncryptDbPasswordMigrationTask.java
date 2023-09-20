@@ -20,6 +20,7 @@ import java.util.List;
 import org.talend.commons.exception.PersistenceException;
 import org.talend.commons.ui.runtime.exception.ExceptionHandler;
 import org.talend.commons.utils.PasswordEncryptUtil;
+import org.talend.core.model.context.ContextUtils;
 import org.talend.core.model.metadata.builder.connection.Connection;
 import org.talend.core.model.metadata.builder.connection.DatabaseConnection;
 import org.talend.core.model.migration.AbstractItemMigrationTask;
@@ -127,6 +128,7 @@ public class EncryptDbPasswordMigrationTask extends AbstractItemMigrationTask {
                 List<ContextParameterType> paramTypes = type.getContextParameter();
                 if (paramTypes != null) {
                     for (ContextParameterType param : paramTypes) {
+                        ContextUtils.populateContextParameter(param);
                         try {
                             // before migration task, the value should be raw. so keep it.
                             if (param.getValue() != null && PasswordEncryptUtil.isPasswordType(param.getType())) {

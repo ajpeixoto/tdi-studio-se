@@ -1018,6 +1018,7 @@ public class HTMLDocGenerator implements IDocumentationGenerator {
             return;
         }
 
+        ContextUtils.populateContexts(contexts);
         Element contextListElement = DocumentHelper.createElement("contextList"); // Context root //$NON-NLS-1$
 
         for (Object context2 : contexts) {

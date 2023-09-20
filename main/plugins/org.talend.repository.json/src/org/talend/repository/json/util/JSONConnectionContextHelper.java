@@ -561,6 +561,7 @@ public final class JSONConnectionContextHelper {
             if (var != null) {
                 ContextParameterType param = null;
                 for (ContextParameterType paramType : (List<ContextParameterType>) contextType.getContextParameter()) {
+                    ContextUtils.populateContextParameter(paramType);
                     if (paramType.getName().equals(var)) {
                         param = paramType;
                         break;

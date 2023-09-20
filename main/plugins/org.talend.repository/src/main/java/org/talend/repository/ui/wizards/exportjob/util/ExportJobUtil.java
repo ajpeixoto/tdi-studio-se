@@ -18,6 +18,7 @@ import java.util.List;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.emf.common.util.EList;
+import org.talend.core.model.context.ContextUtils;
 import org.talend.core.model.general.Project;
 import org.talend.core.model.properties.FolderItem;
 import org.talend.core.model.properties.ProcessItem;
@@ -71,6 +72,7 @@ public class ExportJobUtil {
         }// else do next line
         List<ContextParameterType> list = new ArrayList<ContextParameterType>();
         EList contexts = ((ProcessTypeImpl) processItem.getProcess()).getContext();
+        ContextUtils.populateContexts(contexts);
         for (int i = 0; i < contexts.size(); i++) {
             Object object = contexts.get(i);
             if (object instanceof ContextType) {

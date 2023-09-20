@@ -26,6 +26,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.talend.commons.utils.resource.FileExtensions;
 import org.talend.core.CorePlugin;
+import org.talend.core.model.context.ContextUtils;
 import org.talend.core.model.process.IContext;
 import org.talend.core.model.process.IContextParameter;
 import org.talend.core.model.properties.ProcessItem;
@@ -120,11 +121,13 @@ public class ExportProcessorHelper {
             List<IContextParameter> contextParameterList = context.getContextParameterList();
             if (contextParameterList != null && contextParameterList.size() > 0) {
                 for (IContextParameter contextParameter : contextParameterList) {
+                    ContextUtils.populateContextParam(contextParameter);
                     if (!contextParameter.isPromptNeeded()) {
                         continue;
                     }
                     for (Object curCType : processItem.getProcess().getContext()) {
                         ContextType cType = (ContextType) curCType;
+                        ContextUtils.populateContext(cType);
                         if (context.getName().equals(cType.getName())) {
                             for (Object curParam : cType.getContextParameter()) {
                                 ContextParameterType cParamType = (ContextParameterType) curParam;

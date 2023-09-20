@@ -20,6 +20,7 @@ import java.util.List;
 import org.eclipse.emf.common.util.EList;
 import org.talend.commons.exception.ExceptionHandler;
 import org.talend.commons.exception.PersistenceException;
+import org.talend.core.model.context.ContextUtils;
 import org.talend.core.model.migration.AbstractItemMigrationTask;
 import org.talend.core.model.properties.ContextItem;
 import org.talend.core.model.properties.Item;
@@ -46,9 +47,11 @@ public class AddContextCommentValueMigrationTask extends AbstractItemMigrationTa
             // process, process_mr, process_storm, route, routelet.
             ProcessItem processItem = (ProcessItem) item;
             contexts = processItem.getProcess().getContext();
+            ContextUtils.populateContexts(contexts);
         } else if (item instanceof JobletProcessItem) {
             JobletProcessItem jobletItem = (JobletProcessItem) item;
             contexts = jobletItem.getJobletProcess().getContext();
+            ContextUtils.populateContexts(contexts);
         } else if (item instanceof ContextItem) {
             ContextItem contextItem = (ContextItem) item;
             contexts = contextItem.getContext();

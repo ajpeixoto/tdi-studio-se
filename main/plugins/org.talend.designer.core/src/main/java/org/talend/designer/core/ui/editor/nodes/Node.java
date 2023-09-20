@@ -3148,7 +3148,8 @@ public class Node extends Element implements IGraphicalNode {
                         final ContextType contextType = (ContextType) context.get(0);
                         for (Object p : contextType.getContextParameter()) {
                             if (p instanceof ContextParameterType) {
-                                contextParameterNamesList.add(((ContextParameterType) p).getName());
+                                ContextParameterType op = ContextParameterUtils.getOriginalParam((ContextParameterType) p);
+                                contextParameterNamesList.add(op.getName());
                             }
                         }
                         return contextParameterNamesList.toArray(new String[0]);
