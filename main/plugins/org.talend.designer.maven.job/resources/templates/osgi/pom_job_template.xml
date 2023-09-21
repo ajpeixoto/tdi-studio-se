@@ -55,7 +55,12 @@
 					<dependency>
 						<groupId>org.codehaus.plexus</groupId>
 						<artifactId>plexus-utils</artifactId>
-						<version>3.0.24</version>
+						<version>4.0.0</version>
+					</dependency>
+					<dependency>
+						<groupId>org.codehaus.plexus</groupId>
+						<artifactId>plexus-xml</artifactId>
+						<version>4.0.0</version>
 					</dependency>
 					<dependency>
 				      <groupId>org.apache.commons</groupId>
@@ -75,12 +80,12 @@
 					<dependency>
 						<groupId>org.codehaus.plexus</groupId>
 						<artifactId>plexus-archiver</artifactId>
-						<version>3.6.0</version>
+						<version>4.8.0</version>
 					</dependency>
 					<dependency>
 						<groupId>org.codehaus.plexus</groupId>
 					    <artifactId>plexus-io</artifactId>
-					    <version>3.0.0</version>
+					    <version>3.4.1</version>
 					</dependency>
 				</dependencies>
 				<configuration>
