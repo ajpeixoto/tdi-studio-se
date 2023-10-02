@@ -75,6 +75,7 @@
 		<module>main/plugins/org.talend.libraries.ehcache</module>
 		<module>main/plugins/org.talend.libraries.excel</module>
 		<module>main/plugins/org.talend.libraries.ftp</module>
+		<module>main/plugins/org.talend.libraries.bigquery</module>
 		<module>main/plugins/org.talend.libraries.groovy</module>
 		<module>main/plugins/org.talend.libraries.guava</module>
 		<module>main/plugins/org.talend.libraries.jax</module>
@@ -88,12 +89,12 @@
 		<module>main/plugins/org.talend.libraries.w3c</module>
 		<module>main/plugins/org.talend.libraries.xml</module>
 		<module>main/plugins/org.talend.libraries.zmq</module>
-		<module>main/plugins/org.talend.libraries.hadoop.mapr.5.0.0</module>
 		<module>main/plugins/org.talend.presentation.onboarding.resource</module>
 		<module>main/plugins/org.talend.presentation.onboarding.resource.tos</module>
 		<module>main/plugins/org.talend.rcp.branding.tos</module>
 		<module>main/plugins/org.talend.repository</module>
 		<module>main/plugins/org.talend.repository.ftp</module>
+		<module>main/plugins/org.talend.repository.bigquery</module>
 		<module>main/plugins/org.talend.repository.resource</module>
 		<module>main/plugins/org.talend.libraries.json</module>
 		<module>main/plugins/org.talend.repository.json</module>

@@ -105,7 +105,7 @@
 					<dependency>
 						<groupId>org.codehaus.plexus</groupId>
 						<artifactId>plexus-io</artifactId>
-						<version>3.4.0</version>
+						<version>3.4.1</version>
 					</dependency>
 					<dependency>
 						<groupId>org.apache.maven</groupId>
@@ -187,6 +187,7 @@
                             <goal>single</goal>
                         </goals>
                         <configuration>
+			    <attach>false</attach>
                             <descriptors>
                                 <descriptor>${basedir}/src/main/assemblies/assembly.xml</descriptor>
                             </descriptors>
@@ -220,6 +221,7 @@
                                     <goal>single</goal>
                                 </goals>
                                 <configuration>
+				    <attach>false</attach>
                                     <descriptors>
                                         <descriptor>${basedir}/src/main/assemblies/assembly.xml</descriptor>
                                     </descriptors>

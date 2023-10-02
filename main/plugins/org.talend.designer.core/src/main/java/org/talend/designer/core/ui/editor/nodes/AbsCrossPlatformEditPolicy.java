@@ -32,4 +32,12 @@ public abstract class AbsCrossPlatformEditPolicy implements ICrossPlatformEditPo
         this.host = host;
     }
 
+    @Override
+    public void cpActivate() {
+    }
+
+    @Override
+    public void cpDeactivate() {
+    }
+
 }
