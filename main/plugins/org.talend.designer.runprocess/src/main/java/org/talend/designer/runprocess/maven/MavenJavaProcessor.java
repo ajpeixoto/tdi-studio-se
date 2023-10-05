@@ -347,6 +347,10 @@ public class MavenJavaProcessor extends JavaProcessor {
         parameters.put(IBuildPomCreatorParameters.CP_WIN, this.windowsClasspath);
         parameters.put(IBuildPomCreatorParameters.ARGUMENTS_MAP, getArguments());
         parameters.put(IBuildPomCreatorParameters.OVERWRITE_POM, Boolean.TRUE);
+        
+        if (itemProperty.getParentItem() !=null) {
+        	parameters.put(IBuildParametes.PARENT_ITEM, itemProperty.getParentItem());
+        }
 
         AbstractBuildProvider foundBuildProvider = BuildExportManager.getInstance().getBuildProvider(buildTypeName, parameters);
         if (foundBuildProvider != null) {
