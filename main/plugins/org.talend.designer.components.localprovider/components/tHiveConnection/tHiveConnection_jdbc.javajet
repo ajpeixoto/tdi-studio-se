@@ -39,6 +39,8 @@ imports="
 		}
 
 		public void createURL(INode node) {
+		    //this parameter will use to avoid compile error in the generate code
+		    boolean isExceptionThrow=false;
 			super.createURL(node);
 			String connectionMode = ElementParameterParser.getValue(node, "__CONNECTION_MODE__");
 			String hiveVersion = ElementParameterParser.getValue(node, "__HIVE_VERSION__");
@@ -95,6 +97,7 @@ imports="
             }
 
             if(("STANDALONE".equals(connectionMode) && !hiveDistrib.doSupportStandaloneMode()) || ("EMBEDDED".equals(connectionMode) && !hiveDistrib.doSupportEmbeddedMode())) {
+                isExceptionThrow=true;
 %>
                 if(true) {
                     throw new java.lang.Exception("The distribution <%=hiveDistrib.getVersion()%> does not support this connection mode . Please check your component configuration.");
@@ -216,7 +219,7 @@ imports="
 			<%
 
 			// BEGIN IF01
-			if("EMBEDDED".equals(connectionMode) && (this.isCustom || this.hiveDistrib.doSupportEmbeddedMode())) {
+			if("EMBEDDED".equals(connectionMode) && (this.isCustom || this.hiveDistrib.doSupportEmbeddedMode()||isExceptionThrow)) {
 %>
 				System.setProperty("hive.metastore.local", "false");
 				System.setProperty("hive.metastore.uris", "thrift://" + <%=dbhost%> + ":" + <%=dbport%>);
