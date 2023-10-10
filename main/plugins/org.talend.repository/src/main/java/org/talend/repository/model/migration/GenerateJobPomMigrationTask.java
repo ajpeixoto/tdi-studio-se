@@ -64,8 +64,8 @@ public class GenerateJobPomMigrationTask extends AbstractItemMigrationTask {
     
     private void generatePomsForChildRoutelets(Item routeItem) {
         // generate poms for child routelets with references to parent routes
-        if (routeItem!= null && routeItem.getProperty() != null && ProcessUtils.isRoute(routeItem.getProperty())) {
-            if (routeItem!= null && routeItem instanceof ProcessItem) {
+        if (routeItem != null && routeItem.getProperty() != null && ProcessUtils.isRoute(routeItem.getProperty())) {
+            if (routeItem != null && routeItem instanceof ProcessItem) {
                 for (Object obj : ((ProcessItem) routeItem).getProcess().getNode()) {
                     if (obj instanceof NodeType) {
                     	NodeType node = (NodeType) obj;
@@ -75,8 +75,10 @@ public class GenerateJobPomMigrationTask extends AbstractItemMigrationTask {
                             String jobVersion = ProcessUtils.getParameterValue(node.getElementParameter(), "PROCESS_TYPE:PROCESS_TYPE_VERSION"); //$NON-NLS-1$
                             ProcessItem routeletItem = ItemCacheManager.getProcessItem(jobIds, jobVersion);
                             
-                            routeletItem.setParent(routeItem);
-                            CorePlugin.getDefault().getRunProcessService().generatePom(routeletItem);
+                            if (routeletItem.getProperty() != null ) {
+                                routeletItem.getProperty().setParentItem(routeItem);
+                                CorePlugin.getDefault().getRunProcessService().generatePom(routeletItem);
+                            }
                         }
                     }
                 }
