@@ -25,7 +25,11 @@ import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.internal.ui.DebugUIPlugin;
 import org.eclipse.debug.internal.ui.launchConfigurations.LaunchShortcutExtension;
 import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IEditorPart;
+import org.talend.commons.ui.runtime.exception.MessageBoxExceptionHandler;
+import org.talend.core.GlobalServiceRegister;
+import org.talend.core.model.migration.IMigrationToolService;
 import org.talend.core.model.process.Problem;
 import org.talend.core.model.process.ProcessUtils;
 import org.talend.core.model.process.TalendProblem;
@@ -35,6 +39,9 @@ import org.talend.core.model.properties.Property;
 import org.talend.core.model.repository.IRepositoryViewObject;
 import org.talend.designer.core.ui.views.problems.Problems;
 import org.talend.repository.ProjectManager;
+import org.talend.repository.model.RepositoryNode;
+import org.talend.core.model.properties.Item;
+import org.talend.core.model.properties.JobletProcessItem;
 
 /**
  * Added for compatibility with eclipse 3.4.
@@ -42,6 +49,26 @@ import org.talend.repository.ProjectManager;
 public class JobLaunchShortcutManager {
 
     public static void run(ISelection selection) {
+        
+        if (selection instanceof IStructuredSelection) {
+            Object object = ((IStructuredSelection) selection).getFirstElement();
+
+            if (object instanceof RepositoryNode) {
+                RepositoryNode node = (RepositoryNode) object;
+                Item item = node.getObject().getProperty().getItem();
+                if (item instanceof ProcessItem || item instanceof JobletProcessItem) {
+                    IMigrationToolService service = (IMigrationToolService) GlobalServiceRegister.getDefault().getService(IMigrationToolService.class);
+                    if (service != null) {
+                        try {
+                            service.executeLazyMigrations(null, item);
+                        } catch (Exception e) {
+                            MessageBoxExceptionHandler.process(e);
+                        }
+                    }
+                }
+            }
+        }
+        
         List<LaunchShortcutExtension> launchShortcuts = DebugUIPlugin.getDefault().getLaunchConfigurationManager()
                 .getLaunchShortcuts();
 

@@ -20,4 +20,16 @@
          point="org.talend.core.global_actions">
       <GlobalAction class="org.talend.designer.components.localprovider.test.TestComponentsAction"/>
    </extension>
+   <extension
+         point="org.talend.core.migrationTask">
+      <projecttask
+        beforeLogon="true"
+        breaks="8.0.0"
+        class="org.talend.designer.components.localprovider.test.FakeLazyMigrationTask"
+        description="add an addtional property: lazymigration=executed for test purpose."
+        id="org.talend.designer.components.localprovider.test.FakeLazyMigrationTask"
+        name="FakeLazyMigrationTask"
+        version="8.0.0">
+      </projecttask>
+   </extension>
 </plugin>

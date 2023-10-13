@@ -389,6 +389,8 @@ public class BuildJobHandlerTest {
                 ZipEntry dependencyEntry = zip.getEntry(DQItems);
                 assertNotNull("DQ Items should not be null", dependencyEntry);
             }
+            
+            assertEquals(jobItem.getProperty().getAdditionalProperties().get("lazymigration"), "executed");
         } finally {
             if (zip != null) {
                 zip.close();

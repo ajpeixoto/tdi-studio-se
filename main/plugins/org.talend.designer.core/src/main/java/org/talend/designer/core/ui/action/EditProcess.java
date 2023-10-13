@@ -33,6 +33,8 @@ import org.talend.commons.runtime.model.repository.ERepositoryStatus;
 import org.talend.commons.ui.runtime.exception.MessageBoxExceptionHandler;
 import org.talend.commons.ui.runtime.image.ECoreImage;
 import org.talend.commons.ui.runtime.image.ImageProvider;
+import org.talend.core.GlobalServiceRegister;
+import org.talend.core.model.migration.IMigrationToolService;
 import org.talend.core.model.properties.ProcessItem;
 import org.talend.core.model.properties.Property;
 import org.talend.core.model.repository.ERepositoryObjectType;
@@ -139,6 +141,14 @@ public class EditProcess extends AbstractProcessAction implements IIntroAction {
 
             ProcessItem processItem = (ProcessItem) property.getItem();
 
+            IMigrationToolService service = (IMigrationToolService) GlobalServiceRegister.getDefault().getService(IMigrationToolService.class);
+            if (service != null) {
+                try {
+                    service.executeLazyMigrations(null, processItem);
+                } catch (Exception e) {
+                    MessageBoxExceptionHandler.process(e);
+                }
+            }
             IWorkbenchPage page = getActivePage();
 
             try {
