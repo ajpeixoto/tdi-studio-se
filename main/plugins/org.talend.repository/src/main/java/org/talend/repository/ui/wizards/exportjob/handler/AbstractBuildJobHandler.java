@@ -34,6 +34,7 @@ import org.talend.core.PluginChecker;
 import org.talend.core.model.properties.Item;
 import org.talend.core.model.properties.ProcessItem;
 import org.talend.core.model.properties.Project;
+import org.talend.core.model.migration.IMigrationToolService;
 import org.talend.core.prefs.SecurityPreferenceConstants;
 import org.talend.core.runtime.CoreRuntimePlugin;
 import org.talend.core.runtime.process.IBuildJobHandler;
@@ -398,6 +399,17 @@ public abstract class AbstractBuildJobHandler implements IBuildJobHandler, IBuil
 
     @Override
     public void prepare(IProgressMonitor monitor, Map<String, Object> parameters) throws Exception {
+        
+        // migrate
+        IMigrationToolService migrationService = (IMigrationToolService) GlobalServiceRegister.getDefault().getService(IMigrationToolService.class);
+        if (migrationService != null) {
+            try {
+                migrationService.executeLazyMigrations(null, processItem);
+            } catch (Exception e) {
+                ExceptionHandler.process(e);
+            }
+        }
+        
         if (parameters == null) {
             parameters = new HashMap<String, Object>();
         }
