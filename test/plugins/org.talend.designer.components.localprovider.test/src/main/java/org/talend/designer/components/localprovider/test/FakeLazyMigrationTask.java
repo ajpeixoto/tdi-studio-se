@@ -90,4 +90,8 @@ public class FakeLazyMigrationTask extends AbstractItemMigrationTask {
         GregorianCalendar gc = new GregorianCalendar(2023, 10, 11, 12, 0, 0);
         return gc.getTime();
     }
+    
+    public boolean isLazy() {
+        return true;
+    }
 }
