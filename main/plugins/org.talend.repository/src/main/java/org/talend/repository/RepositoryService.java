@@ -13,8 +13,11 @@
 package org.talend.repository;
 
 import java.beans.PropertyChangeEvent;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -167,6 +170,7 @@ public class RepositoryService implements IRepositoryService, IRepositoryContext
 
     private volatile boolean donnotRetryByCancel = false;
 
+    private static final PreferenceManipulator preferenceManipulator = new PreferenceManipulator();
     /*
      * (non-Javadoc)
      *
@@ -398,7 +402,6 @@ public class RepositoryService implements IRepositoryService, IRepositoryContext
                 .parseBoolean(EclipseCommandLine.getEclipseArgument(EclipseCommandLine.TALEND_CONTINUE_LOGON));
         reload = reload | continueLogon
                 | Boolean.parseBoolean(EclipseCommandLine.getEclipseArgument(EclipseCommandLine.TALEND_RESTART_FLAG));
-        PreferenceManipulator preferenceManipulator = new PreferenceManipulator();
         ConnectionBean lastBean = null;
         if (reload) {
             final ConnectionUserPerReader instance = ConnectionUserPerReader.getInstance();
@@ -438,7 +441,12 @@ public class RepositoryService implements IRepositoryService, IRepositoryContext
                 }
                 final String lastProject = preferenceManipulator.getLastProject();
                 if (lastProject != null) {
+                    if (StringUtils.isEmpty(lastProject)) {
+                        ExceptionHandler.log("lastProject is empty!");
+                        printPrefs();
+                    }
                     projectName = lastProject;
+                    ExceptionHandler.log("projectName: " + projectName);
                 }
                 final String lastUser = lastBean.getUser();
                 if (lastUser != null) {
@@ -607,6 +615,16 @@ public class RepositoryService implements IRepositoryService, IRepositoryContext
             return true;
         }
         return false;
+    }
+    
+    private static void printPrefs() {
+        String filePath = ResourcesPlugin.getWorkspace().getRoot().getLocation().toString() + "/.metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.ui.prefs";
+        try {
+            List<String> lines = Files.readAllLines(Paths.get(filePath));
+            lines.forEach(l -> ExceptionHandler.log(l));
+        } catch (IOException e) {
+            ExceptionHandler.process(e);
+        }
     }
 
     private void process(Exception ex) {
