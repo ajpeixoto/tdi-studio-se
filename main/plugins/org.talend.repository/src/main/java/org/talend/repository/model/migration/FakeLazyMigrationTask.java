@@ -92,7 +92,7 @@ public class FakeLazyMigrationTask extends AbstractItemMigrationTask {
                 for (Object paramObjectType : nodeType.getElementParameter()) {
                     ElementParameterType param = (ElementParameterType) paramObjectType;
                     if(StringUtils.equals(param.getName(), "CODE")) {
-                        param.setValue(param.getValue()+"&#10;System.out.println(&quot;hello lazy migration!&quot;);");
+                        param.setValue(param.getValue() + "\n System.out.println(\"hello lazy migration!\");");
                     }
                 }
             }
