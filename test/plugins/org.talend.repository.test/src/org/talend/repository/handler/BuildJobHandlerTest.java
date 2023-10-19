@@ -391,6 +391,7 @@ public class BuildJobHandlerTest {
             }
             
             assertEquals(jobItem.getProperty().getAdditionalProperties().get("lazymigration"), "executed");
+            assertNotNull(jobItem.getProperty().getAdditionalProperties().get("migration_order"));
         } finally {
             if (zip != null) {
                 zip.close();
