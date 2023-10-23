@@ -3900,7 +3900,8 @@
                name="ChangeDefaultValueLocalFileCopyInPostgresql"
                version="8.0.1">
        </projecttask>
-       <projecttask
+       <!-- This migration task is for test purpose only, should never be enabled in production -->
+       <!--projecttask
                beforeLogon="false"
                breaks="8.0.1"
                class="org.talend.repository.model.migration.FakeLazyMigrationTask"
@@ -3909,7 +3910,7 @@
                name="FakeLazyMigrationTask"
                isLazy="true"
                version="8.0.1">
-       </projecttask>
+       </projecttask-->
    </extension>
 
    <extension
