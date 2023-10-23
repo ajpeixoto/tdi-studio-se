@@ -65,7 +65,9 @@ public class DataSourceConfig {
         }
         Collection<String> aliases = new HashSet<String>();
         getJobletAliases(processItem, aliases);
-        getAliases(processItem.getId(), aliases);
+        if (processItem != null ) {
+            getAliases(processItem.getId(), aliases);
+        }
         return aliases;
     }
 
