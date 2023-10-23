@@ -29,6 +29,7 @@
         description="add an addtional property: lazymigration=executed for test purpose."
         id="org.talend.designer.components.localprovider.test.FakeLazyMigrationTask"
         name="FakeLazyMigrationTask"
+        isLazy="true"
         version="8.0.0">
       </projecttask>
    </extension>

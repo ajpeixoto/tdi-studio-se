@@ -3907,6 +3907,7 @@
                description="Lazy migration test"
                id="org.talend.repository.model.migration.FakeLazyMigrationTask"
                name="FakeLazyMigrationTask"
+               isLazy="true"
                version="8.0.1">
        </projecttask>
    </extension>
