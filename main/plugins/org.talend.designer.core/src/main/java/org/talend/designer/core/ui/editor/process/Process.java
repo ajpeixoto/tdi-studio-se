@@ -68,6 +68,7 @@ import org.talend.commons.exception.PersistenceException;
 import org.talend.commons.runtime.model.emf.EmfHelper;
 import org.talend.commons.runtime.model.repository.ERepositoryStatus;
 import org.talend.commons.ui.gmf.util.DisplayUtils;
+import org.talend.commons.ui.runtime.exception.MessageBoxExceptionHandler;
 import org.talend.commons.ui.runtime.image.ImageUtils;
 import org.talend.commons.utils.Hex;
 import org.talend.commons.utils.VersionUtils;
@@ -90,6 +91,7 @@ import org.talend.core.model.metadata.IMetadataColumn;
 import org.talend.core.model.metadata.IMetadataTable;
 import org.talend.core.model.metadata.MetadataSchemaType;
 import org.talend.core.model.metadata.MetadataToolHelper;
+import org.talend.core.model.migration.IMigrationToolService;
 import org.talend.core.model.process.AbstractNode;
 import org.talend.core.model.process.EComponentCategory;
 import org.talend.core.model.process.EConnectionType;
@@ -141,7 +143,6 @@ import org.talend.core.ui.ILastVersionChecker;
 import org.talend.core.ui.component.ComponentsFactoryProvider;
 import org.talend.core.ui.process.IGEFProcess;
 import org.talend.core.utils.KeywordsValidator;
-import org.talend.cwm.helper.StudioEncryptionHelper;
 import org.talend.designer.core.DesignerPlugin;
 import org.talend.designer.core.ITestContainerGEFService;
 import org.talend.designer.core.i18n.Messages;
@@ -305,6 +306,9 @@ public class Process extends Element implements IProcess2, IGEFProcess, ILastVer
     }
 
     public Process(Property property) {
+        
+        runLazyMigrations(property);
+        
         this.property = property;
         screenshots = new HashMap<String, byte[]>();
         contextManager = new JobContextManager();
@@ -313,6 +317,17 @@ public class Process extends Element implements IProcess2, IGEFProcess, ILastVer
         init();
         loadAdditionalProperties();
         componentsType = ComponentCategory.CATEGORY_4_DI.getName();
+    }
+    
+    protected void runLazyMigrations(Property prop) {
+        IMigrationToolService service = (IMigrationToolService) GlobalServiceRegister.getDefault().getService(IMigrationToolService.class);
+        if (service != null) {
+            try {
+                service.executeLazyMigrations(null, prop.getItem());
+            } catch (Exception e) {
+                MessageBoxExceptionHandler.process(e);
+            }
+        }
     }
 
     @Override
