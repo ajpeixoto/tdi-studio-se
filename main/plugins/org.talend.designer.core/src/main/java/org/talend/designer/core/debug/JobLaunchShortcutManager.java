@@ -50,24 +50,24 @@ public class JobLaunchShortcutManager {
 
     public static void run(ISelection selection) {
         
-//        if (selection instanceof IStructuredSelection) {
-//            Object object = ((IStructuredSelection) selection).getFirstElement();
-//
-//            if (object instanceof RepositoryNode) {
-//                RepositoryNode node = (RepositoryNode) object;
-//                Item item = node.getObject().getProperty().getItem();
-//                if (item instanceof ProcessItem || item instanceof JobletProcessItem) {
-//                    IMigrationToolService service = (IMigrationToolService) GlobalServiceRegister.getDefault().getService(IMigrationToolService.class);
-//                    if (service != null) {
-//                        try {
-//                            service.executeLazyMigrations(null, item);
-//                        } catch (Exception e) {
-//                            MessageBoxExceptionHandler.process(e);
-//                        }
-//                    }
-//                }
-//            }
-//        }
+        if (selection instanceof IStructuredSelection) {
+            Object object = ((IStructuredSelection) selection).getFirstElement();
+
+            if (object instanceof RepositoryNode) {
+                RepositoryNode node = (RepositoryNode) object;
+                Item item = node.getObject().getProperty().getItem();
+                if (item instanceof ProcessItem || item instanceof JobletProcessItem) {
+                    IMigrationToolService service = (IMigrationToolService) GlobalServiceRegister.getDefault().getService(IMigrationToolService.class);
+                    if (service != null) {
+                        try {
+                            service.executeLazyMigrations(null, item);
+                        } catch (Exception e) {
+                            MessageBoxExceptionHandler.process(e);
+                        }
+                    }
+                }
+            }
+        }
         
         List<LaunchShortcutExtension> launchShortcuts = DebugUIPlugin.getDefault().getLaunchConfigurationManager()
                 .getLaunchShortcuts();

@@ -141,14 +141,14 @@ public class EditProcess extends AbstractProcessAction implements IIntroAction {
 
             ProcessItem processItem = (ProcessItem) property.getItem();
 
-//            IMigrationToolService service = (IMigrationToolService) GlobalServiceRegister.getDefault().getService(IMigrationToolService.class);
-//            if (service != null) {
-//                try {
-//                    service.executeLazyMigrations(null, processItem);
-//                } catch (Exception e) {
-//                    MessageBoxExceptionHandler.process(e);
-//                }
-//            }
+            IMigrationToolService service = (IMigrationToolService) GlobalServiceRegister.getDefault().getService(IMigrationToolService.class);
+            if (service != null) {
+                try {
+                    service.executeLazyMigrations(null, processItem);
+                } catch (Exception e) {
+                    MessageBoxExceptionHandler.process(e);
+                }
+            }
             
             IWorkbenchPage page = getActivePage();
 

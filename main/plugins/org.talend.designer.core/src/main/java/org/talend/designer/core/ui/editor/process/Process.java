@@ -307,7 +307,7 @@ public class Process extends Element implements IProcess2, IGEFProcess, ILastVer
 
     public Process(Property property) {
         
-        runLazyMigrations(property);
+//        runLazyMigrations(property);
         
         this.property = property;
         screenshots = new HashMap<String, byte[]>();
