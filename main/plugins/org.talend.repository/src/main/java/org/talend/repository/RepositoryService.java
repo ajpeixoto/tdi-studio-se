@@ -433,6 +433,8 @@ public class RepositoryService implements IRepositoryService, IRepositoryContext
             // if tacURL is not null, will be remote
             final boolean isRemote = tacURL != null;
 
+            ExceptionHandler.log("projectName from arg: " + projectName + ", reload: " + reload + ", lastBean: " + lastBean);
+            
             if (reload && lastBean != null) {
                 if (lastBean.isStoreCredentials() && !lastBean.isLoginViaCloud()) {
                     if (StringUtils.isBlank(lastBean.getCredentials())) {
@@ -446,8 +448,10 @@ public class RepositoryService implements IRepositoryService, IRepositoryContext
                         printPrefs();
                     }
                     projectName = lastProject;
-                    ExceptionHandler.log("projectName: " + projectName);
+                    ExceptionHandler.log("projectName from preference: " + projectName);
                 }
+                ExceptionHandler.log("projectName: " + projectName + ", lastProject: " + lastProject);
+                
                 final String lastUser = lastBean.getUser();
                 if (lastUser != null) {
                     login = lastUser;
@@ -628,6 +632,8 @@ public class RepositoryService implements IRepositoryService, IRepositoryContext
     }
 
     private void process(Exception ex) {
+        ExceptionHandler.process(ex);
+        
         CommonExceptionHandler.process(ex);
 
         if (CommonsPlugin.isHeadless() || CommonsPlugin.isJUnitTest()) {
