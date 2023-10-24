@@ -61,6 +61,8 @@ public class TextController extends AbstractElementPropertySectionController {
 
     public static boolean dragAndDropAction = false;
 
+    private static String EMPTY_DESCRIPTION_PREFIX = "!!!";
+
     /**
      * DOC yzhang TextController constructor comment.
      *
@@ -147,6 +149,10 @@ public class TextController extends AbstractElementPropertySectionController {
         data.top = new FormAttachment(0, top);
         data.width = currentLabelWidth;
         labelLabel.setLayoutData(data);
+
+        if (param.getDescription()!= null && !param.getDescription().startsWith(EMPTY_DESCRIPTION_PREFIX)) {
+        	labelLabel.setToolTipText(param.getDescription());
+        }
         // *********************
         data = new FormData();
 
@@ -245,6 +251,11 @@ public class TextController extends AbstractElementPropertySectionController {
             labelText.setText(""); //$NON-NLS-1$
         } else {
             if (!value.equals(labelText.getText())) {
+                if (isPasswordParam(param)) {
+                    labelText.setEchoChar('*');
+                } else {
+                    labelText.setEchoChar('\0');
+                }
                 // see feature 0025
                 if (!isInWizard() && isPasswordParam(param)) {
                     labelText.setText(TalendTextUtils.hidePassword(value.toString()));
@@ -261,7 +272,12 @@ public class TextController extends AbstractElementPropertySectionController {
             checkErrorsForPropertiesOnly(labelText);
         }
         fixedCursorPosition(param, labelText, value, valueChanged);
-
+        if (!isReadOnly()) {
+            boolean editable = !param.isReadOnly() && (elem instanceof FakeElement || !param.isRepositoryValueUsed());
+            labelText.setEditable(editable);
+        } else {
+            labelText.setEditable(false);
+        }
     }
 
     boolean a = false;
@@ -321,7 +337,7 @@ public class TextController extends AbstractElementPropertySectionController {
      * @return
      */
     protected boolean isPasswordParam(final IElementParameter parameter) {
-        if (ContextParameterUtils.containContextVariables(parameter.getValue().toString())) {
+        if (parameter.getValue() == null || ContextParameterUtils.containContextVariables(parameter.getValue().toString())) {
             return false;
         }
 
