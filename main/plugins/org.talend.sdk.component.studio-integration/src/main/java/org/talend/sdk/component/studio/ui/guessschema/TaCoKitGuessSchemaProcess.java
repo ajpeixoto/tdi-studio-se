@@ -17,7 +17,6 @@ import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 
 import java.io.BufferedReader;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,6 +28,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.json.bind.Jsonb;
@@ -49,6 +49,7 @@ import org.talend.designer.core.model.process.DataProcess;
 import org.talend.designer.core.ui.editor.process.Process;
 import org.talend.designer.runprocess.IProcessor;
 import org.talend.designer.runprocess.ProcessorUtilities;
+import org.talend.sdk.component.api.exception.DiscoverSchemaException;
 import org.talend.sdk.component.server.front.model.ActionReference;
 import org.talend.sdk.component.studio.ComponentModel;
 import org.talend.sdk.component.studio.Lookups;
@@ -71,7 +72,7 @@ public class TaCoKitGuessSchemaProcess {
 
     public TaCoKitGuessSchemaProcess(final Property property, final INode node, final IContext context,
             final String discoverSchemaAction, final String connectionName, final boolean executeProcessorMockJob) {
-        this.guessSchemaTask = new Task(property, context, node, discoverSchemaAction, connectionName, executorService,executeProcessorMockJob);
+        guessSchemaTask = new Task(property, context, node, discoverSchemaAction, connectionName, executorService,executeProcessorMockJob);
     }
 
     public Future<GuessSchemaResult> run() {
@@ -90,7 +91,7 @@ public class TaCoKitGuessSchemaProcess {
 
         private final IContext context;
 
-        private INode node;
+        private final INode node;
 
         private final String actionName;
 
@@ -100,9 +101,9 @@ public class TaCoKitGuessSchemaProcess {
 
         private java.lang.Process executeProcess;
         
-        private Map<String, IElementParameter> clonedDatastoreParameters = new HashMap<String, IElementParameter>();
+        private final Map<String, IElementParameter> clonedDatastoreParameters = new HashMap<String, IElementParameter>();
 
-        private boolean executeProcessorMockJob;
+        private final boolean executeProcessorMockJob;
 
         public Task(final Property property, final IContext context, final INode node, final String actionName,
                 final String connectionName, final ExecutorService executorService, final boolean executeProcessorMockJob) {
@@ -146,18 +147,18 @@ public class TaCoKitGuessSchemaProcess {
                 }
                 guessSchemaResult.setError(err.stream().collect(joining("\n")));
                 final String flattened = out.replaceAll("\n", "");
-                if (schemaPattern.matcher(flattened).find()) {
-                    guessSchemaResult.setResult(schemaPattern.matcher(flattened).toMatchResult().group());
+                final Matcher schemaMatcher = Pattern.compile("(\\[\\{.*\"talendType\".*\\}])").matcher(flattened);
+                final Matcher errorMatcher = Pattern.compile("(\\{.*\"possibleHandleErrorWith\".*\\})").matcher(flattened);
+                if (schemaMatcher.find()) {
+                    guessSchemaResult.setResult(schemaMatcher.group());
                 }
-                if (errorPattern.matcher(flattened).find()) {
+                if (errorMatcher.find()) {
                     try (final Jsonb jsonb = JsonbBuilder.create()) {
-                        DiscoverSchemaException e = jsonb.fromJson(errorPattern.matcher(flattened).toMatchResult()
-                                                                           .group(), DiscoverSchemaException.class);
-                        guessSchemaResult.setExecuteMock("execute".equals(e.possibleHandleErrorWith));
+                        DiscoverSchemaException e = jsonb.fromJson(errorMatcher.group(), DiscoverSchemaException.class);
+                        guessSchemaResult.setExecuteMock("ExecuteMockJob".equals(e.getPossibleHandleErrorWith()));
                         guessSchemaResult.setMessage(e.getMessage());
                     }
                 }
-
                 return guessSchemaResult;
             });
 
@@ -194,7 +195,7 @@ public class TaCoKitGuessSchemaProcess {
         private void buildProcess() {
             IProcess originalProcess;
             originalProcess = new Process(property);
-        
+
             List<? extends IConnection> incomingConnections = new ArrayList<>(node.getIncomingConnections());
             List<? extends IConnection> outgoingConnections = new ArrayList<>(node.getOutgoingConnections());
             try {
@@ -288,7 +289,7 @@ public class TaCoKitGuessSchemaProcess {
                 node.setOutgoingConnections(outgoingConnections);
             }
         }
-        
+
         protected void configContext(IProcess inProcess, INode inNode) {
             IContext selectContext = context;
             inProcess.getContextManager().getListContext().clear();
@@ -382,14 +383,16 @@ public class TaCoKitGuessSchemaProcess {
 
         }
 
-        public GuessSchemaResult(final String result, final String error) {
+        public GuessSchemaResult(final String result, final String error, final String message) {
             this.result = result;
             this.error = error;
+            this.message = message;
         }
 
-        public GuessSchemaResult(final String result, final String error, final boolean executeMock) {
+        public GuessSchemaResult(final String result, final String error, final String message, final boolean executeMock) {
             this.result = result;
             this.error = error;
+            this.message = message;
             this.executeMock = executeMock;
         }
 
@@ -423,27 +426,6 @@ public class TaCoKitGuessSchemaProcess {
 
         public void setMessage(final String message) {
             this.message = message;
-        }
-    }
-
-    /**
-     * TODO Delete this class, this is a stub for component-runtime related class
-     */
-
-    public static class DiscoverSchemaException extends RuntimeException {
-
-        private String possibleHandleErrorWith = "exception";
-
-        public DiscoverSchemaException(final String message) {
-            super(message);
-        }
-
-        public DiscoverSchemaException(final String message, final Throwable cause) {
-            super(message, cause);
-        }
-
-        public DiscoverSchemaException(final Throwable cause) {
-            super(cause);
         }
     }
 
