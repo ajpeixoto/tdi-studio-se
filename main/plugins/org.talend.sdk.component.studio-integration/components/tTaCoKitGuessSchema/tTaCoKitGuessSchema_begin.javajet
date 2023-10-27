@@ -1,5 +1,5 @@
 <%/*
-  Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+  Copyright (C) 2006-2023 Talend Inc. - www.talend.com
    Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
@@ -63,46 +63,60 @@ System.setOut(new java.io.PrintStream(new java.io.OutputStream() {
         }
 }));
 
-<%
-    final CodeGeneratorArgument codeGenArgument = CodeGeneratorArgument.class.cast(argument);
-    final INode node = INode.class.cast(codeGenArgument.getArgument());
-    if(node == null) {
-        throw new IllegalArgumentException("node cannot be null");
-    }
-    final String cid = node.getUniqueName();
-    final String originalName = (String)node.getElementParameter(EParameterName.COMPONENT_NAME.getName()).getValue();
-    final String family = (String)node.getElementParameter(EParameterName.FAMILY.getName()).getValue();
-    final String version = (String)node.getElementParameter(EParameterName.VERSION.getName()).getValue();
-%>
+<% if (executeProcessorMockJob && !("input".equalsIgnoreCase(tacokitComponentType))) { %>
+    //
+    // Execute Mock Job
+    //
+    // Enforce max batch size to 1 for guess schema
+    globalMap.put("MAX_BATCH_SIZE_<%=guessSchemaCid%>", 1);
+
+    <%@include file="./tTaCoKitGuessSchema_begin_for_processor.javajet"%>
+
+    org.talend.sdk.component.runtime.di.schema.TaCoKitGuessSchema tacokitGuessSchema =
+    new org.talend.sdk.component.runtime.di.schema.TaCoKitGuessSchema(out,
+                                                                      configuration_<%=guessSchemaCid%>,
+                                                                      "<%=pluginName%>",
+                                                                      "<%=guessSchemaFamily%>",
+                                                                      "<%=guessSchemaOriginalName%>",
+                                                                      <% if(actionName == null || actionName.isEmpty()){%> null <%} else {%> "<%=actionName%>" <%}%>,
+                                                                      "<%=guessSchemaVersion%>");
+    globalMap.put("___tacokitGuessSchema___", tacokitGuessSchema);
+    int _recordsCount_<%=guessSchemaCid%> = 0;
+
+<% } else { %>
+    //
+    // Execute Guess Schema Service
+    //
+    <%
+        final INode node = guessSchemaNode;
+        final String cid = node.getUniqueName();
+        final String originalName = (String)node.getElementParameter(EParameterName.COMPONENT_NAME.getName()).getValue();
+        final String family = (String)node.getElementParameter(EParameterName.FAMILY.getName()).getValue();
+        final String version = (String)node.getElementParameter(EParameterName.VERSION.getName()).getValue();
+    %>
     <%@include file="../../jet_stub/generic/configuration.javajet"%>
     <%@include file="../../jet_stub/generic/utils/schema.javajet"%>
 
     org.talend.sdk.component.runtime.di.schema.TaCoKitGuessSchema tacokitGuessSchema =
-                            new org.talend.sdk.component.runtime.di.schema.TaCoKitGuessSchema(out, configuration_<%=guessSchemaCid%>,
-                                                                                    "<%=pluginName%>",
-                                                                                    "<%=guessSchemaFamily%>",
-                                                                                    "<%=guessSchemaOriginalName%>",
-                                                                                    <% if(actionName == null || actionName.isEmpty()){%> null <%}else {%> "<%=actionName%>" <%}%>,
-                                                                                    "<%=guessSchemaVersion%>"
-                                                                                    );
-<% if ("input".equalsIgnoreCase(tacokitComponentType)) {  %>
-    try {
-        tacokitGuessSchema.guessInputComponentSchema(schema_<%=cid%>);
-    } finally {
-        tacokitGuessSchema.close();
-    }
-<% } else { %>
-<% if (!executeProcessorMockJob) { %>
-    try {
-        tacokitGuessSchema.guessComponentSchema(schema_<%=cid%>, "<%=outputConnectionName%>");
-    } finally {
-        tacokitGuessSchema.close();
-    }
-<%  } else { %>
-         // Enforce max batch size to 1 for guess schema
-         globalMap.put("MAX_BATCH_SIZE_<%=guessSchemaCid%>", 1);
-        <%@include file="./tTaCoKitGuessSchema_begin_for_processor.javajet"%>
-        globalMap.put("___tacokitGuessSchema___", tacokitGuessSchema);
-        int _recordsCount_<%=guessSchemaCid%> = 0;
+    new org.talend.sdk.component.runtime.di.schema.TaCoKitGuessSchema(out,
+                                                                      configuration_<%=guessSchemaCid%>,
+                                                                      "<%=pluginName%>",
+                                                                      "<%=guessSchemaFamily%>",
+                                                                      "<%=guessSchemaOriginalName%>",
+                                                                      <% if(actionName == null || actionName.isEmpty()){%> null <%} else {%> "<%=actionName%>" <%}%>,
+                                                                      "<%=guessSchemaVersion%>");
 
+    <% if ("input".equalsIgnoreCase(tacokitComponentType)) { %>
+        try {
+            tacokitGuessSchema.guessInputComponentSchema(schema_<%=guessSchemaCid%>);
+        } finally {
+            tacokitGuessSchema.close();
+        }
+    <% } else { %>
+        try {
+            tacokitGuessSchema.guessComponentSchema(schema_<%=guessSchemaCid%>, "<%=outputConnectionName%>");
+        } finally {
+            tacokitGuessSchema.close();
+        }
+    <% } %>
 <% } %>

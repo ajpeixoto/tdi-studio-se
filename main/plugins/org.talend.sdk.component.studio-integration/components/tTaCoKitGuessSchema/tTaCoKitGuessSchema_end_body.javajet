@@ -1,5 +1,5 @@
 <%/*
-  Copyright (C) 2006-2021 Talend Inc. - www.talend.com
+  Copyright (C) 2006-2023 Talend Inc. - www.talend.com
    Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
@@ -51,7 +51,8 @@
     final String outputConnectionName = (String)guessSchemaNode.getElementParameter("___TACOKIT_GUESS_SCHEMA_PARAMETER_OUTPUT_CONNECTION_NAME___").getValue();
     final IComponent guessSchemaComponent = guessSchemaNode.getComponent();
     final boolean guessSchemaUseLookup = guessSchemaComponent.useLookup();
+    final Boolean executeProcessorMockJob = (Boolean)guessSchemaNode.getElementParameter("___TACOKIT_GUESS_SCHEMA_PARAMETER_OUTPUT_EXECUTE_MOCKJOB___").getValue();
 %>
-<% if (!"input".equalsIgnoreCase(tacokitComponentType)) { %>
+<% if (executeProcessorMockJob && (!"input".equalsIgnoreCase(tacokitComponentType))) { %>
         <%@include file="../../jet_stub/generic/processor/processor_end_body.javajet"%>
 <% } %>
