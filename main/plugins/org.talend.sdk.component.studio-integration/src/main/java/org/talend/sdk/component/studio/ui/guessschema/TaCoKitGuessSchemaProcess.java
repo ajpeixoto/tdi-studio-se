@@ -17,7 +17,6 @@ import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 
 import java.io.BufferedReader;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,6 +28,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.json.bind.Jsonb;
@@ -48,6 +48,7 @@ import org.talend.designer.core.ui.editor.process.Process;
 import org.talend.designer.core.ui.editor.properties.controllers.AbstractGuessSchemaProcess;
 import org.talend.designer.runprocess.IProcessor;
 import org.talend.designer.runprocess.ProcessorUtilities;
+import org.talend.sdk.component.api.exception.DiscoverSchemaException;
 import org.talend.sdk.component.server.front.model.ActionReference;
 import org.talend.sdk.component.studio.ComponentModel;
 import org.talend.sdk.component.studio.Lookups;
@@ -64,12 +65,12 @@ public class TaCoKitGuessSchemaProcess {
 
     private final Task guessSchemaTask;
 
-    private final ExecutorService executorService = ExecutorService.class.cast(Lookups.uiActionsThreadPool()
-            .getExecutor());
+    private final ExecutorService executorService = (ExecutorService) Lookups.uiActionsThreadPool()
+            .getExecutor();
 
     public TaCoKitGuessSchemaProcess(final Property property, final INode node, final IContext context,
             final String discoverSchemaAction, final String connectionName, final boolean executeProcessorMockJob) {
-        this.guessSchemaTask = new Task(property, context, node, discoverSchemaAction, connectionName, executorService,executeProcessorMockJob);
+        guessSchemaTask = new Task(property, context, node, discoverSchemaAction, connectionName, executorService,executeProcessorMockJob);
     }
 
     public Future<GuessSchemaResult> run() {
@@ -88,7 +89,7 @@ public class TaCoKitGuessSchemaProcess {
 
         private final IContext context;
 
-        private INode node;
+        private final INode node;
 
         private final String actionName;
 
@@ -98,9 +99,9 @@ public class TaCoKitGuessSchemaProcess {
 
         private java.lang.Process executeProcess;
         
-        private Map<String, IElementParameter> clonedDatastoreParameters = new HashMap<String, IElementParameter>();
+        private final Map<String, IElementParameter> clonedDatastoreParameters = new HashMap<String, IElementParameter>();
 
-        private boolean executeProcessorMockJob;
+        private final boolean executeProcessorMockJob;
 
         public Task(final Property property, final IContext context, final INode node, final String actionName,
                 final String connectionName, final ExecutorService executorService, final boolean executeProcessorMockJob) {
@@ -120,10 +121,10 @@ public class TaCoKitGuessSchemaProcess {
             IProcessor processor = ProcessorUtilities.getProcessor(process, null);
             processor.setContext(context);
             final String debug = System.getProperty("org.talend.tacokit.guessschema.debug", null);
-            executeProcess = processor.run(debug == null || debug.isEmpty() ? null :
+            executeProcess = processor.run(null == debug || debug.isEmpty() ? null :
                             singletonList(debug).toArray(new String[0]),
-                    IProcessor.NO_STATISTICS,
-                    IProcessor.NO_TRACES);
+                                           IProcessor.NO_STATISTICS,
+                                           IProcessor.NO_TRACES);
             
             
             final Future<GuessSchemaResult> result = executorService.submit(() -> {
@@ -143,32 +144,32 @@ public class TaCoKitGuessSchemaProcess {
                 }
                 guessSchemaResult.setError(err.stream().collect(joining("\n")));
                 final String flattened = out.replaceAll("\n", "");
-                if (schemaPattern.matcher(flattened).find()) {
-                    guessSchemaResult.setResult(schemaPattern.matcher(flattened).toMatchResult().group());
+                final Matcher schemaMatcher = Pattern.compile("(\\[\\{.*\"talendType\".*\\}])").matcher(flattened);
+                final Matcher errorMatcher = Pattern.compile("(\\{.*\"possibleHandleErrorWith\".*\\})").matcher(flattened);
+                if (schemaMatcher.find()) {
+                    guessSchemaResult.setResult(schemaMatcher.group());
                 }
-                if (errorPattern.matcher(flattened).find()) {
+                if (errorMatcher.find()) {
                     try (final Jsonb jsonb = JsonbBuilder.create()) {
-                        DiscoverSchemaException e = jsonb.fromJson(errorPattern.matcher(flattened).toMatchResult()
-                                                                           .group(), DiscoverSchemaException.class);
-                        guessSchemaResult.setExecuteMock("execute".equals(e.possibleHandleErrorWith));
+                        DiscoverSchemaException e = jsonb.fromJson(errorMatcher.group(), DiscoverSchemaException.class);
+                        guessSchemaResult.setExecuteMock("ExecuteMockJob".equals(e.getPossibleHandleErrorWith()));
                         guessSchemaResult.setMessage(e.getMessage());
                     }
                 }
-
                 return guessSchemaResult;
             });
 
             executeProcess.waitFor();
             final GuessSchemaResult guessResult = result.get();
-            if (executeProcess.exitValue() != 0){
-                return new GuessSchemaResult(guessResult.getError(), guessResult.getError());
+            if (0 != executeProcess.exitValue()){
+                return new GuessSchemaResult("", guessResult.getError(), guessResult.getMessage());
             }
             final String resultStr = guessResult.getResult();
-            if (resultStr != null && !resultStr.trim().isEmpty()) {
+            if (null != resultStr && !resultStr.trim().isEmpty()) {
                 return guessResult;
             }
             final String errMessage = guessResult.getError();
-            if (errMessage != null && !errMessage.isEmpty()) {
+            if (null != errMessage && !errMessage.isEmpty()) {
                 throw new IllegalStateException(errMessage);
             } else {
                 throw new IllegalStateException(Messages.getString("guessSchema.error.empty")); //$NON-NLS-1$
@@ -176,7 +177,7 @@ public class TaCoKitGuessSchemaProcess {
         }
 
         public synchronized void kill() {
-            if (executeProcess != null && executeProcess.isAlive()) {
+            if (null != executeProcess && executeProcess.isAlive()) {
                 restoreDatastoreParameters(node);
                 final java.lang.Process p = executeProcess.destroyForcibly();
                 try {
@@ -203,11 +204,11 @@ public class TaCoKitGuessSchemaProcess {
                 boolean isProcessor = false;
                 if (ComponentModel.class.isInstance(nodeComp)) {
                     ComponentModel compModel = (ComponentModel) nodeComp;
-                    if (compModel.getTaCoKitComponentType() != null) {
-                        if(compModel.getTaCoKitComponentType() == ETaCoKitComponentType.input || compModel.getTaCoKitComponentType() == ETaCoKitComponentType.standalone) {
+                    if (null != compModel.getTaCoKitComponentType()) {
+                        if(ETaCoKitComponentType.input == compModel.getTaCoKitComponentType() || ETaCoKitComponentType.standalone == compModel.getTaCoKitComponentType()) {
                             node.setIncomingConnections(new ArrayList<>());
                         }
-                        if(compModel.getTaCoKitComponentType() == ETaCoKitComponentType.processor) {
+                        if(ETaCoKitComponentType.processor == compModel.getTaCoKitComponentType()) {
                             isProcessor = true;
                         }
                         nodes.add(node);
@@ -229,14 +230,14 @@ public class TaCoKitGuessSchemaProcess {
                 dataProcess.buildFromGraphicalProcess(nodes);
                 process = dataProcess.getDuplicatedProcess();
                 IElementParameter log4jElemParam = process.getElementParameter(EParameterName.LOG4J_ACTIVATE.getName());
-                if (log4jElemParam != null) {
+                if (null != log4jElemParam) {
                     Boolean isEnableLog4j = AbstractGuessSchemaProcess.isEnableLog4jForGuessSchema();
                     log4jElemParam.setValue(isEnableLog4j);
                 }
                 process.getContextManager()
                         .getListContext()
                         .addAll(originalProcess.getContextManager().getListContext());
-                process.getContextManager().setDefaultContext(this.context);
+                process.getContextManager().setDefaultContext(context);
                 List<INode> nodeList = dataProcess.getNodeList();
                 INode newNode = null;
                 // INode newNode = dataProcess.buildNodeFromNode(node, process);
@@ -262,7 +263,7 @@ public class TaCoKitGuessSchemaProcess {
                     final IElementParameter actionNameParam = new ElementParameter(newNode);
                     actionNameParam.setName(TaCoKitConst.GUESS_SCHEMA_PARAMETER_ACTION_NAME);
                     final List<ActionReference> actions = cm.getDiscoverSchemaActions();
-                    if (actionName != null && !actions.isEmpty() && actions.stream()
+                    if (null != actionName && !actions.isEmpty() && actions.stream()
                             .anyMatch(a -> a.getName().equals(actionName))) {
                         actionNameParam.setValue(actions.stream()
                                 .filter(a -> a.getName().equals(actionName)).findFirst().get().getName());
@@ -294,15 +295,15 @@ public class TaCoKitGuessSchemaProcess {
 
         private void retrieveNodes(final List<INode> nodeList, final Set<INode> recordedNodes,
                 final INode currentNode) {
-            if (currentNode == null || recordedNodes.contains(currentNode)) {
+            if (null == currentNode || recordedNodes.contains(currentNode)) {
                 return;
             }
             nodeList.add(currentNode);
             recordedNodes.add(currentNode);
             List<? extends IConnection> incomingConnections = currentNode.getIncomingConnections();
-            if (incomingConnections != null && !incomingConnections.isEmpty()) {
+            if (null != incomingConnections && !incomingConnections.isEmpty()) {
                 for (IConnection conn : incomingConnections) {
-                    if (conn != null) {
+                    if (null != conn) {
                         retrieveNodes(nodeList, recordedNodes, conn.getSource());
                     }
                 }
@@ -373,14 +374,16 @@ public class TaCoKitGuessSchemaProcess {
 
         }
 
-        public GuessSchemaResult(final String result, final String error) {
+        public GuessSchemaResult(final String result, final String error, final String message) {
             this.result = result;
             this.error = error;
+            this.message = message;
         }
 
-        public GuessSchemaResult(final String result, final String error, final boolean executeMock) {
+        public GuessSchemaResult(final String result, final String error, final String message, final boolean executeMock) {
             this.result = result;
             this.error = error;
+            this.message = message;
             this.executeMock = executeMock;
         }
 
@@ -414,27 +417,6 @@ public class TaCoKitGuessSchemaProcess {
 
         public void setMessage(final String message) {
             this.message = message;
-        }
-    }
-
-    /**
-     * TODO Delete this class, this is a stub for component-runtime related class
-     */
-
-    public static class DiscoverSchemaException extends RuntimeException {
-
-        private String possibleHandleErrorWith = "exception";
-
-        public DiscoverSchemaException(final String message) {
-            super(message);
-        }
-
-        public DiscoverSchemaException(final String message, final Throwable cause) {
-            super(message, cause);
-        }
-
-        public DiscoverSchemaException(final Throwable cause) {
-            super(cause);
         }
     }
 
