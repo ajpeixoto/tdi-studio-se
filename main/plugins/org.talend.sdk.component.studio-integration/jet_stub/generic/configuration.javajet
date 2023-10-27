@@ -219,9 +219,6 @@ final java.util.Map<String, String> registry_metadata_<%=cid%> = new java.util.H
                 }
                 // Do not put in configuration hidden parameters
                 if (!p.isShow(params) && !key.endsWith("__version")) {
-                %>
-                // <%=key%> is hidden, skipping.
-                <%
                     continue;
                 }
                 String value = null;
