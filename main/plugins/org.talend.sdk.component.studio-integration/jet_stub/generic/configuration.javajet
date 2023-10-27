@@ -228,9 +228,6 @@ globalMap.put("<%=cid %>_MAPPINGS_URL", mappings_url_<%=cid %>);
                 }
                 // Do not put in configuration hidden parameters
                 if (!p.isShow(params) && !key.endsWith("__version")) {
-                %>
-                // <%=key%> is hidden, skipping.
-                <%
                     continue;
                 }
                 String value = null;
