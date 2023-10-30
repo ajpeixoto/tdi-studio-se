@@ -39,6 +39,7 @@
 	String thousandsSeparator = ElementParameterParser.getValueWithJavaType(node, "__THOUSANDS_SEPARATOR__", JavaTypesManager.CHARACTER);
 	String decimalSeparator = ElementParameterParser.getValueWithJavaType(node, "__DECIMAL_SEPARATOR__", JavaTypesManager.CHARACTER);
 	final boolean forceSingleQueryExecution = ElementParameterParser.getBooleanValue(node,"__FORCE_SINGLE_QUERY_EXEC__");
+	final String readTimeout = ElementParameterParser.getValue(node,"__READ_TIMEOUT__");
 
 	query = query.replaceAll("\n"," ");
 	query = query.replaceAll("\r"," ");
@@ -210,13 +211,27 @@ globalMap.put("<%=cid%>_ERROR_MESSAGE",ee_<%=cid%>.getMessage());
 
   if (ElementParameterParser.canEncrypt(node, "__ACCESS_TOKEN__")) {%>
      final String decryptedAccessToken_<%=cid%> = routines.system.PasswordEncryptUtil.decryptPassword(<%=ElementParameterParser.getEncryptedValue(node, "__ACCESS_TOKEN__")%>);
-     credential_<%=cid%> =
-			new com.google.api.client.auth.oauth2.Credential(com.google.api.client.auth.oauth2.BearerToken.authorizationHeaderAccessMethod()).setFromTokenResponse(
-				(new com.google.api.client.auth.oauth2.TokenResponse()).setAccessToken(decryptedAccessToken_<%=cid%>));
+     credential_<%=cid%> = new com.google.api.client.auth.oauth2.Credential(com.google.api.client.auth.oauth2.BearerToken.authorizationHeaderAccessMethod()) {
+					@Override
+					public void initialize(final com.google.api.client.http.HttpRequest request) throws IOException {
+						super.initialize(request);
+						<% if (readTimeout != null && !readTimeout.trim().isEmpty()) { %>
+						request.setReadTimeout(<%=readTimeout%>);
+						<% } %>
+					}
+				}
+			.setFromTokenResponse((new com.google.api.client.auth.oauth2.TokenResponse()).setAccessToken(decryptedAccessToken_<%=cid%>));
   <%} else {%>
-     credential_<%=cid%> =
-			new com.google.api.client.auth.oauth2.Credential(com.google.api.client.auth.oauth2.BearerToken.authorizationHeaderAccessMethod()).setFromTokenResponse(
-				(new com.google.api.client.auth.oauth2.TokenResponse()).setAccessToken(<%= ElementParameterParser.getValue(node, "__ACCESS_TOKEN__")%>));
+     credential_<%=cid%> = new com.google.api.client.auth.oauth2.Credential(com.google.api.client.auth.oauth2.BearerToken.authorizationHeaderAccessMethod()) {
+					@Override
+					public void initialize(final com.google.api.client.http.HttpRequest request) throws IOException {
+						super.initialize(request);
+						<% if (readTimeout != null && !readTimeout.trim().isEmpty()) { %>
+						request.setReadTimeout(<%=readTimeout%>);
+						<% } %>
+					}
+				}
+			.setFromTokenResponse((new com.google.api.client.auth.oauth2.TokenResponse()).setAccessToken(<%= ElementParameterParser.getValue(node, "__ACCESS_TOKEN__")%>));
   <%}
 } %>
 		bigqueryclient_<%=cid%> = new com.google.api.services.bigquery.Bigquery.Builder(TRANSPORT_<%=cid %>, JSON_FACTORY_<%=cid %>,credential_<%=cid%>).setApplicationName("Talend").build();
