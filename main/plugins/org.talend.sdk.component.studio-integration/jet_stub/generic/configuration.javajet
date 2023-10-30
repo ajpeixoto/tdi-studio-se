@@ -148,7 +148,7 @@ globalMap.put("<%=cid %>_MAPPINGS_URL", mappings_url_<%=cid %>);
                                 }
                                 if (meta.equals("originalDbColumnName")){
                                 %>
-                                configuration_<%=cid%>.put("<%=parameterName%>[<%=i%>].originalDbColumnName", "<%=column.getOriginalDbColumnName()%>");
+                                configuration_<%=cid%>.put("<%=parameterName%>[<%=i%>].originalDbColumnName", "<%=org.talend.core.model.utils.TalendTextUtils.escapeJavaText(column.getOriginalDbColumnName())%>");
                                 <%
                                 }
                                 if (meta.equals("pattern")){
