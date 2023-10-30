@@ -12,7 +12,6 @@
  */
 package org.talend.sdk.component.studio.ui.guessschema;
 
-import static java.util.Collections.EMPTY_LIST;
 import static java.util.Collections.singletonList;
 import static org.talend.sdk.component.studio.model.parameter.OutputSchemaParameter.ADDITIONAL_PARAM_METADATA_ELEMENT;
 
@@ -27,6 +26,7 @@ import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
 
 import org.eclipse.gef.commands.CommandStack;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -134,7 +134,7 @@ public class GuessSchemaSelectionAdapter extends SelectionAdapter {
          * recreate a new runnable
          */
         if (null != schema && schema.isExecuteMock()){
-            if (MessageDialog.openQuestion(composite.getShell(), "Execute Mock job?", schema.getMessage())) {()
+            if (MessageDialog.openQuestion(composite.getShell(), "Execute Mock job?", schema.getMessage())) {
                 guessSchema = new GuessSchemaRunnable(context, elementParameter, true);
                 try {
                     //this block until the guessSchema is done
