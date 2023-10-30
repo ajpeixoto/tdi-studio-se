@@ -61,7 +61,7 @@
                 }
             }
 %>
-            inputsHandler_<%=cid%>.addConnection("<%= connName %>", <%= connection.getName() %>.getClass());
+            inputsHandler_<%=cid%>.addConnection("<%= connName %>", <%= connection.getName() %>Struct.class);
 <%
         }
     }
