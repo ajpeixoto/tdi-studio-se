@@ -152,7 +152,7 @@ public class TaCoKitGuessSchemaProcess {
                 if (errorMatcher.find()) {
                     try (final Jsonb jsonb = JsonbBuilder.create()) {
                         DiscoverSchemaException e = jsonb.fromJson(errorMatcher.group(), DiscoverSchemaException.class);
-                        guessSchemaResult.setExecuteMock("ExecuteMockJob".equals(e.getPossibleHandleErrorWith()));
+                        guessSchemaResult.setExecuteMock("EXECUTE_MOCK_JOB".equals(e.getPossibleHandleErrorWith().name()));
                         guessSchemaResult.setMessage(e.getMessage());
                     }
                 }
