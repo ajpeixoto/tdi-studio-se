@@ -742,7 +742,7 @@ public class Node extends Element implements IGraphicalNode {
         updateComponentStatusIfNeeded(false);
     }
 
-    private void createElementParameters() {
+    public void createElementParameters() {
         List<IElementParameter> createElementParameters = new ArrayList<IElementParameter>();
         if (UnifiedComponentUtil.isDelegateComponent(delegateComponent)) {
             UnifiedComponentUtil.createParameters(this, createElementParameters, delegateComponent, component);

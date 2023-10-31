@@ -3,6 +3,8 @@ package org.talend.designer.core;
 import java.util.Collection;
 import java.util.List;
 
+import org.eclipse.gef.commands.Command;
+import org.talend.core.GlobalServiceRegister;
 import org.talend.core.IService;
 import org.talend.core.model.components.IComponent;
 import org.talend.core.model.components.IComponentsFactory;
@@ -79,6 +81,8 @@ public interface IUnifiedComponentService extends IService {
      */
     public void createParameters(INode node, List<IElementParameter> listParams, IComponent delegateComp, IComponent emfComp);
 
+    Command createChangeComponentCommand(Node node, IElementParameter param, String database);
+
     public void switchComponent(INode node, IComponent delegateComponent, String oldEmfComponent,
             List<? extends IElementParameter> oldParms, List<IMetadataTable> oldMetadataTables,
             List<INodeConnector> oldConnectors);
@@ -95,4 +99,13 @@ public interface IUnifiedComponentService extends IService {
     public IComponent getUnifiedComponentByFilter(IComponent delegateComponent, String filter);
 
     public UnifiedJDBCBean getInitJDBCComponentProperties(Node node, IComponent delegateComponent);
+
+    static IUnifiedComponentService get() {
+        if (GlobalServiceRegister.getDefault().isServiceRegistered(IUnifiedComponentService.class)) {
+            return GlobalServiceRegister.getDefault().getService(IUnifiedComponentService.class);
+        } else {
+            return null;
+        }
+    }
+
 }

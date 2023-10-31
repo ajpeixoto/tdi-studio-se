@@ -128,16 +128,20 @@ public class NodePart extends AbstractGraphicalEditPart implements PropertyChang
             super.setSelected(value);
         }
         IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+        IEditorPart activeEditor = page.getActiveEditor();
         if (value == SELECTED_NONE) {
             ComponentSettingsView viewer = (ComponentSettingsView) page.findView(ComponentSettingsView.ID);
             if (viewer == null) {
                 return;
             }
-            ComponentSettingsView compSettings = viewer;
-            compSettings.cleanDisplay();
-            return;
+            if (activeEditor instanceof CompareEditor) {
+                return;
+            } else {
+                ComponentSettingsView compSettings = viewer;
+                compSettings.cleanDisplay();
+                return;
+            }
         }
-        IEditorPart activeEditor = page.getActiveEditor();
         if (activeEditor instanceof AbstractMultiPageTalendEditor) {
             GraphicalViewer designerViewer = ((AbstractMultiPageTalendEditor) activeEditor).getTalendEditor().getViewer();
             Control ctrl = designerViewer.getControl();
@@ -684,7 +688,8 @@ public class NodePart extends AbstractGraphicalEditPart implements PropertyChang
                     } else {
                         try {
                             // modified for feature 2454.
-                            page.showView(ComponentSettingsView.ID);
+                            ComponentSettingsView viewer = (ComponentSettingsView) page.showView(ComponentSettingsView.ID);
+                            viewer.setElement((Node) getModel());
                         } catch (PartInitException e) {
                             CommonExceptionHandler.process(e);
                         }

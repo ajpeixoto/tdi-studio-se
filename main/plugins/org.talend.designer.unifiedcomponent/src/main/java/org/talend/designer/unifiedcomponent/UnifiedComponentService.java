@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.gef.commands.Command;
 import org.talend.core.GlobalServiceRegister;
 import org.talend.core.database.EDatabaseTypeName;
 import org.talend.core.model.components.EComponentType;
@@ -49,6 +50,7 @@ import org.talend.designer.core.ui.editor.nodes.Node;
 import org.talend.designer.core.utils.UnifiedComponentUtil;
 import org.talend.designer.unifiedcomponent.component.DelegateComponent;
 import org.talend.designer.unifiedcomponent.component.UnifiedObject;
+import org.talend.designer.unifiedcomponent.controller.ChangeComponentCommand;
 import org.talend.designer.unifiedcomponent.manager.UnifiedComponentsManager;
 
 // ============================================================================
@@ -215,6 +217,11 @@ public class UnifiedComponentService implements IUnifiedComponentService {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public Command createChangeComponentCommand(Node node, IElementParameter param, String database) {
+        return new ChangeComponentCommand(node, param, database);
     }
 
     @Override
@@ -533,6 +540,7 @@ public class UnifiedComponentService implements IUnifiedComponentService {
         return null;
     }
 
+    @Override
     public String getUnifiedCompRealComponentName(IComponent delegateComponent, String emfComponent) {
         if (delegateComponent instanceof DelegateComponent) {
             DelegateComponent dcomp = (DelegateComponent) delegateComponent;
@@ -641,6 +649,7 @@ public class UnifiedComponentService implements IUnifiedComponentService {
         return match;
     }
 
+    @Override
     public UnifiedJDBCBean getInitJDBCComponentProperties(Node node, IComponent delegateComponent) {
         if (!(delegateComponent instanceof DelegateComponent)) {
             return null;
