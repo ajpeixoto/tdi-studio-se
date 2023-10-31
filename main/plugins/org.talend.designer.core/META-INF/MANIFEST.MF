@@ -218,7 +218,6 @@ Export-Package: org.talend.designer.core;
    org.eclipse.jface.util,
    org.eclipse.swt.widgets,
    org.talend.core.model.repository,
-   org.talend.repository.metadata,
    org.talend.designer.core.ui.editor.nodecontainer",
  org.talend.designer.core.ui.editor.properties,
  org.talend.designer.core.ui.editor.properties.connections,
