@@ -1203,50 +1203,49 @@ public class RunProcessContext {
                 }
             } while (processSocket == null && !stopThread);
 
+            ExceptionHandler.logDebug("connected by job");
+            
             String preData = null;
-            if (processSocket != null && !stopThread) {
+            if (processSocket != null) {
                 try {
                     InputStream in = processSocket.getInputStream();
                     LineNumberReader reader = new LineNumberReader(new InputStreamReader(in));
-                    while (!stopThread) {
-                        String line = reader.readLine();
+                    String line = null;
+                    while ((line = reader.readLine()) != null) {
                         showMapReduceData(line);
                         showSparkStreamingData(line);
                         if (LanguageManager.getCurrentLanguage() == ECodeLanguage.JAVA) {
-                            if (line != null) {
-                                if (line.startsWith("0")) { //$NON-NLS-1$
-                                    if (isEndData(line)) {
-                                        lastData = preData;
-                                    }
-                                    // 0 = job information
-                                    // 1 = connection information
-                                    continue;
+                            if (line.startsWith("0")) { //$NON-NLS-1$
+                                if (isEndData(line)) {
+                                    lastData = preData;
                                 }
-                                String[] infos = line.split("\\|"); //$NON-NLS-1$
-                                if (infos.length < 5 || !infos[1].equals(infos[2]) || !infos[1].equals(infos[3])) {
-                                    // we only take actually informations for the main jobs, other informations won't be
-                                    // used.
-                                    continue;
-                                }
+                                // 0 = job information
+                                // 1 = connection information
+                                continue;
+                            }
+                            String[] infos = line.split("\\|"); //$NON-NLS-1$
+                            if (infos.length < 5 || !infos[1].equals(infos[2]) || !infos[1].equals(infos[3])) {
+                                // we only take actually informations for the main jobs, other informations won't be
+                                // used.
+                                continue;
+                            }
 
-                                // "0|GnqOsQ|GnqOsQ|GnqOsQ|iterate1|exec1" -->"iterate1|exec1"
-                                if (line.trim().length() > 22) {
-                                    String temp = line.substring(line.indexOf("|") + 1); // remove the 0| //$NON-NLS-1$
-                                    temp = temp.substring(temp.indexOf("|") + 1); // remove the first //$NON-NLS-1$
-                                                                                  // GnqOsQ|
-                                    temp = temp.substring(temp.indexOf("|") + 1); // remove the second //$NON-NLS-1$
-                                                                                  // GnqOsQ|
-                                    temp = temp.substring(temp.indexOf("|") + 1); // remove the third //$NON-NLS-1$
-                                                                                  // GnqOsQ|
-                                    line = temp;
-                                }
+                            // "0|GnqOsQ|GnqOsQ|GnqOsQ|iterate1|exec1" -->"iterate1|exec1"
+                            if (line.trim().length() > 22) {
+                                String temp = line.substring(line.indexOf("|") + 1); // remove the 0| //$NON-NLS-1$
+                                temp = temp.substring(temp.indexOf("|") + 1); // remove the first //$NON-NLS-1$
+                                                                              // GnqOsQ|
+                                temp = temp.substring(temp.indexOf("|") + 1); // remove the second //$NON-NLS-1$
+                                                                              // GnqOsQ|
+                                temp = temp.substring(temp.indexOf("|") + 1); // remove the third //$NON-NLS-1$
+                                                                              // GnqOsQ|
+                                line = temp;
                             }
                         }
                         preData = line;
                         final String data = line;
-                        if (data == null) {
-                            stopThread = true;
-                        } else {
+                        ExceptionHandler.logDebug("performance data sent by job: " + data);
+                        if (data != null) {
                             final PerformanceData perfData = new PerformanceData(data);
                             String connectionId = perfData.getConnectionId();
                             // handle connectionId as row1.1 and row1
@@ -1261,6 +1260,7 @@ public class RunProcessContext {
                 } finally {
                     try {
                         processSocket.close();
+                        processSocket = null;
                     } catch (IOException ioe) {
                         // Do nothing
                     }
