@@ -590,8 +590,7 @@ public class SqlMemoController extends AbstractElementPropertySectionController 
             if (curParameter instanceof ElementParameter) {
                 Object sourceName = ((ElementParameter) curParameter).getTaggedValue("org.talend.sdk.component.source");//$NON-NLS-1$
                 if ("tacokit".equalsIgnoreCase(String.valueOf(sourceName))) {//$NON-NLS-1$
-                    Object familyValue = elem.getPropertyValue(EParameterName.FAMILY.getName());
-                    if (isInWizard() || "jdbc".equalsIgnoreCase(String.valueOf(familyValue))) { //$NON-NLS-1$
+                    if (isInWizard()) { // $NON-NLS-1$
                         return false;
                     }
                 }
