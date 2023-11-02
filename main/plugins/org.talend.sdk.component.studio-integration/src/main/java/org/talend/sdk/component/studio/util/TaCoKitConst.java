@@ -126,4 +126,8 @@ public class TaCoKitConst {
     public static final String STUDIO_CONNECTION_COMPONENT_SCOPE = "studio.component.connection";
 
     public static final String STUDIO_METADATA_SCOPE = "studio.metadata";
+    
+    public static final String OPTIONAL_ROW = "OPTIONAL_ROW";
+    
+    public static final String OPTIONAL_ROW_VARIABLE = "mapper::optionalRow";
 }
