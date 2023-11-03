@@ -2241,7 +2241,7 @@ public class ProcessUpdateManager extends AbstractUpdateManager {
                                                 boolean isTacokitComponent = false;
                                                 if (GlobalServiceRegister.getDefault()
                                                         .isServiceRegistered(ITaCoKitDependencyService.class)) {
-                                                    ITaCoKitDependencyService tckService = (ITaCoKitDependencyService) GlobalServiceRegister
+                                                    ITaCoKitDependencyService tckService = GlobalServiceRegister
                                                             .getDefault().getService(ITaCoKitDependencyService.class);
                                                     if (tckService != null) {
                                                         IComponent component = node.getComponent();
@@ -2450,12 +2450,17 @@ public class ProcessUpdateManager extends AbstractUpdateManager {
                                             && "DATA_FILE".equals(repositoryValue))
                                     && !isIgnoreJDBCRepositoryParameter (node, repositoryValue)
                                     && param.isShow(node.getElementParameters())) {
-                                param.setRepositoryValueUsed(true);
-                                param.setReadOnly(true);
+                                boolean update = true;
+                                if (repositoryConnection instanceof TacokitDatabaseConnection) {
+                                    update = RepositoryToComponentProperty.isGenericRepositoryValue(repositoryConnection, null,
+                                            param.getName());
+                                }
+                                param.setRepositoryValueUsed(update);
+                                param.setReadOnly(update);
                             }
                         }
                         if (node instanceof INode) {
-                            contextData.put("NODE", (INode) node);
+                            contextData.put("NODE", node);
                         }
                         // for context mode(bug 5198)
                         List<UpdateResult> contextResults = checkParameterContextMode(node.getElementParameters(),

@@ -20,6 +20,7 @@ import java.util.Set;
 import java.util.function.BiFunction;
 
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.PlatformUI;
@@ -36,12 +37,14 @@ import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.studio.Lookups;
 import org.talend.sdk.component.studio.metadata.TaCoKitCache;
 import org.talend.sdk.component.studio.metadata.action.CreateTaCoKitConfigurationAction;
+import org.talend.sdk.component.studio.metadata.action.EditTaCoKitConfigurationAction;
 import org.talend.sdk.component.studio.metadata.model.TaCoKitConfigurationItemModel;
 import org.talend.sdk.component.studio.metadata.model.TaCoKitConfigurationModel;
 import org.talend.sdk.component.studio.metadata.node.ITaCoKitRepositoryNode;
 import org.talend.sdk.component.studio.metadata.node.TaCoKitFamilyRepositoryNode;
 import org.talend.sdk.component.studio.metadata.provider.TaCoKitMetadataContentProvider;
 import org.talend.sdk.component.studio.ui.wizard.TaCoKitCreateWizard;
+import org.talend.sdk.component.studio.ui.wizard.TaCoKitEditWizard;
 import org.talend.sdk.component.studio.util.TCKImageCache;
 import org.talend.sdk.component.studio.util.TaCoKitConst;
 import org.talend.sdk.component.studio.util.TaCoKitSpeicalManager;
@@ -125,6 +128,17 @@ public class TCKUIService implements ITCKUIService {
             }
         }
         return null;
+    }
+
+    @Override
+    public Wizard editTCKWizard(RepositoryNode node) {
+        EditTaCoKitConfigurationAction editAction = new EditTaCoKitConfigurationAction();
+        editAction.init(node);
+        TaCoKitEditWizard wizard = editAction.createWizard(PlatformUI.getWorkbench());
+        if (node.getObject() != null) {
+            wizard.setPathToSave(new Path(node.getObject().getPath()));
+        }
+        return wizard;
     }
 
     @Override

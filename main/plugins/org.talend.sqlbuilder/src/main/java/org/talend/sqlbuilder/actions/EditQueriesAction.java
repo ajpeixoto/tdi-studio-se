@@ -238,6 +238,8 @@ public class EditQueriesAction extends AContextualAction {
                             canWork = false;
                             break;
                         }
+                    } else {
+                        canWork = false;
                     }
                 }
                 break;

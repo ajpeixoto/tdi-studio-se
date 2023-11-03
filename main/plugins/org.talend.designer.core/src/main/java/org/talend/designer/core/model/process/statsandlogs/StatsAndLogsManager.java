@@ -1413,7 +1413,7 @@ public class StatsAndLogsManager {
         if (type == null || "".equals(type.trim())) { //$NON-NLS-1$
             type = StatsAndLogsConstants.DB_COMPONENTS[1][0];
         }
-        param.setValue("");
+        param.setValue(type);
         param.setDisplayName(EParameterName.DB_TYPE.getDisplayName());
         param.setFieldType(EParameterFieldType.CLOSED_LIST);
         param.setCategory(EComponentCategory.STATSANDLOGS);

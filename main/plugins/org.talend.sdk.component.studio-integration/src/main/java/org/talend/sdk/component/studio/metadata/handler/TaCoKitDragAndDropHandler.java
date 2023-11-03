@@ -28,6 +28,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
 import org.talend.commons.exception.ExceptionHandler;
@@ -407,7 +408,9 @@ public class TaCoKitDragAndDropHandler extends AbstractDragAndDropServiceHandler
             // ignore
         } else if (TacokitDatabaseConnection.KEY_DATASTORE_DRIVER.equals(paramName) || "DRIVER_JAR".equals(paramName)) {
             List<Map<String, String>> list = (List<Map<String, String>>) param.getValue();
-            list.stream().flatMap(m -> m.values().stream()).forEach(path -> tckConnection.setDriverJarPath(path));
+            Set<String> existingDrivers = Stream.of(tckConnection.getDriverJarPath().split(";")).collect(Collectors.toSet());
+            list.stream().flatMap(m -> m.values().stream()).filter(path -> !existingDrivers.contains(path))
+                    .forEach(path -> tckConnection.setDriverJarPath(path));
         } else if (TacokitDatabaseConnection.KEY_DATASTORE_DRIVER_CLASS.equals(paramName)
                 || TacokitDatabaseConnection.KEY_DRIVER_CLASS.equals(paramName) || "DRIVER_CLASS".equals(paramName)) {
             tckConnection.setDriverClass(paramValue);

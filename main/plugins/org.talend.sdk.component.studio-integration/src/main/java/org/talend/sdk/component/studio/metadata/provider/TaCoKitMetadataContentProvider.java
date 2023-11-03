@@ -138,9 +138,6 @@ public class TaCoKitMetadataContentProvider extends AbstractMetadataContentProvi
                 }
                 return ((RepositoryNode) element).getChildren().toArray();
             }
-            if (element instanceof RepositoryNode) {
-                return ((RepositoryNode) element).getChildren().toArray();
-            }
         } catch (Exception e) {
             ExceptionHandler.process(e);
         }
