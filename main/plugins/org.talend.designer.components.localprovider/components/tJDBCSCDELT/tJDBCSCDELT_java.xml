@@ -416,7 +416,7 @@
       FIELD="LABEL"
 	  NUM_ROW="16"
 	 >
-	   <DEFAULT>"Source fields value include Null" doesn't work for Postgres and PostgresPlus</DEFAULT>
+	   <DEFAULT>"Source fields value include Null" doesn't work for Postgres</DEFAULT>
 	</PARAMETER>
 
     <PARAMETER
