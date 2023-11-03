@@ -3927,6 +3927,15 @@
                name="ReplaceBackSlashWithSlashInGSPut"
                version="8.0.1">
         </projecttask>
+       <projecttask
+               beforeLogon="false"
+               breaks="8.0.1"
+               class="org.talend.repository.model.migration.UnifyPostgresPlusComponentsToReusePostgres"
+               description="Unify tPostgresPlus component to reuse tPostgres"
+               id="org.talend.repository.model.migration.UnifyPostgresPlusComponentsToReusePostgres"
+               name="UnifyPostgresPlusComponentsToReusePostgres"
+               version="8.0.1">
+       </projecttask>
    </extension>
    <extension
          point="org.talend.core.runtime.librariesNeeded">
