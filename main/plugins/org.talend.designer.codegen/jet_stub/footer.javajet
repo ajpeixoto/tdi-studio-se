@@ -92,7 +92,6 @@
         "tNetezzaConnection",
         "tOracleConnection",
         "tParAccelConnection",
-        "tPostgresPlusConnection",
         "tPostgresqlConnection",
         "tRedshiftConnection",
         "tSQLiteConnection",

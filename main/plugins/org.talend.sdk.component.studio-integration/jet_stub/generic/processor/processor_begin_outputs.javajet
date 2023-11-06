@@ -51,7 +51,7 @@
             continue;
         }
 %>
-        outputHandler_<%=cid%>.addConnection("<%= connection.getConnectorName() %>", <%= connection.getName() %>.getClass());
+        outputHandler_<%=cid%>.addConnection("<%=connection.getConnectorName() %>", <%=connection.getName() %>!=null ? <%=connection.getName() %>.getClass() : <%=connection.getName() %>Struct.class);
 <%
     }
 %>
