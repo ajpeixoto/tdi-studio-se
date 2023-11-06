@@ -3570,6 +3570,31 @@
              version="7.4.1">
        </projecttask>
        <projecttask
+             breaks="8.0.0"
+             class="org.talend.repository.model.migration.ReplacePostgresPlusConnectionByPostgresConnectionMigrationTask"
+             description="replace PostgresPlusConnection By PostgresConnection"
+             id="org.talend.repository.model.migration.ReplacePostgresPlusConnectionByPostgresConnectionMigrationTask"
+             name="ReplacePostgresPlusConnectionByPostgresConnectionMigrationTask"
+             version="8.0.1">
+       </projecttask>
+        <projecttask
+             breaks="8.0.0"
+             class="org.talend.repository.model.migration.ChangeToPostgresInJobSettingsMigrationTask"
+             description="change to Postgres in JobSettings"
+             id="org.talend.repository.model.migration.ChangeToPostgresInJobSettingsMigrationTask"
+             name="ChangeToPostgresInJobSettingsMigrationTask"
+             version="8.0.1">
+       </projecttask>
+       <projecttask
+       		 beforeLogon="true"
+             breaks="8.0.0"
+             class="org.talend.repository.model.migration.ChangePostgresPlusDBType4ProjectSettingsMigrationTask"
+             description="change to Postgres in ProjectSettings"
+             id="org.talend.repository.model.migration.ChangePostgresPlusDBType4ProjectSettingsMigrationTask"
+             name="ChangePostgresPlusDBType4ProjectSettingsMigrationTask"
+             version="8.0.1">
+       </projecttask>
+       <projecttask
               beforeLogon="false"
               breaks="7.3.0"
               class="org.talend.repository.model.migration.FixUpgradePasswordEncryptionAlg4ItemMigrationTask"
