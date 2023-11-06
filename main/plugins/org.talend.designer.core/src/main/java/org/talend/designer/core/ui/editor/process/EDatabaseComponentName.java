@@ -73,7 +73,6 @@ public enum EDatabaseComponentName implements IComponentName {
     REDSHIFT_SSO(DatabaseConnectionItem.class, EDatabaseTypeName.REDSHIFT_SSO, "tRedshiftInput", "tRedshiftOutput", true),
     NETEZZA(DatabaseConnectionItem.class, EDatabaseTypeName.NETEZZA, "tNetezzaInput", "tNetezzaOutput", true), //$NON-NLS-1$ //$NON-NLS-2$
 
-    DBPLUSPSQL(DatabaseConnectionItem.class, EDatabaseTypeName.PLUSPSQL, "tPostgresPlusInput", "tPostgresPlusOutput", true), //$NON-NLS-1$ //$NON-NLS-2$
     DBORACLEFORSID(DatabaseConnectionItem.class, EDatabaseTypeName.ORACLEFORSID, "tOracleInput", "tOracleOutput", true), //$NON-NLS-1$ //$NON-NLS-2$
 
     DBORACLESN(DatabaseConnectionItem.class, EDatabaseTypeName.ORACLESN, "tOracleInput", "tOracleOutput", true), //$NON-NLS-1$ //$NON-NLS-2$
