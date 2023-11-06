@@ -257,7 +257,9 @@ public class UnifiedComponentService implements IUnifiedComponentService {
             newConnectorMapping.putAll(unifiedObject.getConnectorMapping());
         }
         List<? extends IElementParameter> newParams = node.getElementParameters();
-        Map<String, Object> storeValueMap = storeValue(oldParams);
+        Map<String, Object> storeValueMap = new HashMap<>();
+        Map<String, IElementParameter> oldParamMap = new HashMap<>();
+        readParams(oldParams, storeValueMap, oldParamMap);
         for (IElementParameter newParam : newParams) {
             if (newParam.getFieldType() == EParameterFieldType.UNIFIED_COMPONENTS
                     || newParam.getFieldType() == EParameterFieldType.PROPERTY_TYPE) {
@@ -295,6 +297,15 @@ public class UnifiedComponentService implements IUnifiedComponentService {
                            newParam.getName().equals(oldParam.getName())) {
                         param2Find = oldParam;
                         break;
+                    }
+                }
+            }
+            if (param2Find == null) {
+                if (StringUtils.isBlank(newParamRepositoryValue)) {
+                    IElementParameter oldParam = oldParamMap.get(newParam.getName());
+                    if (oldParam != null && StringUtils.isBlank(oldParam.getRepositoryValue())
+                            && oldParam.getFieldType().equals(newParam.getFieldType()) && oldParam.isShow(oldParams)) {
+                        param2Find = oldParam;
                     }
                 }
             }
@@ -366,24 +377,27 @@ public class UnifiedComponentService implements IUnifiedComponentService {
         return objectValue;
     }
 
-    private Map<String, Object> storeValue(Object obj) {
-        Map<String, Object> map = new HashMap<String, Object>();
+    private void readParams(Object obj, Map<String, Object> valueMap, Map<String, IElementParameter> paramMap) {
         if (obj == null) {
-            return map;
+            return;
         }
         List<? extends IElementParameter> oldElementParameters = (List<? extends IElementParameter>) obj;
         for (IElementParameter sourceParam : oldElementParameters) {
-            map.put(sourceParam.getName(), sourceParam.getValue());
+            String key = sourceParam.getName();
+            paramMap.put(key, sourceParam);
+            valueMap.put(key, sourceParam.getValue());
 
             for (String name : sourceParam.getChildParameters().keySet()) {
                 IElementParameter sourceChildParam = sourceParam.getChildParameters().get(name);
                 if (sourceChildParam == null) {
                     continue;
                 }
-                map.put(sourceParam.getName() + ":" + sourceChildParam.getName(), sourceChildParam.getValue()); //$NON-NLS-1$
+                String subKey = sourceParam.getName() + ":" + sourceChildParam.getName();
+                paramMap.put(subKey, sourceChildParam);
+                valueMap.put(subKey, sourceChildParam.getValue()); // $NON-NLS-1$
             }
         }
-        return map;
+        return;
     }
 
     private void updateComponentSchema(INode node, List<IMetadataTable> oldMetadataTables, List<INodeConnector> oldConnectors,

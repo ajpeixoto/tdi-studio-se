@@ -156,6 +156,7 @@ public class ServerManager {
 
             starting.set(false);
         } catch (Throwable ex) {
+            ExceptionHandler.process(ex);
             try {
                 doStop();
             } catch (Exception e) {
