@@ -1203,7 +1203,7 @@ public class RunProcessContext {
                 }
             } while (processSocket == null && !stopThread);
 
-            ExceptionHandler.logDebug("connected by job");
+            ExceptionHandler.logDebug("connected by job, processSocket: " + processSocket);
             
             String preData = null;
             if (processSocket != null) {
@@ -1212,6 +1212,7 @@ public class RunProcessContext {
                     LineNumberReader reader = new LineNumberReader(new InputStreamReader(in));
                     String line = null;
                     while ((line = reader.readLine()) != null) {
+                        ExceptionHandler.logDebug("received job performance data: " + line);
                         showMapReduceData(line);
                         showSparkStreamingData(line);
                         if (LanguageManager.getCurrentLanguage() == ECodeLanguage.JAVA) {
@@ -1256,7 +1257,7 @@ public class RunProcessContext {
                         }
                     }
                 } catch (Exception e) {
-                    // Do nothing : process is ended
+                    ExceptionHandler.process(e);
                 } finally {
                     try {
                         processSocket.close();
