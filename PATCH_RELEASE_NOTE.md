@@ -10,8 +10,8 @@ product:
 
 | Info             | Value                               |
 | ---------------- |-------------------------------------|
-| Patch Name       | Patch\_20231108\_TPS-5540\_v1-8.0.1 |
-| Release date     | 2023-11-08                          |
+| Patch Name       | Patch\_20231110\_TPS-5540\_v1-8.0.1 |
+| Release date     | 2023-11-10                          |
 | Target version   | 20211109\_1610-8.0.1                |
 | Product affected | Talend Studio                       |
 
