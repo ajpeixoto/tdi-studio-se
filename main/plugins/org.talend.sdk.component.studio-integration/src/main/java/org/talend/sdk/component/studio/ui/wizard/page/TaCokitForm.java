@@ -13,18 +13,14 @@
 package org.talend.sdk.component.studio.ui.wizard.page;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Composite;
-import org.talend.commons.runtime.service.ITaCoKitService;
-import org.talend.core.model.metadata.builder.connection.TacokitDatabaseConnection;
 import org.talend.core.model.process.EParameterFieldType;
 import org.talend.core.model.process.IElementParameter;
 import org.talend.core.model.properties.ConnectionItem;
-import org.talend.core.model.properties.TacokitDatabaseConnectionItem;
 import org.talend.designer.core.model.components.ElementParameter;
 import org.talend.metadata.managment.ui.model.AbsConnParamName;
 import org.talend.metadata.managment.ui.model.IConnParamName;
@@ -63,11 +59,7 @@ public class TaCokitForm extends AbstractForm {
             for (IElementParameter param : help.getParameters()) {
                 if (((ElementParameter) param).isDisplayedByDefault()) {
                     EParameterFieldType eParameterFieldType = param.getFieldType();
-                    if (eParameterFieldType != EParameterFieldType.TACOKIT_BUTTON
-                            && eParameterFieldType != EParameterFieldType.MAPPING_TYPE
-                            && eParameterFieldType != EParameterFieldType.CLOSED_LIST
-                            && eParameterFieldType != EParameterFieldType.CHECK
-                            && eParameterFieldType != EParameterFieldType.TABLE) {
+                    if (composite.isSupportContextFieldType(param)) {
                         TaCoKitParamName taCoKitParamName = new TaCoKitParamName(param.getName(), eParameterFieldType);
                         taCoKitParamName.setValue(param.getValue() == null ? null : String.valueOf(param.getValue()));
                         set.add(taCoKitParamName);
