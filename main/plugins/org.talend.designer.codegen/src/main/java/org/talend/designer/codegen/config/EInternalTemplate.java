@@ -52,12 +52,17 @@ public enum EInternalTemplate {
     FOOTER_ROUTE("footer_route", "0.0.1"), //$NON-NLS-1$ //$NON-NLS-2$
     HEADER_ROUTE("header_route", "0.0.1"), //$NON-NLS-1$ //$NON-NLS-2$
     MICROSERVICE_APP_SECURITY("microservice_app_security","0.0.1"), //$NON-NLS-1$ //$NON-NLS-2$
+    STANDALONE_MICROSERVICE_APP_SECURITY("standalone_microservice_app_security","0.0.1"), //$NON-NLS-1$ //$NON-NLS-2$
     CAMEL_RUNIF("camel_run_if", "0.0.1"), //$NON-NLS-1$ //$NON-NLS-2$
     CAMEL_SPECIALLINKS("camel_speciallinks", "0.0.1"), //$NON-NLS-1$ //$NON-NLS-2$
     MICROSERVICE_APP("microservice_app", "0.0.1"), //$NON-NLS-1$ //$NON-NLS-2$
+    STANDALONE_MICROSERVICE_APP("standalone_microservice_app", "0.0.1"), //$NON-NLS-1$ //$NON-NLS-2$
     MICROSERVICE_APP_MS_CONTEXT_PROPERTIES("microservice_app_ms_context_properties","0.0.1"), //$NON-NLS-1$ //$NON-NLS-2$
+    STANDALONE_MICROSERVICE_APP_MS_CONTEXT_PROPERTIES("standalone_microservice_app_ms_context_properties","0.0.1"), //$NON-NLS-1$ //$NON-NLS-2$
     MICROSERVICE_APP_CONTEXT_PROPERTIES("microservice_app_context_properties","0.0.1"), //$NON-NLS-1$ //$NON-NLS-2$
+    STANDALONE_MICROSERVICE_APP_CONTEXT_PROPERTIES("standalone_microservice_app_context_properties","0.0.1"), //$NON-NLS-1$ //$NON-NLS-2$
     MICROSERVICE_APP_PROPERTIES("microservice_app_properties","0.0.1"), //$NON-NLS-1$ //$NON-NLS-2$
+    STANDALONE_MICROSERVICE_APP_PROPERTIES("standalone_microservice_app_properties","0.0.1"), //$NON-NLS-1$ //$NON-NLS-2$
 
     HEADER_ADDITIONAL("header_additional", "0.0.1"), //$NON-NLS-1$ //$NON-NLS-2$
 
