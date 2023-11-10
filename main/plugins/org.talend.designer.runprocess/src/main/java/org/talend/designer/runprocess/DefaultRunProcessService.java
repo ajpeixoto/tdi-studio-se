@@ -82,6 +82,7 @@ import org.talend.core.runtime.process.TalendProcessArgumentConstant;
 import org.talend.core.runtime.process.TalendProcessOptionConstants;
 import org.talend.core.runtime.projectsetting.ProjectPreferenceManager;
 import org.talend.core.service.IESBMicroService;
+import org.talend.core.service.IESBStandaloneMicroService;
 import org.talend.core.service.IESBRouteService;
 import org.talend.core.ui.ITestContainerProviderService;
 import org.talend.core.utils.CodesJarResourceCache;
@@ -242,17 +243,33 @@ public class DefaultRunProcessService implements IRunProcessService {
 
         IESBMicroService microService = null;
 
+        IESBStandaloneMicroService standaloneMicroService = null;
+
         IESBRouteService routeService = null;
 
         IESBService soapService = null;
 
+        final String buildType = (String) property.getAdditionalProperties().get(TalendProcessArgumentConstant.ARG_BUILD_TYPE);
+        
         if (GlobalServiceRegister.getDefault().isServiceRegistered(IESBMicroService.class)) {
             microService = GlobalServiceRegister.getDefault().getService(IESBMicroService.class);
 
             if (property != null && property.getAdditionalProperties() != null
-                    && "REST_MS".equals(property.getAdditionalProperties().get(TalendProcessArgumentConstant.ARG_BUILD_TYPE))) {
+                    && "REST_MS".equals(buildType)) {
                 if (microService != null) {
                     IProcessor processor = microService.createJavaProcessor(process, property, filenameFromLabel, false);
+                    if (processor != null) {
+                        return processor;
+                    }
+                }
+            }
+        }else if (GlobalServiceRegister.getDefault().isServiceRegistered(IESBStandaloneMicroService.class)) {
+            standaloneMicroService = GlobalServiceRegister.getDefault().getService(IESBStandaloneMicroService.class);
+
+            if (property != null && property.getAdditionalProperties() != null
+                    && "REST_STANDALONE_MS".equals(buildType)) {
+                if (standaloneMicroService != null) {
+                    IProcessor processor = standaloneMicroService.createJavaProcessor(process, property, filenameFromLabel, false);
                     if (processor != null) {
                         return processor;
                     }
@@ -281,10 +298,16 @@ public class DefaultRunProcessService implements IRunProcessService {
         } else if (ComponentCategory.CATEGORY_4_SPARKSTREAMING.getName().equals(process.getComponentsType())) {
             return new SparkJavaProcessor(process, property, filenameFromLabel);
         } else if (ComponentCategory.CATEGORY_4_CAMEL.getName().equals(process.getComponentsType())) {
-            if ("ROUTE_MICROSERVICE"
-                    .equals(property.getAdditionalProperties().get(TalendProcessArgumentConstant.ARG_BUILD_TYPE))) {
+            if ("ROUTE_MICROSERVICE".equals(buildType)) {
                 if (microService != null) {
                     IProcessor processor = microService.createJavaProcessor(process, property, filenameFromLabel, true);
+                    if (processor != null) {
+                        return processor;
+                    }
+                }
+            } else if("ROUTE_STANDALONE_MICROSERVICE".equals(buildType)){
+                if (standaloneMicroService != null) {
+                    IProcessor processor = standaloneMicroService.createJavaProcessor(process, property, filenameFromLabel, true);
                     if (processor != null) {
                         return processor;
                     }
@@ -329,12 +352,15 @@ public class DefaultRunProcessService implements IRunProcessService {
                     }
 
                     boolean isOSGI = "OSGI"
-                            .equals(property.getAdditionalProperties().get(TalendProcessArgumentConstant.ARG_BUILD_TYPE));
+                            .equals(buildType);
                     // TESB-25116 The microservice jar which is built from route with ctalendjob is only 2kb
                     boolean isMicroservice = lastMainJob != null && lastMainJob.getProcessor().getProperty() != null
                             && "ROUTE_MICROSERVICE".equals(lastMainJob.getProcessor().getProperty().getAdditionalProperties()
                                     .get(TalendProcessArgumentConstant.ARG_BUILD_TYPE));
-                    if (isOSGI || servicePart || (isRouteReferenceJob && !isMicroservice)) {
+                    boolean isStandalineMicroservice = lastMainJob != null && lastMainJob.getProcessor().getProperty() != null
+                            && "ROUTE_STANDALONE_MICROSERVICE".equals(lastMainJob.getProcessor().getProperty().getAdditionalProperties()
+                                    .get(TalendProcessArgumentConstant.ARG_BUILD_TYPE));
+                    if (isOSGI || servicePart || (isRouteReferenceJob && !isMicroservice && !isStandalineMicroservice)) {
                         if (GlobalServiceRegister.getDefault().isServiceRegistered(IESBService.class)) {
                             soapService = GlobalServiceRegister.getDefault().getService(IESBService.class);
                             return soapService.createOSGIJavaProcessor(process, property, filenameFromLabel);
