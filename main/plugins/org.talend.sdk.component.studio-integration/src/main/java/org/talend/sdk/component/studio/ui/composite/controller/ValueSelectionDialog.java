@@ -141,7 +141,7 @@ public class ValueSelectionDialog extends Dialog {
             if (selectedElements.size() > 0) {
                 StringBuffer sber = new StringBuffer();
                 for (String selectedLabel : selectedElements) {
-                    sber.append(values.get(selectedLabel));
+                    sber.append(selectedLabel);
                     if (!isMultiple) {
                         break;
                     }
