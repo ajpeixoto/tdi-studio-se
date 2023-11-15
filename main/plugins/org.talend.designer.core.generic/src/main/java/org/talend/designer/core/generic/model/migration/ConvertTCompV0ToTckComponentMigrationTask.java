@@ -226,13 +226,14 @@ public abstract class ConvertTCompV0ToTckComponentMigrationTask extends Abstract
                             }
                             
                             ComponentUtilities.addNodeProperty(nodeType, model.newPath, "COMPONENT_LIST");
+                            ComponentUtilities.setNodeValue(nodeType, model.newPath, "");
                             if(referenceType == null || "THIS_COMPONENT".equals(referenceType.name())) {
                                 if(oldUseConnectionElement == null) {
                                     ComponentUtilities.setNodeValue(nodeType, "USE_EXISTING_CONNECTION", "false");
                                 }
                             } else {
                                 final Object value = Property.class.cast(compProperties.getProperty(model.oldPath + ".componentInstanceId")).getStoredValue();
-                                ComponentUtilities.setNodeValue(nodeType, model.newPath, value == null ? null : String.valueOf(value));
+                                ComponentUtilities.setNodeValue(nodeType, model.newPath, value == null ? "" : String.valueOf(value));
                                 
                                 if(oldUseConnectionElement == null && value != null) {
                                     ComponentUtilities.setNodeValue(nodeType, "USE_EXISTING_CONNECTION", "true");
