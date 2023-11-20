@@ -258,7 +258,7 @@ public class DefaultRunProcessService implements IRunProcessService {
                 microService = GlobalServiceRegister.getDefault().getService(IESBMicroService.class);
 
                 if (microService != null) {
-                    IProcessor processor = microService.createJavaProcessor(process, property, filenameFromLabel, false);
+                    IProcessor processor = microService.createJavaProcessor(process, property, filenameFromLabel, "ROUTE_MICROSERVICE".equals(buildType));
                     if (processor != null) {
                         return processor;
                         }
