@@ -149,6 +149,7 @@ import org.talend.hadoop.distribution.condition.NestedComponentCondition;
 import org.talend.hadoop.distribution.condition.SimpleComponentCondition;
 import org.talend.hadoop.distribution.constants.SparkBatchConstant;
 import org.talend.hadoop.distribution.constants.apache.ESparkMode;
+import org.talend.hadoop.distribution.constants.apache.ISparkDistribution;
 import org.talend.hadoop.distribution.constants.databricks.DatabricksRuntimeVersion;
 import org.talend.hadoop.distribution.dynamic.template.AbstractDynamicDistributionTemplate;
 import org.talend.hadoop.distribution.dynamic.template.IDynamicDistributionTemplate;
@@ -1890,6 +1891,7 @@ public class EmfComponent extends AbstractBasicComponent {
                 newParam.setGroupDisplayName(parentParam.getGroupDisplayName());
                 newParam.setDefaultValues(sparkModesDefaultValues);
                 newParam.setRepositoryValue(SparkBatchConstant.SPARK_MODE_PARAMETER);
+                newParam.setRepositoryValueIf("DISTRIBUTION=='" + ISparkDistribution.DISTRIBUTION_NAME + "'");
                 listParam.add(newParam);
                 
                 // databricksRuntimeVersion for universal
@@ -1978,6 +1980,8 @@ public class EmfComponent extends AbstractBasicComponent {
             param = new ElementParameter(node);
             param.setName(xmlParam.getNAME());
             param.setDisplayName(getTranslatedValue(xmlParam.getNAME() + "." + PROP_NAME)); //$NON-NLS-1$
+            param.setDescription(getTranslatedValue(xmlParam.getNAME() + "." + PROP_DESCRIPTION)); //$NON-NLS-1$
+            
             if (xmlParam.getGROUP() != null) {
                 param.setGroupDisplayName(getTranslatedValue(xmlParam.getGROUP() + "." + PROP_NAME));//$NON-NLS-1$
             }

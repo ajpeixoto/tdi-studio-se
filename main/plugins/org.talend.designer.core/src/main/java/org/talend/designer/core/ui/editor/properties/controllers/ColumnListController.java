@@ -236,6 +236,9 @@ public class ColumnListController extends AbstractElementPropertySectionControll
         }
 
         CLabel labelLabel = getWidgetFactory().createCLabel(subComposite, param.getDisplayName());
+        if (param.getDescription()!= null && !param.getDescription().startsWith(EMPTY_DESCRIPTION_PREFIX)) {
+        	labelLabel.setToolTipText(param.getDescription());
+        }
         data = new FormData();
         if (lastControl != null) {
             data.left = new FormAttachment(lastControl, 0);
@@ -887,11 +890,11 @@ public class ColumnListController extends AbstractElementPropertySectionControll
             String lineName = (String) newLine.get("SCHEMA_COLUMN"); //$NON-NLS-1$
             for (IMetadataColumn column : table.getListColumns()) {
 
-                if (lineName.equals(column.getLabel())) {
+                if (lineName != null && lineName.equals(column.getLabel())) {
                     final Object size = newLine.get("SIZE"); //$NON-NLS-1$
                     final Integer length = column.getLength();
                     // wzhang modified to fix 12131.
-                    if (size != null && length != null && length.intValue() > 0
+                     if (size != null && length != null && length.intValue() > 0
                             && Integer.parseInt((String) size) == column.getLength()) {
                         break;
                     }

@@ -525,14 +525,18 @@ public class RepositoryService implements IRepositoryService, IRepositoryContext
                     }
 
                 }
+                if (project == null) {
+                    process(new LoginException(Messages.getString("RepositoryService.projectNotFound", projectName)));
+                    return false;
+                }
+
                 if (!repositoryFactory.isLocalConnectionProvider()) {
                     if (StringUtils.isBlank(branch)) {
-                        branch = preferenceManipulator.getLastSVNBranch(new JSONObject(project.getEmfProject().getUrl()).getString("location"), project.getTechnicalLabel());
+                        branch = preferenceManipulator.getLastSVNBranch(
+                                new JSONObject(project.getEmfProject().getUrl()).getString("location"),
+                                project.getTechnicalLabel());
                     }
                     ProjectManager.getInstance().setMainProjectBranch(project, branch);
-                }
-                if (project == null) {
-                    throw new LoginException(Messages.getString("RepositoryService.projectNotFound", projectName)); //$NON-NLS-1$
                 }
                 repositoryContext.setProject(project);
                 if (CommonsPlugin.isHeadless() || CommonsPlugin.isScriptCmdlineMode()) {
@@ -1066,6 +1070,12 @@ public class RepositoryService implements IRepositoryService, IRepositoryContext
             return coreTisService.getStandardNodeLabel();
         }
         return "Standard";
+    }
+
+    @Override
+    public void openProjectSettingsDialog(String pageId) {
+        ProjectSettingDialog dialog = new ProjectSettingDialog();
+        dialog.open(pageId);
     }
 
 }

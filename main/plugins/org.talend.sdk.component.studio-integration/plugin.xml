@@ -111,7 +111,7 @@
            level="1"
            name="Edit TaCoKit">
      </Action>
-  </extension>
+  </extension> 
   <extension
         point="org.talend.core.runtime.service">
      <Service
@@ -121,6 +121,10 @@
     <Service
       class="org.talend.sdk.component.studio.service.TaCoKitDependencyService"
       serviceId="ITaCoKitDependencyService">
+    </Service>
+    <Service
+          class="org.talend.sdk.component.studio.service.TCKUIService"
+          serviceId="ITCKUIService">
     </Service>
   </extension>
   <extension
@@ -314,6 +318,24 @@
            name="UpdateEncryptTckMetadataMigrationTask"
            version="8.0.1">
      </projecttask>
+     <projecttask
+          beforeLogon="false"
+          breaks="8.0.1"
+          class="org.talend.sdk.component.studio.metadata.migration.tcompv0.JiraTcompv0ToTCKMigrationTask"
+          description="Migration task for jira TCOMP to TCK"
+          id="org.talend.sdk.component.studio.metadata.migration.tcompv0.JiraTcompv0ToTCKMigrationTask"
+          name="JiraTcompv0ToTCKMigrationTask"
+          version="8.0.1">
+     </projecttask>
+     <projecttask
+          beforeLogon="false"
+          breaks="8.0.1"
+          class="org.talend.sdk.component.studio.metadata.migration.tcompv0.SplunkTcompv0ToTCKMigrationTask"
+          description="Migration task for splunk TCOMP to TCK"
+          id="org.talend.sdk.component.studio.metadata.migration.tcompv0.SplunkTcompv0ToTCKMigrationTask"
+          name="SplunkTcompv0ToTCKMigrationTask"
+          version="8.0.1">
+     </projecttask>
   </extension>
  <extension
        point="org.eclipse.ui.startup">
@@ -329,4 +351,18 @@
   <extension point="org.talend.core.runtime.buildExport_provider">
     <dependenciesProvider class="org.talend.sdk.component.studio.provider.TacokitExportDependenciesProvider"></dependenciesProvider>
   </extension>
+  <extension
+          point="org.talend.core.repository.repository_context">
+       <RepositoryContext
+             class="org.talend.sdk.component.studio.ui.wizard.page.TaCoKitContextHandler">
+       </RepositoryContext>
+    </extension>
+    <extension
+          point="org.talend.core.runtime.service">
+       <Service
+             class="org.talend.sdk.component.studio.service.TaCoKitContextUpdateService"
+             serviceId="IRepositoryContextUpdateService">
+       </Service>
+    </extension>
+
 </plugin>

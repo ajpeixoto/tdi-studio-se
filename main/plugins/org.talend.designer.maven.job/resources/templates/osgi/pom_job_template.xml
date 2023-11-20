@@ -38,6 +38,7 @@
         <project.distribution-management.repository.id>@ProjectDistributionManagementRepositoryId@</project.distribution-management.repository.id>
         <project.distribution-management.repository.url>@ProjectDistributionManagementRepositoryUrl@</project.distribution-management.repository.url>
         <docker.skip>true</docker.skip>
+        <talend.job.parent.id>@JobParentId@</talend.job.parent.id>
 	</properties>
 
 	<dependencies>
@@ -60,7 +61,12 @@
 					<dependency>
 						<groupId>org.codehaus.plexus</groupId>
 						<artifactId>plexus-utils</artifactId>
-						<version>3.3.0</version>
+						<version>4.0.0</version>
+					</dependency>
+					<dependency>
+						<groupId>org.codehaus.plexus</groupId>
+						<artifactId>plexus-xml</artifactId>
+						<version>4.0.0</version>
 					</dependency>
 					<dependency>
 						<groupId>org.codehaus.plexus</groupId>
@@ -95,12 +101,12 @@
 					<dependency>
 						<groupId>org.codehaus.plexus</groupId>
 						<artifactId>plexus-archiver</artifactId>
-						<version>4.2.1</version>
+						<version>4.8.0</version>
 					</dependency>
 					<dependency>
 						<groupId>org.codehaus.plexus</groupId>
 						<artifactId>plexus-io</artifactId>
-						<version>3.2.0</version>
+						<version>3.4.1</version>
 					</dependency>
 					<dependency>
 						<groupId>org.apache.maven</groupId>
@@ -182,6 +188,7 @@
                             <goal>single</goal>
                         </goals>
                         <configuration>
+			    <attach>false</attach>
                             <descriptors>
                                 <descriptor>${basedir}/src/main/assemblies/assembly.xml</descriptor>
                             </descriptors>
@@ -215,6 +222,7 @@
                                     <goal>single</goal>
                                 </goals>
                                 <configuration>
+				    <attach>false</attach>
                                     <descriptors>
                                         <descriptor>${basedir}/src/main/assemblies/assembly.xml</descriptor>
                                     </descriptors>

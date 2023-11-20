@@ -19,10 +19,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.graphics.RGB;
+import org.talend.commons.exception.ExceptionHandler;
 import org.talend.core.model.process.EComponentCategory;
 import org.talend.core.model.process.EParameterFieldType;
+import org.talend.core.model.process.Element;
 import org.talend.core.model.process.IElement;
 import org.talend.core.model.process.IElementParameter;
 import org.talend.core.model.process.IElementParameterDefaultValue;
@@ -92,6 +95,8 @@ public class ElementParameter implements IElementParameter {
 
     private String repositoryValue;
 
+    private String repositoryValueIf;
+
     private boolean repositoryValueUsed = false;
 
     private String showIf = null;
@@ -156,6 +161,8 @@ public class ElementParameter implements IElementParameter {
     private Map<String, Object> taggedValues = new HashMap<>();
 
     protected boolean isSerialized = false;
+    
+    private String description;
 
     public ElementParameter(final IElement element) {
         this.element = element;
@@ -419,13 +426,47 @@ public class ElementParameter implements IElementParameter {
     }
 
     @Override
-    public String getRepositoryValue() {
+    public String calcRepositoryValue() {
+        if (StringUtils.isBlank(this.repositoryValueIf)) {
+            return this.repositoryValue;
+        }
+        if (StringUtils.isBlank(this.repositoryValue)) {
+            return this.repositoryValue;
+        }
+        boolean activateRepositoryValue = true;
+        if (this.element instanceof Element) {
+            try {
+                activateRepositoryValue = Expression.evaluate(this.repositoryValueIf, this.element.getElementParameters(), this);
+            } catch (Throwable e) {
+                ExceptionHandler.process(e);
+            }
+        }
+        if (activateRepositoryValue) {
+            return this.repositoryValue;
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public String getRawRepositoryValue() {
         return this.repositoryValue;
     }
 
     @Override
     public void setRepositoryValue(String repositoryValue) {
         this.repositoryValue = repositoryValue;
+    }
+
+    
+    @Override
+    public String getRepositoryValueIf() {
+        return repositoryValueIf;
+    }
+
+    @Override
+    public void setRepositoryValueIf(String repositoryValueIf) {
+        this.repositoryValueIf = repositoryValueIf;
     }
 
     @Override
@@ -1055,8 +1096,9 @@ public class ElementParameter implements IElementParameter {
         // }
         clone.setReadOnly(isReadOnly());
         clone.setReadOnlyIf(getReadOnlyIf());
-        clone.setRepositoryValue(getRepositoryValue());
+        clone.setRepositoryValue(getRawRepositoryValue());
         clone.setRepositoryValueUsed(isRepositoryValueUsed());
+        clone.setRepositoryValueIf(getRepositoryValueIf());
         clone.setRequired(isRequired());
         clone.setShow(isDisplayedByDefault());
         clone.setShowIf(getShowIf());
@@ -1064,6 +1106,7 @@ public class ElementParameter implements IElementParameter {
         clone.setOrignEncryptedValue(getOrignEncryptedValue());
         // clone.setValueToDefault(null)
         clone.setNoContextAssist(isNoContextAssist());
+        clone.setDescription(getDescription());
         if (this.getChildParameters().size() > 0) {
             for (String name : this.getChildParameters().keySet()) {
                 IElementParameter childParamClone = this.getChildParameters().get(name).getClone();
@@ -1317,5 +1360,15 @@ public class ElementParameter implements IElementParameter {
         this.originEncryptedValue = value;
         
     }
+
+	@Override
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	@Override
+	public String getDescription() {
+		return this.description;
+	}
 
 }
