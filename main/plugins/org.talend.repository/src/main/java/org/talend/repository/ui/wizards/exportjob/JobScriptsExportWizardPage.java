@@ -1424,9 +1424,10 @@ public abstract class JobScriptsExportWizardPage extends WizardFileSystemResourc
         }
 
         JobExportType jobExportType = getCurrentExportType1();
-        if (JobExportType.POJO.equals(jobExportType) || JobExportType.MSESB.equals(jobExportType)
-                || JobExportType.OSGI.equals(jobExportType) || JobExportType.IMAGE.equals(jobExportType)
-                || JobExportType.MSESB_IMAGE.equals(jobExportType)) {
+        if (Arrays
+                .asList(JobExportType.POJO, JobExportType.MSESB, JobExportType.OSGI, JobExportType.IMAGE,
+                        JobExportType.MSESB_IMAGE, JobExportType.MSESB_STANDALONE, JobExportType.MSESB_STANDALONE_IMAGE)
+                .contains(jobExportType)) {   
             IRunnableWithProgress worker = new IRunnableWithProgress() {
 
                 @Override

@@ -1,5 +1,6 @@
 package org.talend.repository.ui.wizards.exportjob.extrachecker;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -36,20 +37,13 @@ public class LimitRESTRequestJobChecker extends AbstractJobNodeChecker {
 			return null;
 		}
 
-        if (exportType == JobExportType.MSESB) {
+        if (Arrays.asList(JobExportType.MSESB, JobExportType.MSESB_IMAGE, JobExportType.MSESB_STANDALONE,
+                JobExportType.MSESB_STANDALONE_IMAGE).contains(exportType)) {
             if (T_REST_REQUEST.equals(componentName)) {
                 tRESTRequestExist = true;
             }
             return null;
         }
-
-        if (exportType == JobExportType.MSESB_IMAGE) {
-            if (T_REST_REQUEST.equals(componentName)) {
-                tRESTRequestExist = true;
-            }
-            return null;
-        }
-
         if (T_REST_REQUEST.equals(componentName)) {
             return Messages.getString("LimitRESTRequestJobChecker.limit_tRESTRequest", componentName);
         }
@@ -77,11 +71,11 @@ public class LimitRESTRequestJobChecker extends AbstractJobNodeChecker {
             if (!containsESBComponents) {
                 return Messages.getString("LimitRESTRequestJobChecker.limit_ESBJobForOSGI");
             }
-        } else if (exportType == JobExportType.MSESB) {
+        } else if (exportType == JobExportType.MSESB || exportType == JobExportType.MSESB_STANDALONE) {
             if (!tRESTRequestExist) {
                 return Messages.getString("LimitRESTRequestJobChecker.limit_ESBJobForMS", T_REST_REQUEST);
             }
-        } else if (exportType == JobExportType.MSESB_IMAGE) {
+        } else if (exportType == JobExportType.MSESB_IMAGE ||exportType == JobExportType.MSESB_STANDALONE_IMAGE) {
             if (!tRESTRequestExist) {
                 return Messages.getString("LimitRESTRequestJobChecker.limit_ESBJobForMSImage", T_REST_REQUEST);
             }

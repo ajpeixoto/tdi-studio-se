@@ -384,8 +384,6 @@ public class JavaJobScriptsExportWSWizardPage extends JavaJobScriptsExportWizard
 
         createDestinationGroup(pageComposite);
 
-        // this.getDestinationValue()
-        // createExportTree(pageComposite);
         if (!isMultiNodes()) {
             IBrandingService brandingService =
                     GlobalServiceRegister.getDefault().getService(IBrandingService.class);
@@ -447,120 +445,132 @@ public class JavaJobScriptsExportWSWizardPage extends JavaJobScriptsExportWizard
 
         boolean canESBMicroServiceDockerImage = PluginChecker.isDockerPluginLoaded();
         Object bType = getProcessItem().getProperty().getAdditionalProperties().get(TalendProcessArgumentConstant.ARG_BUILD_TYPE);
+        
+        if(bType.toString().equals("REST_STANDALONE_MS")) {
+            if (!Boolean.getBoolean("talend.export.job.2." + JobExportType.MSESB_STANDALONE.toString() + ".hide")) { //$NON-NLS-1$//$NON-NLS-2$
+                if (GlobalServiceRegister.getDefault().isServiceRegistered(IESBMicroService.class) && canESBMicroServiceJob) {
+                    exportTypeCombo.add(JobExportType.MSESB_STANDALONE.label);
+                } else {
+                    // reset export type to POJO
+                    if (getCurrentExportType1().equals(JobExportType.MSESB_STANDALONE)) {
+                        getDialogSettings().put(STORE_EXPORTTYPE_ID, JobExportType.POJO.label);
+                    }
+                }
+                exportTypeCombo.setText(exportTypeCombo.getItem(0));
+            }
+        } else {
 
-        Map<JobExportType, String> map = BuildJobConstants.oldBuildTypeMap;
-        JobExportType jType = null;
-        if (bType != null) {
-	        for (JobExportType t : map.keySet()) {
-	            if (bType.toString().equals(map.get(t))) { // same build type
-	            	jType = t;
-	                break;
-	            }
-	        }
-        }
-
-        for (Object o : ((ProcessItem) processItem).getProcess().getNode()) {
-            if (o instanceof NodeType) {
-                NodeType currentNode = (NodeType) o;
-                if (BuildJobConstants.esbComponents.contains(currentNode.getComponentName())) {
-                    isESBJob = true;
-                    break;
+            Map<JobExportType, String> map = BuildJobConstants.oldBuildTypeMap;
+            JobExportType jType = null;
+            if (bType != null) {
+    	        for (JobExportType t : map.keySet()) {
+    	            if (bType.toString().equals(map.get(t))) { // same build type
+    	            	jType = t;
+    	                break;
+    	            }
+    	        }
+            }
+    
+            for (Object o : ((ProcessItem) processItem).getProcess().getNode()) {
+                if (o instanceof NodeType) {
+                    NodeType currentNode = (NodeType) o;
+                    if (BuildJobConstants.esbComponents.contains(currentNode.getComponentName())) {
+                        isESBJob = true;
+                        break;
+                    }
                 }
             }
-        }
-
-        for (JobExportType exportType : extractExportJobTypes()) {//[POJO, OSGI, MSESB, MSESB_IMAGE, IMAGE, ROUTE, SERVICE]
-            if (!Boolean.getBoolean("talend.export.job.2." + exportType.toString() + ".hide")) { //$NON-NLS-1$//$NON-NLS-2$
-                // TESB-20767 Microservice should not be display with TDI license
-                if (exportType == JobExportType.ROUTE || exportType == JobExportType.SERVICE) {
-                    continue;
-                } else if (exportType.equals(JobExportType.OSGI)) {
-                    if (isESBJob && !"STANDALONE".equals(bType)) {
-                        exportTypeCombo.add(exportType.label);
-                    }
-                } else if (exportType.equals(JobExportType.MSESB)) {
-                    if (GlobalServiceRegister.getDefault().isServiceRegistered(IESBMicroService.class) && canESBMicroServiceJob) {
-                        exportTypeCombo.add(exportType.label);
-                    } else {
-                        // reset export type to POJO
-                        if (getCurrentExportType1().equals(JobExportType.MSESB)) {
-                            getDialogSettings().put(STORE_EXPORTTYPE_ID, JobExportType.POJO.label);
-                        }
-                    }
-                } else if (exportType.equals(JobExportType.MSESB_IMAGE)) {
-                    if (GlobalServiceRegister.getDefault().isServiceRegistered(IESBMicroService.class) && canESBMicroServiceJob) {
-                        if(canESBMicroServiceDockerImage) {
+    
+            for (JobExportType exportType : extractExportJobTypes()) {//[POJO, OSGI, MSESB, MSESB_IMAGE, IMAGE, ROUTE, SERVICE]
+                if (!Boolean.getBoolean("talend.export.job.2." + exportType.toString() + ".hide")) { //$NON-NLS-1$//$NON-NLS-2$
+                    // TESB-20767 Microservice should not be display with TDI license
+                    if (exportType == JobExportType.ROUTE || exportType == JobExportType.SERVICE) {
+                        continue;
+                    } else if (exportType.equals(JobExportType.OSGI)) {
+                        if (isESBJob && !"STANDALONE".equals(bType)) {
                             exportTypeCombo.add(exportType.label);
                         }
-
-                    } else {
-                        // reset export type to POJO
-                        if (getCurrentExportType1().equals(JobExportType.MSESB)) {
-                            getDialogSettings().put(STORE_EXPORTTYPE_ID, JobExportType.POJO.label);
+                    } else if (exportType.equals(JobExportType.MSESB)) {
+                        if (GlobalServiceRegister.getDefault().isServiceRegistered(IESBMicroService.class) && canESBMicroServiceJob) {
+                            exportTypeCombo.add(exportType.label);
+                        } else {
+                            // reset export type to POJO
+                            if (getCurrentExportType1().equals(JobExportType.MSESB)) {
+                                getDialogSettings().put(STORE_EXPORTTYPE_ID, JobExportType.POJO.label);
+                            }
                         }
-                    }
-                } else if (exportType.equals(JobExportType.IMAGE)) {
-
-                    if (canESBMicroServiceJob) {
-                        continue;
-                    }
-
-                    if (PluginChecker.isDockerPluginLoaded()) {
+                    } else if (exportType.equals(JobExportType.MSESB_IMAGE)) {
+                        if (GlobalServiceRegister.getDefault().isServiceRegistered(IESBMicroService.class) && canESBMicroServiceJob) {
+                            if(canESBMicroServiceDockerImage) {
+                                exportTypeCombo.add(exportType.label);
+                            }
+    
+                        } else {
+                            // reset export type to POJO
+                            if (getCurrentExportType1().equals(JobExportType.MSESB)) {
+                                getDialogSettings().put(STORE_EXPORTTYPE_ID, JobExportType.POJO.label);
+                            }
+                        }
+                    } else if (exportType.equals(JobExportType.IMAGE)) {
+    
+                        if (canESBMicroServiceJob) {
+                            continue;
+                        }
+    
+                        if (PluginChecker.isDockerPluginLoaded()) {
+                            exportTypeCombo.add(exportType.label);
+                        } else {
+                            if (getCurrentExportType1().equals(JobExportType.IMAGE)) {
+                                getDialogSettings().put(STORE_EXPORTTYPE_ID, JobExportType.POJO.label);
+                            }
+                        }
+                    } else {
+    
+                        if ((canESBMicroServiceJob && exportType == JobExportType.POJO)) {
+                            continue;
+                        }
+    
                         exportTypeCombo.add(exportType.label);
-                    } else {
-                        if (getCurrentExportType1().equals(JobExportType.IMAGE)) {
-                            getDialogSettings().put(STORE_EXPORTTYPE_ID, JobExportType.POJO.label);
+                    }
+                }
+            }
+    
+            if (exportTypeCombo.getItemCount() > 0) {
+                exportTypeCombo.setText(exportTypeCombo.getItem(0));
+            }
+            
+            if (jType != null) {
+            	exportTypeCombo.setText(jType.label);
+    
+            	if (jType.equals(JobExportType.OSGI)) {
+                	for (String item : exportTypeCombo.getItems()) {
+                        if (item != null && (item.equalsIgnoreCase(JobExportType.MSESB.label) ||
+                            item.equalsIgnoreCase(JobExportType.MSESB_IMAGE.label))) {
+                            exportTypeCombo.remove(item);
                         }
                     }
-                } else {
-
-                    if ((canESBMicroServiceJob && exportType == JobExportType.POJO)) {
-                        continue;
-                    }
-
-                    exportTypeCombo.add(exportType.label);
+                    exportTypeCombo.setEnabled(false);
                 }
-            }
-        }
-
-        if (exportTypeCombo.getItemCount() > 0) {
-            exportTypeCombo.setText(exportTypeCombo.getItem(0));
-        }
-        
-        if (jType != null) {
-        	exportTypeCombo.setText(jType.label);
-
-        	if (jType.equals(JobExportType.OSGI)) {
-            	for (String item : exportTypeCombo.getItems()) {
-                    if (item != null && (item.equalsIgnoreCase(JobExportType.MSESB.label) ||
-                        item.equalsIgnoreCase(JobExportType.MSESB_IMAGE.label))) {
-                        exportTypeCombo.remove(item);
-                    }
-                }
-                exportTypeCombo.setEnabled(false);
-            }
-
-            if (jType.equals(JobExportType.MSESB) || jType.equals(JobExportType.MSESB_IMAGE)) {
-                for (String item : exportTypeCombo.getItems()) {
-                    if (item != null && item.equalsIgnoreCase(JobExportType.OSGI.label)) {
-                        exportTypeCombo.remove(item);
+    
+                if (jType.equals(JobExportType.MSESB) || jType.equals(JobExportType.MSESB_IMAGE)) {
+                    for (String item : exportTypeCombo.getItems()) {
+                        if (item != null && item.equalsIgnoreCase(JobExportType.OSGI.label)) {
+                            exportTypeCombo.remove(item);
+                        }
                     }
                 }
             }
+            
+            if (exportTypeCombo.getItemCount() == 1) {
+                exportTypeCombo.setText(exportTypeCombo.getItem(0));
+            }
+    
+            if (exportTypeFixed != null) {
+                left.setVisible(false);
+                optionsGroup.setVisible(false);
+                exportTypeCombo.setText(exportTypeFixed.label);
+            }
         }
-        
-        if (exportTypeCombo.getItemCount() == 1) {
-            exportTypeCombo.setText(exportTypeCombo.getItem(0));
-        }
-
-        if (exportTypeFixed != null) {
-            left.setVisible(false);
-            optionsGroup.setVisible(false);
-            exportTypeCombo.setText(exportTypeFixed.label);
-        }
-
-
-
         chkButton = new Button(left, SWT.CHECK);
         chkButton.setText(Messages.getString("JavaJobScriptsExportWSWizardPage.extractZipFile")); //$NON-NLS-1$
         JobExportType comboType = JobExportType.getTypeFromString(exportTypeCombo.getText());
@@ -597,7 +607,7 @@ public class JavaJobScriptsExportWSWizardPage extends JavaJobScriptsExportWizard
                     chkButton.setVisible(true);
                     zipOption = String.valueOf(chkButton.getSelection());
                 }
-                updateDestinationGroup(comboType == JobExportType.IMAGE || comboType == JobExportType.MSESB_IMAGE);
+                updateDestinationGroup(comboType == JobExportType.IMAGE || comboType == JobExportType.MSESB_IMAGE || comboType == JobExportType.MSESB_STANDALONE_IMAGE);
                 checkExport();
             }
         });
@@ -645,6 +655,7 @@ public class JavaJobScriptsExportWSWizardPage extends JavaJobScriptsExportWizard
         case OSGI:
             return FileConstants.JAR_FILE_SUFFIX;
         case MSESB:
+        case MSESB_STANDALONE:
             return FileConstants.JAR_FILE_SUFFIX;
         default:
             return FileConstants.ZIP_FILE_SUFFIX;
@@ -667,6 +678,7 @@ public class JavaJobScriptsExportWSWizardPage extends JavaJobScriptsExportWizard
             dialog.setFilterExtensions(new String[] { "*" + FileConstants.JAR_FILE_SUFFIX, "*.*" }); //$NON-NLS-1$ //$NON-NLS-2$
             break;
         case MSESB:
+        case MSESB_STANDALONE:            
             dialog.setFilterExtensions(new String[] { "*" + FileConstants.JAR_FILE_SUFFIX, "*.*" }); //$NON-NLS-1$ //$NON-NLS-2$
             break;
         default:
@@ -1067,22 +1079,17 @@ public class JavaJobScriptsExportWSWizardPage extends JavaJobScriptsExportWizard
             }
             String destinationValue = getDestinationValue();
             directoryNames = addToHistory(directoryNames, destinationValue);
-            // String[] directoryNames = new String[1];
-            // String destinationValue = getDestinationValue();
-            // if (destinationValue != null) {
-            // destinationValue = destinationValue.substring(0, destinationValue.lastIndexOf(File.separator));
-            // }
-            // directoryNames[0] = destinationValue;
 
             settings.put(STORE_EXPORTTYPE_ID, getCurrentExportType1().toString());
             settings.put(STORE_DESTINATION_NAMES_ID, directoryNames);
             if (getCurrentExportType1().equals(JobExportType.OSGI)) {
                 return;
             }
-            if (getCurrentExportType1().equals(JobExportType.MSESB)) {
+            if (getCurrentExportType1().equals(JobExportType.MSESB) || getCurrentExportType1().equals(JobExportType.MSESB_STANDALONE)) {
                 return;
             }
             if (getCurrentExportType1().equals(JobExportType.MSESB_IMAGE)
+                    || getCurrentExportType1().equals(JobExportType.MSESB_STANDALONE_IMAGE)
                     || getCurrentExportType1().equals(JobExportType.IMAGE)) {
                 settings.put(STORE_DOCKER_IS_REMOTE_HOST, remoteRadio.getSelection());
                 if (remoteRadio.getSelection() && StringUtils.isNotBlank(hostText.getText())) {
@@ -1136,7 +1143,7 @@ public class JavaJobScriptsExportWSWizardPage extends JavaJobScriptsExportWizard
             return exportChoiceMap;
         }
 
-        if (comboType.equals(JobExportType.MSESB)) {
+        if (comboType.equals(JobExportType.MSESB) || comboType.equals(JobExportType.MSESB_STANDALONE)) {
             exportChoiceMap.put(ExportChoice.needMetaInfo, true);
             exportChoiceMap.put(ExportChoice.needContext, true);
             exportChoiceMap.put(ExportChoice.needJobItem, false);
@@ -1150,7 +1157,7 @@ public class JavaJobScriptsExportWSWizardPage extends JavaJobScriptsExportWizard
             return exportChoiceMap;
         }
 
-        if (comboType.equals(JobExportType.MSESB_IMAGE)) {
+        if (comboType.equals(JobExportType.MSESB_IMAGE)||comboType.equals(JobExportType.MSESB_STANDALONE_IMAGE)) {
             return getExportChoiceMapForMSESBImage();
         }
 
@@ -1278,8 +1285,10 @@ public class JavaJobScriptsExportWSWizardPage extends JavaJobScriptsExportWizard
         
         String buildType = (String) getProcessItem().getProperty()
                 .getAdditionalProperties().get(TalendProcessArgumentConstant.ARG_BUILD_TYPE);
-
-        if (("REST_MS".equals(buildType) || buildType == null || "STANDALONE".equals(buildType) || "ROUTE".equals(buildType)) && getCurrentExportType1() != JobExportType.MSESB_IMAGE) {
+        
+        if ((Arrays.asList("REST_STANDALONE_MS", "REST_MS", "STANDALONE", "ROUTE").contains(buildType)
+                || buildType == null) && 
+                (getCurrentExportType1() != JobExportType.MSESB_IMAGE && getCurrentExportType1() != JobExportType.MSESB_STANDALONE_IMAGE)) {
         	// options group
             optionsGroup = new Group(optionsGroupComposite, SWT.NONE);
             GridDataFactory.fillDefaults().grab(true, false).applyTo(optionsGroup);
@@ -1310,10 +1319,12 @@ public class JavaJobScriptsExportWSWizardPage extends JavaJobScriptsExportWizard
 
             break;
         case MSESB:
+        case MSESB_STANDALONE:
             createOptionsForMSESB(left, font);
             restoreWidgetValuesForOSGI();
             break;
         case MSESB_IMAGE:
+        case MSESB_STANDALONE_IMAGE:
             createOptionsForMSESB(left, font);
             createDockerOptions();
             restoreWidgetValuesForImage();
@@ -1378,7 +1389,7 @@ public class JavaJobScriptsExportWSWizardPage extends JavaJobScriptsExportWizard
             return;
         }
 
-        if (getCurrentExportType1() != JobExportType.MSESB_IMAGE) {
+        if (getCurrentExportType1() != JobExportType.MSESB_IMAGE && getCurrentExportType1() != JobExportType.MSESB_STANDALONE_IMAGE) {
             exportMSAsZipButton = new Button(optionsComposite, SWT.CHECK | SWT.LEFT);
             exportMSAsZipButton.setText("Export as ZIP"); //$NON-NLS-1$
             exportMSAsZipButton.setFont(getFont());
@@ -1465,24 +1476,14 @@ public class JavaJobScriptsExportWSWizardPage extends JavaJobScriptsExportWizard
         imageLabel = new Label(dockeOptionsComposite, SWT.NONE);
         imageLabel.setText(Messages.getString("JavaJobScriptsExportWSWizardPage.DOCKER.imageLabel")); //$NON-NLS-1$
         imageText = new Text(dockeOptionsComposite, SWT.BORDER);
-        // imageText.setText("${talend.project.name.lowercase}/${talend.job.folder}%a"); //$NON-NLS-1$
         GridDataFactory.fillDefaults().span(2, 1).grab(true, false).applyTo(imageText);
 
         tagLabel = new Label(dockeOptionsComposite, SWT.NONE);
         tagLabel.setText(Messages.getString("JavaJobScriptsExportWSWizardPage.DOCKER.tagLabel")); //$NON-NLS-1$
         tagText = new Text(dockeOptionsComposite, SWT.BORDER);
-        // tagText.setText("${talend.job.version}"); //$NON-NLS-1$
         GridDataFactory.fillDefaults().span(2, 1).grab(true, false).applyTo(tagText);
 
         updateOptionBySelection();
-
-        // Label additionalLabel = new Label(dockeOptionsComposite, SWT.NONE);
-        // additionalLabel.setText("Additional properties");
-        // Text additionalText = new Text(dockeOptionsComposite, SWT.BORDER | SWT.MULTI | SWT.WRAP | SWT.V_SCROLL);
-        // GridData data = new GridData(GridData.FILL_HORIZONTAL);
-        // data.heightHint = 60;
-        // additionalText.setLayoutData(data);
-
     }
 
     private void addDockerOptionsListener() {
@@ -1592,7 +1593,8 @@ public class JavaJobScriptsExportWSWizardPage extends JavaJobScriptsExportWizard
         if (!super.checkExport()) {
             return false;
         }
-        if (getCurrentExportType1().equals(JobExportType.OSGI) || getCurrentExportType1().equals(JobExportType.MSESB)) {
+        if (getCurrentExportType1().equals(JobExportType.OSGI) || getCurrentExportType1().equals(JobExportType.MSESB)
+                || getCurrentExportType1().equals(JobExportType.MSESB_STANDALONE)) {
             if (isMultiNodes()) {
                 setErrorMessage("This type of export support actually only a single job export.");
             }

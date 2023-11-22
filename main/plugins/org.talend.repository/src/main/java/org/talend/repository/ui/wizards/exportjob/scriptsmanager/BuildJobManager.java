@@ -18,6 +18,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -268,8 +269,10 @@ public class BuildJobManager {
                             throw new OperationCanceledException(Messages.getString("BuildJobManager.operationCanceled")); //$NON-NLS-1$
                         }
 
-                        if (jobExportType == JobExportType.IMAGE || jobExportType == JobExportType.MSESB
-                                || jobExportType == JobExportType.MSESB_IMAGE) {
+                        if (Arrays
+                                .asList(JobExportType.IMAGE, JobExportType.MSESB, JobExportType.MSESB_IMAGE,
+                                        JobExportType.MSESB_STANDALONE, JobExportType.MSESB_STANDALONE_IMAGE)
+                                .contains((jobExportType))) {
                             IFile logFile = talendJavaProject.getProject().getFile("lastGenerated.log");
                             if (logFile.exists()) {
                                 logFile.delete(true, false, subMonitor);
@@ -308,7 +311,7 @@ public class BuildJobManager {
             String causeMsg = Messages.getString("BuildJobManager.mavenErrorMessage", mvnLogFilePath); //$NON-NLS-1$
             String logMsg = getLogErrorMsg(mvnLogFile);
 
-            if (jobExportType != JobExportType.IMAGE && jobExportType != JobExportType.MSESB_IMAGE) {
+            if (jobExportType != JobExportType.IMAGE && jobExportType != JobExportType.MSESB_IMAGE && jobExportType != JobExportType.MSESB_STANDALONE_IMAGE) {
                 IFile targetFile = buildJobHandler.getJobTargetFile();
                 if (targetFile != null && targetFile.exists()) {
                     File jobZipFile = targetFile.getLocation().toFile();
