@@ -148,6 +148,8 @@ public class JavaJobScriptsExportWSWizardPage extends JavaJobScriptsExportWizard
     protected Combo exportTypeCombo;
 
     protected Combo esbTypeCombo;
+    
+    protected Button enablePrometheusMetricsEndpointButton;
 
     protected ScrolledComposite scrolledComposite;
 
@@ -213,7 +215,7 @@ public class JavaJobScriptsExportWSWizardPage extends JavaJobScriptsExportWizard
 
     private Label hostLabel, imageLabel, tagLabel;
 
-    private boolean isValid;
+    private boolean isValid, enablePrometheusMetricsEndpoint;
 
     public JavaJobScriptsExportWSWizardPage(IStructuredSelection selection, String exportType) {
         super(selection);
@@ -1393,14 +1395,12 @@ public class JavaJobScriptsExportWSWizardPage extends JavaJobScriptsExportWizard
             exportMSAsZipButton = new Button(optionsComposite, SWT.CHECK | SWT.LEFT);
             exportMSAsZipButton.setText("Export as ZIP"); //$NON-NLS-1$
             exportMSAsZipButton.setFont(getFont());
-            // exportAsZipButton.setEnabled(false);
             exportMSAsZipButton.setVisible(PluginChecker.isTIS());
             exportMSAsZipButton.addSelectionListener(new SelectionAdapter() {
 
                 @Override
                 public void widgetSelected(SelectionEvent e) {
                     boolean selectContext = exportMSAsZipButton.getSelection();
-                    // exportAsZip = selectContext;
 
                     String destinationValue = getDestinationValue();
                     if (destinationValue.endsWith(getOutputSuffix())) {
@@ -1420,6 +1420,19 @@ public class JavaJobScriptsExportWSWizardPage extends JavaJobScriptsExportWizard
 
                 }
             });
+
+            enablePrometheusMetricsEndpointButton = new Button(optionsComposite, SWT.CHECK | SWT.LEFT);
+            enablePrometheusMetricsEndpointButton.setText("Enable Prometheus metrics endpoint"); //$NON-NLS-1$
+            enablePrometheusMetricsEndpointButton.setSelection(enablePrometheusMetricsEndpoint);
+            enablePrometheusMetricsEndpointButton.setFont(getFont());
+            enablePrometheusMetricsEndpointButton.addSelectionListener(new SelectionAdapter() {
+
+                @Override
+                public void widgetSelected(SelectionEvent e) {
+                    enablePrometheusMetricsEndpoint = enablePrometheusMetricsEndpointButton.getSelection();
+                }
+            });
+            
         }
     }
 
