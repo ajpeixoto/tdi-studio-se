@@ -33,6 +33,8 @@ public class TaCoKitSpeicalManager {
 
     public final static String[] CAN_PARALLELIZE_COMPONENTS = { "JDBCOutput", "DeltaLakeOutput", "SingleStoreOutput" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     
+    public final static String[] SUPPORT_ITERATE_PROCESSOR_COMPONENTS = { "JDBCSP", "JDBCRow" }; //$NON-NLS-1$ //$NON-NLS-2$
+    
     public final static String JDBC = "JDBC"; //$NON-NLS-1$
 
     public final static String PROXY_D = "-D";//$NON-NLS-1$
@@ -87,6 +89,15 @@ public class TaCoKitSpeicalManager {
     public static boolean canParallelize(String name) {
         if (StringUtils.isNotBlank(name)) {
             if (ArrayUtils.contains(CAN_PARALLELIZE_COMPONENTS, name)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    public static boolean supportIterateProcessor(String name) {
+        if (StringUtils.isNotBlank(name)) {
+            if (ArrayUtils.contains(SUPPORT_ITERATE_PROCESSOR_COMPONENTS, name)) {
                 return true;
             }
         }
