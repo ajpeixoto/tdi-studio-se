@@ -156,7 +156,7 @@ public class JavaJobScriptsExportWSWizardPage extends JavaJobScriptsExportWizard
     protected Composite pageComposite;
 
     protected Composite optionsGroupComposite;
-
+    
     protected Button webXMLButton;
 
     protected Button configFileButton;
@@ -200,6 +200,12 @@ public class JavaJobScriptsExportWSWizardPage extends JavaJobScriptsExportWizard
     protected JobExportType exportTypeFixed;
 
     public static final String PETALS_EXPORT_DESTINATIONS = "org.ow2.petals.esbexport.destinations"; //$NON-NLS-1$
+
+    private static final String MS_EXPORT_TYPE = "MS_EXPORT_TYPE";//$NON-NLS-1$
+    
+    private static final String MS_ZIP_OPTION = "MS_ZIP_OPTION";//$NON-NLS-1$
+
+    private static final String PROMETHEUS_ENABLE = "PROMETHEUS_ENABLE"; //$NON-NLS-1$
 
     JavaJobScriptsExportWSWizardPagePresenter presenter = new JavaJobScriptsExportWSWizardPagePresenter(this);
 
@@ -443,15 +449,17 @@ public class JavaJobScriptsExportWSWizardPage extends JavaJobScriptsExportWizard
         exportTypeCombo.setLayoutData(new GridData());
 
         boolean canESBMicroServiceJob = EmfModelUtils.getComponentByName(getProcessItem(), "tRESTRequest") != null;
-        boolean isESBJob = false;
 
         boolean canESBMicroServiceDockerImage = PluginChecker.isDockerPluginLoaded();
         Object bType = getProcessItem().getProperty().getAdditionalProperties().get(TalendProcessArgumentConstant.ARG_BUILD_TYPE);
         
-        if(bType.toString().equals("REST_STANDALONE_MS")) {
+        if(null!= bType && bType.toString().equals("REST_STANDALONE_MS")) {
             if (!Boolean.getBoolean("talend.export.job.2." + JobExportType.MSESB_STANDALONE.toString() + ".hide")) { //$NON-NLS-1$//$NON-NLS-2$
                 if (GlobalServiceRegister.getDefault().isServiceRegistered(IESBMicroService.class) && canESBMicroServiceJob) {
                     exportTypeCombo.add(JobExportType.MSESB_STANDALONE.label);
+                    if(canESBMicroServiceDockerImage) {
+                        exportTypeCombo.add(JobExportType.MSESB_STANDALONE_IMAGE.label);
+                    }
                 } else {
                     // reset export type to POJO
                     if (getCurrentExportType1().equals(JobExportType.MSESB_STANDALONE)) {
@@ -461,7 +469,7 @@ public class JavaJobScriptsExportWSWizardPage extends JavaJobScriptsExportWizard
                 exportTypeCombo.setText(exportTypeCombo.getItem(0));
             }
         } else {
-
+            boolean isESBJob = false;
             Map<JobExportType, String> map = BuildJobConstants.oldBuildTypeMap;
             JobExportType jType = null;
             if (bType != null) {
@@ -556,7 +564,8 @@ public class JavaJobScriptsExportWSWizardPage extends JavaJobScriptsExportWizard
     
                 if (jType.equals(JobExportType.MSESB) || jType.equals(JobExportType.MSESB_IMAGE)) {
                     for (String item : exportTypeCombo.getItems()) {
-                        if (item != null && item.equalsIgnoreCase(JobExportType.OSGI.label)) {
+                        if (item != null && Arrays.asList(JobExportType.OSGI.label, JobExportType.MSESB_STANDALONE.label,
+                                JobExportType.MSESB_STANDALONE_IMAGE.label).contains(item)) {
                             exportTypeCombo.remove(item);
                         }
                     }
@@ -597,24 +606,29 @@ public class JavaJobScriptsExportWSWizardPage extends JavaJobScriptsExportWizard
 
             @Override
             public void widgetSelected(SelectionEvent e) {
-                optionsGroupComposite.dispose();
-                createOptionsGroupButtons(pageComposite);
-                pageComposite.setSize(pageComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
-                pageComposite.layout();
-                JobExportType comboType = JobExportType.getTypeFromString(exportTypeCombo.getText());
-                if (comboType != JobExportType.POJO) {
-                    chkButton.setVisible(false);
-                    zipOption = null;
-                } else {
-                    chkButton.setVisible(true);
-                    zipOption = String.valueOf(chkButton.getSelection());
-                }
-                updateDestinationGroup(comboType == JobExportType.IMAGE || comboType == JobExportType.MSESB_IMAGE || comboType == JobExportType.MSESB_STANDALONE_IMAGE);
-                checkExport();
+                handleExportTypeSelectionChange();
             }
         });
     }
-
+    private void handleExportTypeSelectionChange() {
+        optionsGroupComposite.dispose();
+        if (getDialogSettings() != null) {
+            getDialogSettings().put(MS_EXPORT_TYPE, exportTypeCombo.getText());
+        }
+        createOptionsGroupButtons(pageComposite);
+        pageComposite.setSize(pageComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+        pageComposite.layout();
+        JobExportType comboType = JobExportType.getTypeFromString(exportTypeCombo.getText());
+        if (comboType != JobExportType.POJO) {
+            chkButton.setVisible(false);
+            zipOption = null;
+        } else {
+            chkButton.setVisible(true);
+            zipOption = String.valueOf(chkButton.getSelection());
+        }
+        updateDestinationGroup(comboType == JobExportType.IMAGE || comboType == JobExportType.MSESB_IMAGE || comboType == JobExportType.MSESB_STANDALONE_IMAGE);
+        checkExport();
+    }
     protected void updateDestinationGroup(boolean isImage) {
         destinationLabel.setEnabled(!isImage);
         destinationBrowseButton.setEnabled(!isImage);
@@ -831,7 +845,7 @@ public class JavaJobScriptsExportWSWizardPage extends JavaJobScriptsExportWizard
         }
     }
 
-    protected void restoreWidgetValuesForESB() {
+    protected void restoreWidgetValuesForOSGI() {
         IDialogSettings settings = getDialogSettings();
         if (settings != null) {
             String[] directoryNames = settings.getArray(STORE_DESTINATION_NAMES_ID);
@@ -867,19 +881,6 @@ public class JavaJobScriptsExportWSWizardPage extends JavaJobScriptsExportWizard
             if (jobItemButton != null && !jobItemButton.isDisposed()) {
                 jobItemButton.setSelection(settings.getBoolean(STORE_JOB_ID));
             }
-
-            if (section.get(ESB_EXPORT_TYPE) != null) {
-                esbTypeCombo.setText(section.get(ESB_EXPORT_TYPE));
-                if (section.get(ESB_SERVICE_NAME) != null) {
-                    esbServiceName.setText(section.get(ESB_SERVICE_NAME));
-                }
-                if (section.get(ESB_CATEGORY) != null) {
-                    esbCategory.setText(section.get(ESB_CATEGORY));
-                }
-                if (section.get(QUERY_MESSAGE_NAME) != null) {
-                    esbQueueMessageName.setText(section.get(QUERY_MESSAGE_NAME));
-                }
-            }
         }
 
         if (getProcessItem() != null && contextCombo != null) {
@@ -899,7 +900,7 @@ public class JavaJobScriptsExportWSWizardPage extends JavaJobScriptsExportWizard
         }
     }
 
-    protected void restoreWidgetValuesForOSGI() {
+    protected void restoreWidgetValuesForESB() {
         IDialogSettings settings = getDialogSettings();
         if (settings != null) {
             String[] directoryNames = settings.getArray(STORE_DESTINATION_NAMES_ID);
@@ -917,9 +918,29 @@ public class JavaJobScriptsExportWSWizardPage extends JavaJobScriptsExportWizard
             } else {
                 setDefaultDestinationForOSGI();
             }
+            
+            //export type selection: ms/docker-image
+            if(null != settings.get(MS_EXPORT_TYPE)) {
+                exportTypeCombo.setText(settings.get(MS_EXPORT_TYPE));
+                if (settings.get(MS_EXPORT_TYPE).equals(JobExportType.MSESB_IMAGE.label)
+                        || settings.get(MS_EXPORT_TYPE).equals(JobExportType.MSESB_STANDALONE_IMAGE.label)) {
+                    handleExportTypeSelectionChange();
+                    return;
+                }
+            }
+            
+            //zip selection
+            if(null != settings.get(MS_ZIP_OPTION)) {
+                exportMSAsZipButton.setSelection(Boolean.valueOf(settings.get(MS_ZIP_OPTION)));
+            }
+            //prometheus selection
+            if(null != settings.get(PROMETHEUS_ENABLE)) {
+                enablePrometheusMetricsEndpointButton.setSelection(Boolean.valueOf(settings.get(PROMETHEUS_ENABLE)));
+            }
         } else {
             setDefaultDestinationForOSGI();
         }
+
     }
 
     protected void restoreWidgetValuesForPOJO() {
@@ -1088,11 +1109,19 @@ public class JavaJobScriptsExportWSWizardPage extends JavaJobScriptsExportWizard
                 return;
             }
             if (getCurrentExportType1().equals(JobExportType.MSESB) || getCurrentExportType1().equals(JobExportType.MSESB_STANDALONE)) {
+                settings.put(MS_EXPORT_TYPE, exportTypeCombo.getText());
+                settings.put(MS_ZIP_OPTION, exportMSAsZipButton.getSelection());
+                settings.put(PROMETHEUS_ENABLE, enablePrometheusMetricsEndpointButton.getSelection());
                 return;
             }
             if (getCurrentExportType1().equals(JobExportType.MSESB_IMAGE)
                     || getCurrentExportType1().equals(JobExportType.MSESB_STANDALONE_IMAGE)
                     || getCurrentExportType1().equals(JobExportType.IMAGE)) {
+                if (getCurrentExportType1().equals(JobExportType.MSESB_IMAGE)
+                        || getCurrentExportType1().equals(JobExportType.MSESB_STANDALONE_IMAGE)) {
+                    settings.put(MS_EXPORT_TYPE, exportTypeCombo.getText());
+                }
+                
                 settings.put(STORE_DOCKER_IS_REMOTE_HOST, remoteRadio.getSelection());
                 if (remoteRadio.getSelection() && StringUtils.isNotBlank(hostText.getText())) {
                     settings.put(STORE_DOCKER_REMOTE_HOST, hostText.getText());
@@ -1323,7 +1352,7 @@ public class JavaJobScriptsExportWSWizardPage extends JavaJobScriptsExportWizard
         case MSESB:
         case MSESB_STANDALONE:
             createOptionsForMSESB(left, font);
-            restoreWidgetValuesForOSGI();
+            restoreWidgetValuesForESB();
             break;
         case MSESB_IMAGE:
         case MSESB_STANDALONE_IMAGE:
