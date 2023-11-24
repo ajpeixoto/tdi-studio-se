@@ -51,7 +51,7 @@ import org.talend.sdk.component.studio.Lookups;
 import org.talend.sdk.component.studio.lang.Pair;
 import org.talend.sdk.component.studio.model.parameter.TableActionParameter;
 import org.talend.sdk.component.studio.model.parameter.ValueConverter;
-import org.talend.sdk.component.studio.websocket.WebSocketClient.V1Action;
+import org.talend.sdk.component.studio.websocket.ServicesClient.V1Action;
 import org.talend.utils.security.StudioEncryption;
 
 public class Action<T> {
