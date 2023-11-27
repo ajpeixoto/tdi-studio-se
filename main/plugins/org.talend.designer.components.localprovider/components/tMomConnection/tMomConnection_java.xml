@@ -184,7 +184,7 @@
       
       <IMPORT NAME="activemq-client-5.18.3.jar" MODULE="activemq-client-5.18.3.jar" MVN="mvn:org.apache.activemq/activemq-client/5.18.3" REQUIRED_IF="SERVER == 'ACTIVEMQ'"/>
       <IMPORT NAME="jakarta.jms-api-2.0.3.jar" MODULE="jakarta.jms-api-2.0.3.jar" MVN="mvn:jakarta.jms/jakarta.jms-api/2.0.3" REQUIRED_IF="SERVER == 'ACTIVEMQ'" />
-      <IMPORT NAME="hawtbuf-1.11.jar" MODULE="hawtbuf-1.11.jar" MVN="mvn:org.talend.libraries/hawtbuf-1.11/6.3.0" REQUIRED_IF="SERVER == 'ACTIVEMQ'" />
+      <IMPORT NAME="hawtbuf-1.11.jar" MODULE="hawtbuf-1.11.jar" MVN="mvn:org.fusesource.hawtbuf/hawtbuf/1.11" REQUIRED_IF="SERVER == 'ACTIVEMQ'" />
       <IMPORT NAME="slf4j-api-1.7.34.jar" MODULE="slf4j-api-1.7.34.jar" MVN="mvn:org.slf4j/slf4j-api/1.7.34" REQUIRED_IF="SERVER == 'ACTIVEMQ'" />
       <IMPORT NAME="slf4j-reload4j-1.7.34.jar" MODULE="slf4j-reload4j-1.7.34.jar" MVN="mvn:org.slf4j/slf4j-reload4j/1.7.34" REQUIRED_IF="SERVER == 'ACTIVEMQ'" />
       
