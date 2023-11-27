@@ -24,7 +24,7 @@ import java.util.function.Consumer;
 
 import org.apache.tomcat.websocket.Constants;
 
-public class WebSocketClientImpl implements ServicesClient.WebSocketClient {
+public class WebSocketClientImpl implements IWebSocketClient {
 
     private static final Jsonb jsonb = JsonbProvider.provider("org.apache.johnzon.jsonb.JohnzonProvider").create().build();
 

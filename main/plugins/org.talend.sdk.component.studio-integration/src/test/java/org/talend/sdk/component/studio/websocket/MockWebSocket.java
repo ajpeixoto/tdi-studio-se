@@ -7,7 +7,7 @@ import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 
-public class MockWebSocket implements ServicesClient.WebSocketClient {
+public class MockWebSocket implements IWebSocketClient {
 
     private final MockReponseFile fileGetter;
 

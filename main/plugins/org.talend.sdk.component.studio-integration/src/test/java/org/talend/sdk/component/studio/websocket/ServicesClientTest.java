@@ -12,7 +12,7 @@ class ServicesClientTest {
 
     @Test
     void v1ComponentDependencies() {
-        final ServicesClient.WebSocketClient ws = new MockWebSocket("dependencies.json");
+        final IWebSocketClient ws = new MockWebSocket("dependencies.json");
         final ServicesClient client = new ServicesClient(ws);
 
         final Map<String, ?> dependencies1 = client.v1().component().dependencies("123");
@@ -27,7 +27,7 @@ class ServicesClientTest {
 
     @Test
     void v1getRepositoryModel() {
-        final ServicesClient.WebSocketClient ws = new MockWebSocket("configType.json");
+        final IWebSocketClient ws = new MockWebSocket("configType.json");
         final ServicesClient client = new ServicesClient(ws);
         final ConfigTypeNodes configTypeNodes = client.v1().configurationType().getRepositoryModel();
         Assertions.assertNotNull(configTypeNodes);

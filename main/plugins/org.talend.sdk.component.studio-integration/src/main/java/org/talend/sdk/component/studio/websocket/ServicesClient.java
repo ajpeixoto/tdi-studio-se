@@ -15,6 +15,17 @@
  */
 package org.talend.sdk.component.studio.websocket;
 
+import static java.util.Collections.emptyList;
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toMap;
+
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+
 import org.talend.sdk.component.server.front.model.ActionList;
 import org.talend.sdk.component.server.front.model.ComponentDetail;
 import org.talend.sdk.component.server.front.model.ComponentDetailList;
@@ -26,28 +37,15 @@ import org.talend.sdk.component.server.front.model.Environment;
 import org.talend.sdk.component.server.front.model.error.ErrorPayload;
 import org.talend.sdk.component.studio.lang.Pair;
 
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
-
-import static java.util.Collections.emptyList;
-import static java.util.function.Function.identity;
-import static java.util.stream.Collectors.toMap;
-
-import javax.json.JsonObject;
-
 // we shouldn't need the execution runtime so don't even include it here
 //
 // technical note: this client includes the transport (websocket) but also the protocol/payload formatting/parsing
 // todo: better error handling, can need some server bridge love too to support ERROR responses
 public class ServicesClient implements AutoCloseable {
 
-    private final WebSocketClient socketClient;
+    private final IWebSocketClient socketClient;
 
-    public ServicesClient(WebSocketClient socketClient) {
+    public ServicesClient(IWebSocketClient socketClient) {
         this.socketClient = socketClient;
     }
 
@@ -60,16 +58,10 @@ public class ServicesClient implements AutoCloseable {
         this.socketClient.close();
     }
 
-    public interface WebSocketClient extends AutoCloseable {
-        <T> T sendAndWait(final String id, final String uri, final Object payload, final Class<T> expectedResponse, final boolean doCheck);
-
-        void close();
-    }
-
     public static class V1 {
-        private final WebSocketClient root;
+        private final IWebSocketClient root;
 
-        V1(final WebSocketClient root) {
+        V1(final IWebSocketClient root) {
             this.root = root;
         }
 
@@ -97,9 +89,9 @@ public class ServicesClient implements AutoCloseable {
 
 
     public static class V1ConfigurationType {
-        private final WebSocketClient root;
+        private final IWebSocketClient root;
 
-        private V1ConfigurationType(final WebSocketClient root) {
+        private V1ConfigurationType(final IWebSocketClient root) {
             this.root = root;
         }
 
@@ -119,9 +111,9 @@ public class ServicesClient implements AutoCloseable {
 
 
     public static class V1Action {
-        private final WebSocketClient root;
+        private final IWebSocketClient root;
 
-        private V1Action(final WebSocketClient root) {
+        private V1Action(final IWebSocketClient root) {
             this.root = root;
         }
 
@@ -136,9 +128,9 @@ public class ServicesClient implements AutoCloseable {
 
     public static class V1Documentation {
 
-        private final WebSocketClient root;
+        private final IWebSocketClient root;
 
-        private V1Documentation(final WebSocketClient root) {
+        private V1Documentation(final IWebSocketClient root) {
             this.root = root;
         }
 
@@ -153,9 +145,9 @@ public class ServicesClient implements AutoCloseable {
 
     public static class V1Component {
         private static final int BUNDLE_SIZE = 25;
-        private final WebSocketClient root;
+        private final IWebSocketClient root;
 
-        private V1Component(final WebSocketClient root) {
+        private V1Component(final IWebSocketClient root) {
             this.root = root;
         }
 
@@ -173,6 +165,10 @@ public class ServicesClient implements AutoCloseable {
 
         public byte[] familyIcon(final String id) {
             return root.sendAndWait("/v1/get/component/icon/family/" + id, "/component/icon/family/" + id, null, byte[].class, true);
+        }
+        
+        public byte[] searchIcon(final String familyId, final String iconKey) {
+            return root.sendAndWait("/v1/get/component/icon/custom/", "/component/icon/custom/" + familyId + "/" + iconKey, null, byte[].class, true);
         }
 
         public ComponentDetailList getDetail(final String language, final String[] identifiers) {

@@ -67,6 +67,7 @@ import org.talend.sdk.component.server.front.model.ComponentIndices;
 import org.talend.sdk.component.server.front.model.ConfigTypeNodes;
 import org.talend.sdk.component.studio.mvn.Mvn;
 import org.talend.sdk.component.studio.util.TaCoKitConst;
+import org.talend.sdk.component.studio.websocket.IWebSocketClient;
 import org.talend.sdk.component.studio.websocket.ServicesClient;
 import org.talend.sdk.component.studio.websocket.WebSocketClientImpl;
 
@@ -148,7 +149,7 @@ class ServerManagerTest {
     }
 
     private void assertClient(final int port) {
-        try (final ServicesClient.WebSocketClient socketClient = new WebSocketClientImpl("ws://", String.valueOf(port), "/websocket/v1", 600000);
+        try (final IWebSocketClient socketClient = new WebSocketClientImpl("ws://", String.valueOf(port), "/websocket/v1", 600000);
              final ServicesClient client = new ServicesClient(socketClient)) {
             // we loop since we reuse the same session so we must ensure this reuse works
             for (int i = 0; i < 2; i++) {
