@@ -126,15 +126,29 @@ input_<%=cid%>.start();
 globalMap.put("input_<%=cid%>", input_<%=cid%>);
 
 <%
-List<? extends IConnection> connections = node.getOutgoingConnections(EConnectionType.FLOW_MAIN);
-if(connections == null || connections.isEmpty()) {
-    connections = node.getOutgoingConnections(EConnectionType.FLOW_MERGE);
+String output = null;
+boolean isLoopLine = false; 
+List<? extends IConnection> connections = node.getOutgoingSortedConnections();
+if(connections != null) {
+    for(IConnection conn : connections) {
+        if(conn.getLineStyle().hasConnectionCategory(IConnectionCategory.DATA)) {
+            output = conn.getName();
+            break;
+        } else if(conn.getLineStyle().hasConnectionCategory(IConnectionCategory.USE_ITERATE)) {
+            isLoopLine = true;
+            break;
+        }
+    }
 }
-boolean optionalRow = "true".equals(ElementParameterParser.getValue(node,"__OPTIONAL_ROW__"));
-if (!optionalRow && (connections == null || connections.isEmpty())) {
-    throw new RuntimeException("Missing output connection for component " + family + "#" + originalName);
+
+if(isLoopLine) {
+
+} else {
+    boolean optionalRow = "true".equals(ElementParameterParser.getValue(node,"__OPTIONAL_ROW__"));
+    if (!optionalRow && (output == null)) {
+        throw new RuntimeException("Missing output connection for component " + family + "#" + originalName);
+    }
 }
-final String output = connections.isEmpty()? null: connections.iterator().next().getName();
 %>
 
 final javax.json.bind.Jsonb jsonb_<%=cid%> = (javax.json.bind.Jsonb)mgr_<%=cid%>.findPlugin(mapper_<%=cid%>.plugin()).get()

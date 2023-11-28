@@ -601,9 +601,13 @@ public class CodeGenerator implements ICodeGenerator {
                     // if (!isIterate) {
                     if (isTacokitProcessor(node)) {
                         codeComponent.append(generateComponentCode(subProcess, node, ECodePart.PROCESS_RECORDS_END, incomingName, typeGen));
-                        codeComponent.append(generateComponentCode(subProcess, node, ECodePart.PROCESS_DATA_BEGIN, incomingName, typeGen));
-                        codeComponent.append(generatesTreeCode(subProcess, node, ECodePart.MAIN, typeGen));
-                        codeComponent.append(generateComponentCode(subProcess, node, ECodePart.PROCESS_DATA_END, incomingName, typeGen));
+                        
+                        List<? extends IConnection> loopConnections = node.getOutgoingConnections(EConnectionType.ITERATE);
+                        if(loopConnections == null || loopConnections.isEmpty()) {
+                            codeComponent.append(generateComponentCode(subProcess, node, ECodePart.PROCESS_DATA_BEGIN, incomingName, typeGen));
+                            codeComponent.append(generatesTreeCode(subProcess, node, ECodePart.MAIN, typeGen));
+                            codeComponent.append(generateComponentCode(subProcess, node, ECodePart.PROCESS_DATA_END, incomingName, typeGen));
+                        }
                     }
                 	
                     codeComponent.append(generateComponentCode(subProcess, node, ECodePart.END, incomingName, typeGen));

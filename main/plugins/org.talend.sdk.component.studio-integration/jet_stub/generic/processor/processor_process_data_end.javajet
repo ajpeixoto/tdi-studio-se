@@ -13,4 +13,15 @@
         "
 %>
 
-} // End of data
+<%
+final CodeGeneratorArgument codeGenArgument = CodeGeneratorArgument.class.cast(argument);
+final INode node = INode.class.cast(codeGenArgument.getArgument());
+final List<? extends IConnection> loopConnections = node.getOutgoingConnections(EConnectionType.ITERATE);
+final boolean noLoopLine = loopConnections == null || loopConnections.isEmpty();
+if(noLoopLine) {
+%>
+
+    } // End of data
+<%
+}
+%>
