@@ -129,6 +129,10 @@ public abstract class JobScriptsExportWizardPage extends WizardFileSystemResourc
     protected static final String OUTPUT_FILE_SUFFIX = FileConstants.ZIP_FILE_SUFFIX;
 
     private static final String BINARIES = Messages.getString("JavaJobScriptsExportWSWizardPage.POJO.optionType.binaries"); //$NON-NLS-1$
+    
+    public static final String STORE_DOCKER_IS_REMOTE_HOST = "JavaJobScriptsExportWizardPage.STORE_DOCKER_IS_REMOTE_HOST"; //$NON-NLS-1$
+
+    public static final String STORE_DOCKER_REMOTE_HOST = "JavaJobScriptsExportWizardPage.STORE_DOCKER_REMOTE_HOST"; //$NON-NLS-1$
 
     private static final String[] OPTION_TYPES = new String[] { BINARIES };
 

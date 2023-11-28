@@ -229,11 +229,6 @@ public class JavaJobScriptsExportWSWizardPage extends JavaJobScriptsExportWizard
         exportTypeFixed = exportType != null ? JobExportType.getTypeFromString(exportType) : null;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.eclipse.jface.wizard.WizardPage#setWizard(org.eclipse.jface.wizard.IWizard)
-     */
     @Override
     public void setWizard(IWizard newWizard) {
         super.setWizard(newWizard);
@@ -338,12 +333,6 @@ public class JavaJobScriptsExportWSWizardPage extends JavaJobScriptsExportWizard
     @Override
     protected ExportTreeViewer getExportTree() {
         return new ExportTreeViewer(selection, this) {
-
-            /*
-             * (non-Javadoc)
-             *
-             * @see org.talend.repository.ui.wizards.exportjob.ExportTreeViewer#checkSelection()
-             */
             @Override
             protected void checkSelection() {
                 checkExport();
@@ -634,12 +623,6 @@ public class JavaJobScriptsExportWSWizardPage extends JavaJobScriptsExportWizard
         destinationBrowseButton.setEnabled(!isImage);
         destinationNameField.setEnabled(!isImage);
     }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.talend.repository.ui.wizards.exportjob.JavaJobScriptsExportWizardPage#createJobScriptsManager()
-     */
     @Override
     public JobScriptsManager createJobScriptsManager() {
         Map<ExportChoice, Object> exportChoiceMap = getExportChoiceMap();
@@ -955,13 +938,6 @@ public class JavaJobScriptsExportWSWizardPage extends JavaJobScriptsExportWizard
             if (directoryNames != null && directoryNames.length > 0) {
                 // destination
                 for (int i = 0; i < directoryNames.length; i++) {
-                    // String destination;
-                    // Path dirPath = new Path(directoryNames[i]);
-                    // if (dirPath.segmentCount() == 0) {
-                    // destination = dirPath.toOSString() + File.separator + fileName;
-                    // } else {
-                    // destination = dirPath.append(fileName).toOSString();
-                    // }
                     if (directoryNames[i].toLowerCase().endsWith(FileConstants.ZIP_FILE_SUFFIX)) {
                         directoryNames[i] =
                                 (directoryNames[i].charAt(0) + "").toUpperCase() + directoryNames[i].substring(1);//$NON-NLS-1$
@@ -989,7 +965,6 @@ public class JavaJobScriptsExportWSWizardPage extends JavaJobScriptsExportWizard
             applyToChildrenButton.setSelection(settings.getBoolean(APPLY_TO_CHILDREN_ID));
             chkButton.setSelection(settings.getBoolean(EXTRACT_ZIP_FILE));
             zipOption = String.valueOf(chkButton.getSelection());
-            // genCodeButton.setSelection(settings.getBoolean(STORE_GENERATECODE_ID));
         }
 
         launcherCombo.setItems(JobScriptsManager.getLauncher());
@@ -999,12 +974,6 @@ public class JavaJobScriptsExportWSWizardPage extends JavaJobScriptsExportWizard
         if (getProcessItem() != null && contextCombo != null) {
             // don't update the property, this one will be automatically updated if needed when call the getItem()
 
-            // try {
-            // process[0].setProcess((ProcessItem) ProxyRepositoryFactory.getInstance().getUptodateProperty(
-            // getProcessItem().getProperty()).getItem());
-            // } catch (PersistenceException e) {
-            // ExceptionHandler.process(e);
-            // }
             ProcessItem item = getProcessItem();
             try {
                 String id = item.getProperty().getId();
@@ -1028,7 +997,6 @@ public class JavaJobScriptsExportWSWizardPage extends JavaJobScriptsExportWizard
                 log4jLevelCombo.select(2);
             }
         }
-        // contextCombo applyToChildrenButton control by contextbutton
         contextCombo.setEnabled(contextButton.getSelection());
         applyToChildrenButton.setEnabled(contextButton.getSelection());
     }
@@ -1085,7 +1053,7 @@ public class JavaJobScriptsExportWSWizardPage extends JavaJobScriptsExportWizard
         if (StringUtils.isNotBlank(remoteHost)) {
             hostText.setText(remoteHost);
         }
-        boolean isRemote = settings.getBoolean(STORE_DOCKER_IS_REMOTE_HOST);
+        boolean isRemote = settings.getBoolean(JobScriptsExportWizardPage.STORE_DOCKER_IS_REMOTE_HOST);
         localRadio.setSelection(!isRemote);
         remoteRadio.setSelection(isRemote);
         hostText.setEnabled(isRemote);
@@ -1122,7 +1090,7 @@ public class JavaJobScriptsExportWSWizardPage extends JavaJobScriptsExportWizard
                     settings.put(MS_EXPORT_TYPE, exportTypeCombo.getText());
                 }
                 
-                settings.put(STORE_DOCKER_IS_REMOTE_HOST, remoteRadio.getSelection());
+                settings.put(JobScriptsExportWizardPage.STORE_DOCKER_IS_REMOTE_HOST, remoteRadio.getSelection());
                 if (remoteRadio.getSelection() && StringUtils.isNotBlank(hostText.getText())) {
                     settings.put(STORE_DOCKER_REMOTE_HOST, hostText.getText());
                 }
@@ -1408,7 +1376,6 @@ public class JavaJobScriptsExportWSWizardPage extends JavaJobScriptsExportWizard
             if (errorMsg != null) {
                 setErrorMessage(errorMsg);
                 isValid = false;
-                // return false;
             }
         }
         setPageComplete(isValid);
@@ -1624,11 +1591,6 @@ public class JavaJobScriptsExportWSWizardPage extends JavaJobScriptsExportWizard
         return false;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.talend.repository.ui.wizards.exportjob.JobScriptsExportWizardPage#checkExport()
-     */
     @Override
     public boolean checkExport() {
         setErrorMessage(null);

@@ -25,7 +25,7 @@ import org.talend.repository.ui.wizards.exportjob.util.ExportJobUtil;
 /**
  * Page of the Job Scripts Export Wizard. <br/>
  *
- * @referto WizardArchiveFileResourceExportPage1 $Id: JobScriptsExportWizardPage.java 1 2006-12-13 下午03:09:07 bqian
+ * @referto WizardArchiveFileResourceExportPage1 $Id: JobScriptsExportWizardPage.java 1 2006-12-13 ä¸‹å�ˆ03:09:07 bqian
  *
  */
 public abstract class JavaJobScriptsExportWizardPage extends JobScriptsExportWizardPage {
@@ -59,10 +59,6 @@ public abstract class JavaJobScriptsExportWizardPage extends JobScriptsExportWiz
     public static final String STORE_DESTINATION_NAMES_ID = "JavaJobScriptsExportWizardPage.STORE_DESTINATION_NAMES_ID"; //$NON-NLS-1$
 
     public static final String EXTRACT_ZIP_FILE = "JavaJobScriptsExportWizardPage.EXTRACT_ZIP_FILE"; //$NON-NLS-1$
-
-    public static final String STORE_DOCKER_IS_REMOTE_HOST = "JavaJobScriptsExportWizardPage.STORE_DOCKER_IS_REMOTE_HOST"; //$NON-NLS-1$
-
-    public static final String STORE_DOCKER_REMOTE_HOST = "JavaJobScriptsExportWizardPage.STORE_DOCKER_REMOTE_HOST"; //$NON-NLS-1$
 
     /**
      * Create an instance of this class.
