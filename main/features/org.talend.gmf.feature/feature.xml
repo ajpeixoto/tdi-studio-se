@@ -26,6 +26,7 @@
       <import feature="org.eclipse.emf.transaction" version="0.0.0"/>
       <import feature="org.eclipse.emf.validation" version="0.0.0"/>
       <import feature="org.eclipse.emf.workspace" version="0.0.0"/>
+      <import feature="org.eclipse.gmf" version="0.0.0"/>
    </requires>
 
 </feature>
