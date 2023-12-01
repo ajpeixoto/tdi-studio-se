@@ -76,7 +76,11 @@ public class TosTokenCollector extends AbstractTokenCollector {
 
 	private static final String NB_ROUTERESTDS_APIFILE_MS = "nb.routerestds.apifile.ms";
 
+	private static final String NB_ROUTERESTDS_APIFILE_MSSTD = "nb.routerestds.apifile.msstd";
+
 	private static final String NB_ROUTERESTDS_APIDESIGNER_MS = "nb.routerestds.apidesigner.ms";
+
+	private static final String NB_ROUTERESTDS_APIDESIGNER_MSSTD = "nb.routerestds.apidesigner.msstd";
 
 	private static final String NB_ROUTERESTDS_APIFILE_OSGI = "nb.routerestds.apifile.osgi";
 
@@ -84,29 +88,43 @@ public class TosTokenCollector extends AbstractTokenCollector {
 
 	private static final String NB_ROUTERESTDS_BUILTIN_MS = "nb.routerestds.builtin.ms";
 
+	private static final String NB_ROUTERESTDS_BUILTIN_MSSTD = "nb.routerestds.builtin.msstd";
+
 	private static final String NB_ROUTERESTDS_BUILTIN_OSGI = "nb.routerestds.builtin.osgi";
 
 	private static final String NB_ROUTESOAPDS_MS = "nb.routesoapds.ms";
+
+	private static final String NB_ROUTESOAPDS_MSSTD = "nb.routesoapds.msstd";
 
 	private static final String NB_ROUTESOAPDS_OSGI = "nb.routesoapds.osgi";
 
 	private static final String ROUTE_MICROSERVICE = "ROUTE_MICROSERVICE";
 
+	private static final String ROUTE_STANDALONE_MICROSERVICE = "ROUTE_STANDALONE_MICROSERVICE";
+
 	private static final String ROUTE = "ROUTE";
 
 	private static final String REST_MS = "REST_MS";
+
+	private static final String REST_STANDALONE_MS = "REST_STANDALONE_MS";
 
 	private static final String OSGI = "OSGI";
 
 	private static final String NB_DSREST_APIFILE_MS = "nb.dsrest.apifile.ms";
 
+	private static final String NB_DSREST_APIFILE_MSSTD = "nb.dsrest.apifile.msstd";
+
 	private static final String NB_DSREST_APIDESIGNER_MS = "nb.dsrest.apidesigner.ms";
+
+	private static final String NB_DSREST_APIDESIGNER_MSSTD = "nb.dsrest.apidesigner.msstd";
 
 	private static final String NB_DSREST_APIFILE_OSGI = "nb.dsrest.apifile.osgi";
 
 	private static final String NB_DSREST_APIDESIGNER_OSGI = "nb.dsrest.apidesigner.osgi";
 
 	private static final String NB_DSREST_BUILTIN_MS = "nb.dsrest.builtin.ms";
+
+	private static final String NB_DSREST_BUILTIN_MSSTD = "nb.dsrest.builtin.msstd";
 
 	private static final String NB_DSREST_BUILTIN_OSGI = "nb.dsrest.builtin.osgi";
 
@@ -229,20 +247,27 @@ public class TosTokenCollector extends AbstractTokenCollector {
                                 jobDetails.remove("nbdssoap"); //$NON-NLS-1$
                                 
                                 removeUnwantedNodeFromjobDetails(typeStats, jobDetails, NB_DSREST_BUILTIN_MS);
+                                removeUnwantedNodeFromjobDetails(typeStats, jobDetails, NB_DSREST_BUILTIN_MSSTD);
                                 removeUnwantedNodeFromjobDetails(typeStats, jobDetails, NB_DSREST_BUILTIN_OSGI);
                                 removeUnwantedNodeFromjobDetails(typeStats, jobDetails, NB_DSREST_APIDESIGNER_OSGI);
                                 removeUnwantedNodeFromjobDetails(typeStats, jobDetails, NB_DSREST_APIFILE_OSGI);
                                 removeUnwantedNodeFromjobDetails(typeStats, jobDetails, NB_DSREST_APIDESIGNER_MS);
+                                removeUnwantedNodeFromjobDetails(typeStats, jobDetails, NB_DSREST_APIDESIGNER_MSSTD);
                                 removeUnwantedNodeFromjobDetails(typeStats, jobDetails, NB_DSREST_APIFILE_MS);
+                                removeUnwantedNodeFromjobDetails(typeStats, jobDetails, NB_DSREST_APIFILE_MSSTD);
                             }else if (ERepositoryObjectType.PROCESS_ROUTE.equals(type)) {
                             	removeUnwantedNodeFromjobDetails(typeStats, jobDetails, NB_ROUTESOAPDS_OSGI);
                                 removeUnwantedNodeFromjobDetails(typeStats, jobDetails, NB_ROUTESOAPDS_MS);
+                                removeUnwantedNodeFromjobDetails(typeStats, jobDetails, NB_ROUTESOAPDS_MSSTD);
                                 removeUnwantedNodeFromjobDetails(typeStats, jobDetails, NB_ROUTERESTDS_BUILTIN_OSGI);
                                 removeUnwantedNodeFromjobDetails(typeStats, jobDetails, NB_ROUTERESTDS_BUILTIN_MS);
+                                removeUnwantedNodeFromjobDetails(typeStats, jobDetails, NB_ROUTERESTDS_BUILTIN_MSSTD);
                                 removeUnwantedNodeFromjobDetails(typeStats, jobDetails, NB_ROUTERESTDS_APIDESIGNER_OSGI);
                                 removeUnwantedNodeFromjobDetails(typeStats, jobDetails, NB_ROUTERESTDS_APIFILE_OSGI);
                                 removeUnwantedNodeFromjobDetails(typeStats, jobDetails, NB_ROUTERESTDS_APIDESIGNER_MS);
+                                removeUnwantedNodeFromjobDetails(typeStats, jobDetails, NB_ROUTERESTDS_APIDESIGNER_MSSTD);
                                 removeUnwantedNodeFromjobDetails(typeStats, jobDetails, NB_ROUTERESTDS_APIFILE_MS);
+                                removeUnwantedNodeFromjobDetails(typeStats, jobDetails, NB_ROUTERESTDS_APIFILE_MSSTD);
                                 removeUnwantedNodeFromjobDetails(typeStats, jobDetails, NB_ROUTE_OSGI);
                                 removeUnwantedNodeFromjobDetails(typeStats, jobDetails, NB_ROUTE_MS);
                             }
@@ -380,8 +405,8 @@ public class TosTokenCollector extends AbstractTokenCollector {
     		// nb routes without cSOAP or cREST as producer where build type = OSGI
     		String key = NB_ROUTE_OSGI;
     		buildTypeDetails.put(key, null!=buildTypeDetails.get(key) ? buildTypeDetails.get(key)+1 : 1);
-    	}else if(buildType.equals(ROUTE_MICROSERVICE)) {
-    		// nb routes without cSOAP or cREST as producer where build type = Microservice
+    	}else if(buildType.equals(ROUTE_MICROSERVICE) || buildType.equals(ROUTE_STANDALONE_MICROSERVICE)) {
+    		// nb routes without cSOAP or cREST as producer where build type = Microservice or Standalone Microservice
     		String key = NB_ROUTE_MS;
     		buildTypeDetails.put(key, null!=buildTypeDetails.get(key) ? buildTypeDetails.get(key)+1 : 1);
     	}
@@ -396,6 +421,10 @@ public class TosTokenCollector extends AbstractTokenCollector {
     		}else if(buildType.equals(ROUTE_MICROSERVICE)) {
     			// nb routes with cREST as producer where build build type = Microservice and API definition = Built-in
     			String key = NB_ROUTERESTDS_BUILTIN_MS;
+    			buildTypeDetails.put(key, null!=buildTypeDetails.get(key) ? buildTypeDetails.get(key)+1 : 1);
+    		}else if(buildType.equals(ROUTE_STANDALONE_MICROSERVICE)) {
+    			// nb routes with cREST as producer where build build type = Standalone Microservice and API definition = Built-in
+    			String key = NB_ROUTERESTDS_BUILTIN_MSSTD;
     			buildTypeDetails.put(key, null!=buildTypeDetails.get(key) ? buildTypeDetails.get(key)+1 : 1);
     		}
     	}else if(null != nodeType && nodeType.equals("REPOSITORY")){
@@ -420,6 +449,16 @@ public class TosTokenCollector extends AbstractTokenCollector {
     				String key = NB_ROUTERESTDS_APIFILE_MS;
     				buildTypeDetails.put(key, null!=buildTypeDetails.get(key) ? buildTypeDetails.get(key)+1 : 1);
     			}
+    		}else if(buildType.equals(ROUTE_STANDALONE_MICROSERVICE)) {
+    			if(null!=apiID && !apiID.isEmpty()) {
+    				// nb routes with cREST as producer where build type is  = Standalone Microservice and API definition is = imported from API Designer
+    				String key = NB_ROUTERESTDS_APIDESIGNER_MSSTD;
+    				buildTypeDetails.put(key, null!=buildTypeDetails.get(key) ? buildTypeDetails.get(key)+1 : 1);
+    			}else {
+    				// nb routes with cREST as producer where build type is = Standalone Microservice and API definition is = imported from local file
+    				String key = NB_ROUTERESTDS_APIFILE_MSSTD;
+    				buildTypeDetails.put(key, null!=buildTypeDetails.get(key) ? buildTypeDetails.get(key)+1 : 1);
+    			}
     		}
     	}
     }
@@ -429,12 +468,14 @@ public class TosTokenCollector extends AbstractTokenCollector {
     		// nb routes with cSOAP as producer where build type = OSGI
     		String key = NB_ROUTESOAPDS_OSGI;
     		buildTypeDetails.put(key, null!=buildTypeDetails.get(key) ? buildTypeDetails.get(key)+1 : 1);
-    		//break;
     	}else if(buildType.equals(ROUTE_MICROSERVICE)) {
     		// nb routes with cSOAP as producer where build type = Microservice
     		String key = NB_ROUTESOAPDS_MS;
     		buildTypeDetails.put(key, null!=buildTypeDetails.get(key) ? buildTypeDetails.get(key)+1 : 1);
-    		//break;
+    	}else if(buildType.equals(ROUTE_STANDALONE_MICROSERVICE)) {
+    		// nb routes with cSOAP as producer where build type = Standalone Microservice
+    		String key = NB_ROUTESOAPDS_MSSTD;
+    		buildTypeDetails.put(key, null!=buildTypeDetails.get(key) ? buildTypeDetails.get(key)+1 : 1);
     	}
     }
 
@@ -449,6 +490,10 @@ public class TosTokenCollector extends AbstractTokenCollector {
     		}else if(buildType.equals(REST_MS)) {
     			//nb jobs with tRESTRequest where build type is = Microservice and API definition is = Built-in
     			String key = NB_DSREST_BUILTIN_MS;
+    			buildTypeDetails.put(key, null!=buildTypeDetails.get(key) ? buildTypeDetails.get(key)+1 : 1);
+    		}else if(buildType.equals(REST_STANDALONE_MS)) {
+    			//nb jobs with tRESTRequest where build type is = Standalone Microservice and API definition is = Built-in
+    			String key = NB_DSREST_BUILTIN_MSSTD;
     			buildTypeDetails.put(key, null!=buildTypeDetails.get(key) ? buildTypeDetails.get(key)+1 : 1);
     		}
     	}else if(null != nodeType && nodeType.equals("REPOSITORY")){
@@ -471,6 +516,16 @@ public class TosTokenCollector extends AbstractTokenCollector {
     			}else {
     				// nb jobs with tRESTRequest where build type is = Microservice and API definition is = imported from local file
     				String key = NB_DSREST_APIFILE_MS;
+    				buildTypeDetails.put(key, null!=buildTypeDetails.get(key) ? buildTypeDetails.get(key)+1 : 1);
+    			}
+    		}else if(buildType.equals(REST_STANDALONE_MS)) {
+    			if(null!=apiID && !apiID.isEmpty()) {
+    				//nb jobs with tRESTRequest where build type is = Standalone Microservice and API definition is = imported from API Designer
+    				String key = NB_DSREST_APIDESIGNER_MSSTD;
+    				buildTypeDetails.put(key, null!=buildTypeDetails.get(key) ? buildTypeDetails.get(key)+1 : 1);
+    			}else {
+    				// nb jobs with tRESTRequest where build type is = Standalone Microservice and API definition is = imported from local file
+    				String key = NB_DSREST_APIFILE_MSSTD;
     				buildTypeDetails.put(key, null!=buildTypeDetails.get(key) ? buildTypeDetails.get(key)+1 : 1);
     			}
     		}
