@@ -43,8 +43,11 @@ import org.talend.core.model.components.ComponentCategory;
 import org.talend.core.model.components.EComponentType;
 import org.talend.core.model.components.IComponent;
 import org.talend.core.model.general.ModuleNeeded;
+import org.talend.core.model.metadata.builder.connection.Connection;
 import org.talend.core.model.metadata.types.JavaTypesManager;
+import org.talend.core.model.process.EComponentCategory;
 import org.talend.core.model.process.EConnectionType;
+import org.talend.core.model.process.EParameterFieldType;
 import org.talend.core.model.process.IConnection;
 import org.talend.core.model.process.IConnectionCategory;
 import org.talend.core.model.process.IElementParameter;
@@ -59,6 +62,7 @@ import org.talend.core.runtime.IAdditionalInfo;
 import org.talend.core.runtime.maven.MavenConstants;
 import org.talend.core.runtime.util.ComponentReturnVariableUtils;
 import org.talend.designer.core.model.components.AbstractBasicComponent;
+import org.talend.designer.core.model.components.ElementParameter;
 import org.talend.designer.core.model.components.NodeReturn;
 import org.talend.designer.core.model.process.DataNode;
 import org.talend.designer.runprocess.ItemCacheManager;
@@ -77,6 +81,7 @@ import org.talend.sdk.component.studio.model.parameter.Metadatas;
 import org.talend.sdk.component.studio.mvn.Mvn;
 import org.talend.sdk.component.studio.service.ComponentService;
 import org.talend.sdk.component.studio.util.TaCoKitConst;
+import org.talend.sdk.component.studio.util.TaCoKitSpeicalManager;
 import org.talend.sdk.component.studio.util.TaCoKitUtil;
 
 public class ComponentModel extends AbstractBasicComponent implements IAdditionalInfo {
@@ -216,10 +221,10 @@ public class ComponentModel extends AbstractBasicComponent implements IAdditiona
     public String getDisplayName() {
         return TaCoKitUtil.getDisplayName(index);
     }
-
+    
     @Override
     public boolean canParallelize() {
-        return "tJDBCNewOutput".equals(getDisplayName());
+        return TaCoKitSpeicalManager.canParallelize(getName());
     }
 
     /**
@@ -320,7 +325,29 @@ public class ComponentModel extends AbstractBasicComponent implements IAdditiona
         }
         ElementParameterCreator creator = new ElementParameterCreator(this, detail, node, reportPath, isCatcherAvailable);
         List<IElementParameter> parameters = (List<IElementParameter>) creator.createParameters();
+        if (detail.getMetadata().containsKey(TaCoKitConst.OPTIONAL_ROW_VARIABLE)) {
+            String optionalRow = detail.getMetadata().getOrDefault(TaCoKitConst.OPTIONAL_ROW_VARIABLE, "false");
+            if("true".equalsIgnoreCase(optionalRow)){
+                parameters.add(createOptionalRowParameter(node));
+            }
+        }
         return parameters;
+    }
+    
+    /**
+     * Create {@link TaCoKitConst#OPTIONAL_ROW} parameter. This parameter is used during code generation to know
+     * whether output line is optional
+     */
+    private ElementParameter createOptionalRowParameter(final INode node) {
+        final ElementParameter parameter = new ElementParameter(node);
+        parameter.setName(TaCoKitConst.OPTIONAL_ROW);
+        parameter.setValue(true);
+        parameter.setFieldType(EParameterFieldType.CHECK);
+        parameter.setCategory(EComponentCategory.TECHNICAL);
+        parameter.setReadOnly(true);
+        parameter.setRequired(false);
+        parameter.setShow(false);
+        return parameter;
     }
 
     /**
@@ -786,6 +813,10 @@ public class ComponentModel extends AbstractBasicComponent implements IAdditiona
 
     public ComponentIndex getIndex() {
         return index;
+    }
+    
+    public String getRepositoryType(Connection connection) {
+        return index.getFamilyDisplayName();
     }
 
 }
