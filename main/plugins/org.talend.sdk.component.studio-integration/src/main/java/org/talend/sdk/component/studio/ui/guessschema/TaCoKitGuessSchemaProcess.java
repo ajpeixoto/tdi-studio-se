@@ -71,8 +71,8 @@ public class TaCoKitGuessSchemaProcess {
             .getExecutor());
 
     public TaCoKitGuessSchemaProcess(final Property property, final INode node, final IContext context,
-            final String discoverSchemaAction, final String connectionName, final boolean executeProcessorMockJob) {
-        guessSchemaTask = new Task(property, context, node, discoverSchemaAction, connectionName, executorService,executeProcessorMockJob);
+            final String discoverSchemaAction, final String connectionName, final boolean executeMockJob) {
+        this.guessSchemaTask = new Task(property, context, node, discoverSchemaAction, connectionName, executorService, executeMockJob);
     }
 
     public Future<GuessSchemaResult> run() {
