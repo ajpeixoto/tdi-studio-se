@@ -117,7 +117,7 @@ public class PostgresGenerationManager extends DbGenerationManager {
                 }
                 for (IMetadataColumn co : connection.getMetadataTable().getListColumns()) {
                     String columnLabel = co.getOriginalDbColumnName();
-                    if (!replacedStrings.contains(columnLabel) && expression.contains(columnLabel)) {
+                    if (!replacedStrings.contains(columnLabel) && expression.contains("\"." + columnLabel)) {
                         expression = replaceFields4Expression(component, expression, columnLabel);
                         replacedStrings.add(columnLabel);
                     }
@@ -133,7 +133,7 @@ public class PostgresGenerationManager extends DbGenerationManager {
                     replacedStrings.add(expression);
                     for (IMetadataColumn column : table.getListColumns()) {
                         String columnLabel = column.getOriginalDbColumnName();
-                        if (!replacedStrings.contains(columnLabel) && expression.contains(columnLabel)) {
+                        if (!replacedStrings.contains(columnLabel) && expression.contains("\"." + columnLabel)) {
                             expression = replaceFields4Expression(component, expression, columnLabel);
                             replacedStrings.add(columnLabel);
                         }
@@ -334,13 +334,9 @@ public class PostgresGenerationManager extends DbGenerationManager {
             }
         }
         Set<String> globalMapList = getGlobalMapList(component, expression);
+        String quote = getQuote(component);
         for (String globalMapStr : globalMapList) {
-            String replacement = globalMapStr;
-            if (globalMapStr.contains("\\\\")) {
-                replacement = globalMapStr.replaceAll("\\\\", "\\\\\\\\");
-            }
-            String regex = parser.getGlobalMapExpressionRegex(globalMapStr);
-            expression = expression.replaceAll(regex, "\\\\\"\"+" + replacement + "+\"\\\\\""); //$NON-NLS-1$ //$NON-NLS-2$
+            expression = handleGlobalStringInExpression(expression, globalMapStr, quote, true);
         }
         return expression;
     }
