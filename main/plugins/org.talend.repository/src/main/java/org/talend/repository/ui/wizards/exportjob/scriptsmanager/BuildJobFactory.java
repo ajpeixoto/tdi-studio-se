@@ -97,7 +97,7 @@ public class BuildJobFactory {
                 ERepositoryObjectType repositoryObjectType = ERepositoryObjectType.getItemType(processItem);
                 if (repositoryObjectType == ERepositoryObjectType.PROCESS_ROUTE && ("ROUTE_MICROSERVICE".equals(type) || "ROUTE_STANDALONE_MICROSERVICE".equals(type))) {
                     esb = true;
-                } else if ("REST_MS".equals(type)) {
+                } else if ("REST_MS".equals(type) || "REST_STANDALONE_MS".equals(type)) {
                     esb = true;
                 }else {
                     for (Object o : ((ProcessItem) processItem).getProcess().getNode()) {
