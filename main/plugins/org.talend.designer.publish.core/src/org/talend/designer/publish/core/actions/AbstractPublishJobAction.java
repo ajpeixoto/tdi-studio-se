@@ -97,6 +97,7 @@ public abstract class AbstractPublishJobAction implements IRunnableWithProgress 
             break;
         case IMAGE:
         case MSESB_IMAGE:
+        case MSESB_STANDALONE_IMAGE:
             exportJobForImage(monitor);
             break;
         default:

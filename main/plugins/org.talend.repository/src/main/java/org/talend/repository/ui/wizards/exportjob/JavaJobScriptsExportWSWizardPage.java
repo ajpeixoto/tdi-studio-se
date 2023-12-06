@@ -136,7 +136,7 @@ public class JavaJobScriptsExportWSWizardPage extends JavaJobScriptsExportWizard
         }
 
         public static boolean isImageType(JobExportType type) {
-            return type == IMAGE || type == MSESB_IMAGE;
+            return type == IMAGE || type == MSESB_IMAGE || type == MSESB_STANDALONE_IMAGE;
         }
 
     }
