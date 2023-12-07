@@ -11,7 +11,6 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.talend.core.model.components.ComponentCategory;
@@ -195,11 +194,14 @@ public class PostgresGenerationManagerTest extends DbGenerationManagerTestHelper
 
         // ((String)globalMap.get("tableName")).columnName
         init("", main_table, null, lookup_table, null);
-        String expectedQuery = "\"SELECT\n"
+        String expectedQuer1 = "\"SELECT\n"
                 + "\\\"+((String)globalMap.get(\"main_table\"))+\\\".\\\"id\\\", \\\"+((String)globalMap.get(\"main_table\"))+\\\".\\\"name\\\","
                 + " \\\"+((String)globalMap.get(\"main_table\"))+\\\".\\\"age\\\", \\\"+((String)globalMap.get(\"lookup_table\"))+\\\".\\\"score\\\"\n"
                 + "FROM\n"
                 + " \\\"+((String)globalMap.get(\"main_table\"))+\\\" , \\\"+((String)globalMap.get(\"lookup_table\"))+\\\" \"";
+        String expectedQuery = "\"SELECT\n"
+                + "\" +((String)globalMap.get(\"main_table\"))+ \".id, \" +((String)globalMap.get(\"main_table\"))+ \".name, \" +((String)globalMap.get(\"main_table\"))+ \".age, \" +((String)globalMap.get(\"lookup_table\"))+ \".score\n"
+                + "FROM\n" + " \" +((String)globalMap.get(\"main_table\"))+ \" , \" +((String)globalMap.get(\"lookup_table\"))";
         PostgresGenerationManager manager = new PostgresGenerationManager();
         String query = manager.buildSqlSelect(dbMapComponent, "grade");
         assertEquals(expectedQuery, query);
@@ -212,10 +214,10 @@ public class PostgresGenerationManagerTest extends DbGenerationManagerTestHelper
         init(schema, main_table, null, lookup_table, null);
         manager = new PostgresGenerationManager();
         expectedQuery = "\"SELECT\n"
-                + "\\\"+((String)globalMap.get(\"schema\"))+\\\".\\\"+((String)globalMap.get(\"main_table\"))+\\\".\\\"id\\\", \\\"+((String)globalMap.get(\"schema\"))+\\\".\\\"+((String)globalMap.get(\"main_table\"))+\\\".\\\"name\\\", "
-                + "\\\"+((String)globalMap.get(\"schema\"))+\\\".\\\"+((String)globalMap.get(\"main_table\"))+\\\".\\\"age\\\", \\\"+((String)globalMap.get(\"schema\"))+\\\".\\\"+((String)globalMap.get(\"lookup_table\"))+\\\".\\\"score\\\"\n"
+                + "\" +((String)globalMap.get(\"schema\"))+ \".\" +((String)globalMap.get(\"main_table\"))+ \".id, \" +((String)globalMap.get(\"schema\"))+ \".\" +((String)globalMap.get(\"main_table\"))+ \".name, "
+                + "\"+((String)globalMap.get(\"schema\"))+ \".\" +((String)globalMap.get(\"main_table\"))+ \".age, \" +((String)globalMap.get(\"schema\"))+ \".\" +((String)globalMap.get(\"lookup_table\"))+ \".score\n"
                 + "FROM\n"
-                + " \\\"+((String)globalMap.get(\"schema\"))+\\\".\\\"+((String)globalMap.get(\"main_table\"))+\\\" , \\\"+((String)globalMap.get(\"schema\"))+\\\".\\\"+((String)globalMap.get(\"lookup_table\"))+\\\" \"";
+                + " \" +((String)globalMap.get(\"schema\"))+ \".\" +((String)globalMap.get(\"main_table\"))+ \" , \" +((String)globalMap.get(\"schema\"))+ \".\" +((String)globalMap.get(\"lookup_table\"))";
         query = manager.buildSqlSelect(dbMapComponent, "grade");
         assertEquals(expectedQuery, query);
 
