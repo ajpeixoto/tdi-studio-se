@@ -38,13 +38,15 @@
 	boolean isRunInMultiThread = codeGenArgument.getIsRunInMultiThread();
 	
 	boolean exportTypeSpringBoot = false;
+	boolean exportTypeStandaloneMS = false;
 	if (process instanceof org.talend.core.model.process.IProcess2) {
             org.talend.core.model.process.IProcess2 p2 = (org.talend.core.model.process.IProcess2) process;
 	    if (p2.getProperty() != null && p2.getProperty().getAdditionalProperties() != null) {
 	        exportTypeSpringBoot = "REST_MS".equals(p2.getProperty().getAdditionalProperties().get(org.talend.core.runtime.process.TalendProcessArgumentConstant.ARG_BUILD_TYPE));
+			exportTypeStandaloneMS = "REST_STANDALONE_MS".equals(p2.getProperty().getAdditionalProperties().get(org.talend.core.runtime.process.TalendProcessArgumentConstant.ARG_BUILD_TYPE));
 	    } 
 	}
-
+	
 	List<IContextParameter> params = new ArrayList<IContextParameter>();
 	params=process.getContextManager().getDefaultContext().getContextParameterList();
 	String className = process.getName();
@@ -257,7 +259,7 @@ if(isRunInMultiThread){
 	private final static String utf8Charset = "UTF-8";
 
 <%
-if(!exportTypeSpringBoot || isChildRouteJob){
+if((!(exportTypeSpringBoot || exportTypeStandaloneMS)) || isChildRouteJob){
 %>	
 
 	//contains type for every context property
@@ -287,7 +289,7 @@ if(!exportTypeSpringBoot || isChildRouteJob){
 	private java.util.Properties defaultProps = new java.util.Properties();
 	
 <%
-if(!exportTypeSpringBoot){
+if(!(exportTypeSpringBoot || exportTypeStandaloneMS)){
 %>	
 
 	// create application properties with default
