@@ -163,6 +163,7 @@ public class ServerManager {
             }
             started.set(false);
             starting.set(true);
+            ExceptionHandler.process(ex);
         }
     }
 
