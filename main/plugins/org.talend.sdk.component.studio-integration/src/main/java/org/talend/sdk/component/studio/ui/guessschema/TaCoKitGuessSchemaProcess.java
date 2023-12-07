@@ -165,7 +165,7 @@ public class TaCoKitGuessSchemaProcess {
             executeProcess.waitFor();
             final GuessSchemaResult guessResult = result.get();
             if (executeProcess.exitValue() != 0){
-                return new GuessSchemaResult(guessResult.getError(), guessResult.getError());
+                return guessResult;
             }
             final String resultStr = guessResult.getResult();
             if (resultStr != null && !resultStr.trim().isEmpty()) {
