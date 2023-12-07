@@ -31,6 +31,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.json.JsonObject;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
 
@@ -49,7 +50,6 @@ import org.talend.designer.core.model.process.DataProcess;
 import org.talend.designer.core.ui.editor.process.Process;
 import org.talend.designer.runprocess.IProcessor;
 import org.talend.designer.runprocess.ProcessorUtilities;
-import org.talend.sdk.component.api.exception.DiscoverSchemaException;
 import org.talend.sdk.component.server.front.model.ActionReference;
 import org.talend.sdk.component.studio.ComponentModel;
 import org.talend.sdk.component.studio.Lookups;
@@ -154,9 +154,9 @@ public class TaCoKitGuessSchemaProcess {
                 }
                 if (errorMatcher.find()) {
                     try (final Jsonb jsonb = JsonbBuilder.create()) {
-                        DiscoverSchemaException e = jsonb.fromJson(errorMatcher.group(), DiscoverSchemaException.class);
-                        guessSchemaResult.setExecuteMock("EXECUTE_MOCK_JOB".equals(e.getPossibleHandleErrorWith().name()));
-                        guessSchemaResult.setMessage(e.getMessage());
+                        JsonObject jsonError = jsonb.fromJson(errorMatcher.group(), JsonObject.class);
+                        guessSchemaResult.setMessage(jsonError.getString("message"));
+                        guessSchemaResult.setExecuteMock("EXECUTE_MOCK_JOB".equals(jsonError.getString("possibleHandleErrorWith")));
                     }
                 }
                 return guessSchemaResult;
