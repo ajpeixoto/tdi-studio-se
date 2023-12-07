@@ -11,6 +11,7 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.talend.core.model.components.ComponentCategory;
@@ -273,9 +274,9 @@ public class PostgresGenerationManagerTest extends DbGenerationManagerTestHelper
         ExternalDbMapTable externalData = dbMapComponent.getExternalData().getOutputTables().get(0);
         externalData.setCustomWhereConditionsEntries(whereEntriesExpression);
         String expectedQueryExpression = "\"SELECT\n"
-                + "\\\"\"+context.schema+\"\\\".\\\"eltinput\\\".\\\"String\\\", \\\"\"+context.schema+\"\\\".\\\"eltinput\\\".\\\"void\\\"\n"
-                + "FROM\n" + " \\\"\"+context.schema+\"\\\".\\\"eltinput\\\"\n"
-                + "WHERE \\\"eltinput\\\".\\\"String\\\">=to_char(now() + '-\" + ((String)globalMap.get(\"days\")) + \" days', 'yyyymmddhh24mi')\"";
+                + "\" +((String)globalMap.get(\"main_table\"))+ \".id, \" +((String)globalMap.get(\"main_table\"))+ \".name, \" +((String)globalMap.get(\"main_table\"))+ \".age, \" +((String)globalMap.get(\"lookup_table\"))+ \".score"
+                + "FROM\n" + "\" +((String)globalMap.get(\"main_table\"))+ \" , \" +((String)globalMap.get(\"lookup_table\"))+ \""
+                + "WHERE \"eltinput\".\"String\">=to_char(now() + '-\" + ((String)globalMap.get(\"days\")) + \" days', 'yyyymmddhh24mi')\"";
         String queryExpression = manager.buildSqlSelect(dbMapComponent, "grade");
         assertEquals(expectedQueryExpression, queryExpression);
     }
@@ -976,7 +977,7 @@ public class PostgresGenerationManagerTest extends DbGenerationManagerTestHelper
         String schema = "";
         String main_table = "context.main_table";
         String lookup_table = "context.lookup";
-        String contextValue = "context.value";
+        String contextValue = "context.name";
         JobContext context = new JobContext("Default");
 
         IContextParameter mainTableContext = new JobContextParameter();
@@ -1068,7 +1069,7 @@ public class PostgresGenerationManagerTest extends DbGenerationManagerTestHelper
                 + "\\\"\"+context.main_table+\"\\\".id, \\\"\"+context.main_table+\"\\\".name, \\\"\"+context.main_table+\"\\\".classNum, \\\"\"+context.lookup+\"\\\".score\n"
                 + "FROM\n"
                 + " context.main_table INNER JOIN  context.lookup ON(  context.lookup.\\\"id\\\" = \\\"\"+context.main_table+\"\\\".id )\n"
-                + "WHERE\n" + "  context.main_table.\\\"id\\\" = \" +context.name";
+                + "WHERE\n" + "  context.main_table.\\\"id\\\" = context.name\"";
         assertEquals(expectedQuery, query);
     }
 
