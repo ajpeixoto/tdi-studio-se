@@ -23,7 +23,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/asciidoctorj.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/asciidoctorj-api.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/backport9.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/component-api.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/component-form-core.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/component-server-model.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/dirgra.jar"/>

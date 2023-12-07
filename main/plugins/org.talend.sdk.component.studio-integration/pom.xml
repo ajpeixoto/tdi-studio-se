@@ -55,10 +55,6 @@
   <dependencies>
     <dependency>
       <groupId>org.talend.sdk.component</groupId>
-      <artifactId>component-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.talend.sdk.component</groupId>
       <artifactId>component-server-model</artifactId>
     </dependency>
     <dependency>
