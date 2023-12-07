@@ -276,7 +276,7 @@ public class PostgresGenerationManagerTest extends DbGenerationManagerTestHelper
         String expectedQueryExpression = "\"SELECT\n"
                 + "\" +((String)globalMap.get(\"main_table\"))+ \".id, \" +((String)globalMap.get(\"main_table\"))+ \".name, \" +((String)globalMap.get(\"main_table\"))+ \".age, \" +((String)globalMap.get(\"lookup_table\"))+ \".score"
                 + "FROM\n" + "\" +((String)globalMap.get(\"main_table\"))+ \" , \" +((String)globalMap.get(\"lookup_table\"))+ \""
-                + "WHERE \"eltinput\".\"String\">=to_char(now() + '-\" + ((String)globalMap.get(\"days\")) + \" days', 'yyyymmddhh24mi')\"";
+                + "WHERE \\\"eltinput\\\".\\\"String\\\">=to_char(now() + '-\" + ((String)globalMap.get(\"days\")) + \" days', 'yyyymmddhh24mi')\"";
         String queryExpression = manager.buildSqlSelect(dbMapComponent, "grade");
         assertEquals(expectedQueryExpression, queryExpression);
     }
