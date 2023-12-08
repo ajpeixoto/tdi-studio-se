@@ -490,7 +490,7 @@ public class PostgresGenerationManagerTest extends DbGenerationManagerTestHelper
             tableName = TalendTextUtils.removeQuotes(schema) + ".";
         }
         tableName = TalendTextUtils.removeQuotes(main_table);
-        expectedValue = "\\\"\"+((String)globalMap.get(\"#main_table%\"))+\"\\\"";
+        expectedValue = "\"+((String)globalMap.get(\"#main_table%\"))+\"";
         handledTableName = manager.getHandledTableName(dbMapComponent, tableName, main_alias);
         Assert.assertEquals(expectedValue, handledTableName);
 
@@ -502,7 +502,7 @@ public class PostgresGenerationManagerTest extends DbGenerationManagerTestHelper
             tableName = TalendTextUtils.removeQuotes(schema) + ".";
         }
         tableName = TalendTextUtils.removeQuotes(main_table);
-        expectedValue = "\\\"\"+((String)globalMap.get(\"#main_table%\"))+\"\\\"";
+        expectedValue = "\"+((String)globalMap.get(\"#main_table%\"))+\"";
         handledTableName = manager.getHandledTableName(dbMapComponent, tableName, main_alias);
         Assert.assertEquals(expectedValue, handledTableName);
 
@@ -538,7 +538,7 @@ public class PostgresGenerationManagerTest extends DbGenerationManagerTestHelper
             tableName = TalendTextUtils.removeQuotes(schema) + ".";
         }
         tableName = TalendTextUtils.removeQuotes(main_table);
-        expectedValue = "\\\"\"+((String)globalMap.get(\"#main_table\"))+context.main_table+\"\\\"";
+        expectedValue = "\"+((String)globalMap.get(\"#main_table\"))+context.main_table+\"\\\"";
         handledTableName = manager.getHandledTableName(dbMapComponent, tableName, main_alias);
         Assert.assertEquals(expectedValue, handledTableName);
 
