@@ -162,7 +162,7 @@ public class GuessSchemaSelectionAdapter extends SelectionAdapter {
         }
         if (null == schema || TaCoKitUtil.isBlank(schema.getResult())) {
             String errorLog = schema.getError();
-            String errorMessage = schema.getMessage();
+            String errorMessage = TaCoKitUtil.isEmpty(schema.getMessage()) ? Messages.getString("guessSchema.dialog.error.msg.default") : schema.getMessage();
             if (!TaCoKitUtil.isBlank(errorLog)) {
                 Exception ex  = new Exception(errorLog);
                 ExceptionHandler.process(ex);
