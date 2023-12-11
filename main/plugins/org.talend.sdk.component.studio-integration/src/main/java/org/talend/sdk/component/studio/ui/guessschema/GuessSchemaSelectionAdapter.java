@@ -134,7 +134,10 @@ public class GuessSchemaSelectionAdapter extends SelectionAdapter {
          * recreate a new runnable
          */
         if (null != schema && schema.isExecuteMock()){
-            if (MessageDialog.openQuestion(composite.getShell(), "Execute Mock job?", schema.getMessage())) {
+            if (MessageDialog.openQuestion(composite.getShell(),
+                                           Messages.getString("guessSchema.dialog.execute.mock"),
+                                           schema.getMessage() + "\r\n\r\n" +
+                                           Messages.getString("guessSchema.dialog.execute.mock"))) {
                 guessSchema = new GuessSchemaRunnable(context, elementParameter, true);
                 try {
                     //this block until the guessSchema is done
@@ -153,20 +156,19 @@ public class GuessSchemaSelectionAdapter extends SelectionAdapter {
                     return; // Guess schema failed
                 }
                 schema = guessSchema.getSchema();
-                //
-                // ... TODO Clean up duplicated code, this just for structuring ...
-                //
+            } else {
+                return;
             }
         }
         if (null == schema || TaCoKitUtil.isBlank(schema.getResult())) {
             String errorLog = schema.getError();
-            String errorMessage = schema.getMessage();
+            String errorMessage = TaCoKitUtil.isEmpty(schema.getMessage()) ? Messages.getString("guessSchema.dialog.error.msg.default") : schema.getMessage();
             if (!TaCoKitUtil.isBlank(errorLog)) {
                 Exception ex  = new Exception(errorLog);
                 ExceptionHandler.process(ex);
                 ExceptionMessageDialog.openError(composite.getShell(),
                                                  Messages.getString("guessSchema.dialog.error.title"), //$NON-NLS-1$
-                                                 Messages.getString(errorMessage), //$NON-NLS-1$
+                                                 errorMessage, //$NON-NLS-1$
                                                  ex);
             }
             else {
