@@ -52,6 +52,7 @@
     final Boolean executeProcessorMockJob = (Boolean)guessSchemaNode.getElementParameter("___TACOKIT_GUESS_SCHEMA_PARAMETER_OUTPUT_EXECUTE_MOCKJOB___").getValue();
     final IComponent guessSchemaComponent = guessSchemaNode.getComponent();
     final boolean guessSchemaUseLookup = guessSchemaComponent.useLookup();
+    final Boolean guessSchemaIsStart = (Boolean)guessSchemaNode.getElementParameter(EParameterName.START.getName()).getValue();
 %>
 
 final java.io.PrintStream out = System.out;
@@ -120,7 +121,7 @@ System.setOut(new java.io.PrintStream(new java.io.OutputStream() {
         }
     <% } else { %>
         try {
-            tacokitGuessSchema.guessComponentSchema(schema_<%=guessSchemaCid%>, "<%=outputConnectionName%>");
+            tacokitGuessSchema.guessComponentSchema(schema_<%=guessSchemaCid%>, "<%=outputConnectionName%>", <%=guessSchemaIsStart%>);
         } finally {
             tacokitGuessSchema.close();
         }
