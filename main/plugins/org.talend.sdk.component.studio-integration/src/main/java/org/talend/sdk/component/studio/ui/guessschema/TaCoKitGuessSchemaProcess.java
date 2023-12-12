@@ -131,8 +131,6 @@ public class TaCoKitGuessSchemaProcess {
             
             
             final Future<GuessSchemaResult> result = executorService.submit(() -> {
-                final Pattern schemaPattern = Pattern.compile("\\[\\{.*\"talendType\".*\\}]");
-                final Pattern errorPattern = Pattern.compile("\\{.*\"possibleHandleErrorWith\".*\\}");
                 final List<String> err = new ArrayList();
                 final GuessSchemaResult guessSchemaResult = new GuessSchemaResult();
                 // read stdout stream
