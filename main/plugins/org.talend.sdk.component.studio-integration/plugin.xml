@@ -364,5 +364,4 @@
              serviceId="IRepositoryContextUpdateService">
        </Service>
     </extension>
-
 </plugin>

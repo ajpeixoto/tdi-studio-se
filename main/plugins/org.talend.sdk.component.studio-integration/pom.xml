@@ -284,6 +284,14 @@
         </executions>
         <configuration>
             <pomOnlyDependencies>consider</pomOnlyDependencies>
+       <compilerArgs>
+              <arg>-err:+discouraged,forbidden</arg>
+              <arg>-warn:+discouraged,forbidden</arg>
+		</compilerArgs>
+          <compilerVersion>1.8</compilerVersion>
+          <source>1.8</source>
+          <target>1.8</target>
+          <useProjectSettings>false</useProjectSettings>
         </configuration>
       </plugin>
     </plugins>
