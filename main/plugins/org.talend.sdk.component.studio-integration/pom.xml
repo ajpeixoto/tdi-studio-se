@@ -98,6 +98,12 @@
       <version>${oro.version}</version>
       <scope>provided</scope>
     </dependency>
+    
+    <dependency>
+		<groupId>com.headius</groupId>
+		<artifactId>options</artifactId>
+		<version>1.7</version>
+	</dependency>
 
     <dependency> <!-- needed by tomcat-websocket -->
       <groupId>org.apache.tomcat</groupId>
@@ -192,7 +198,12 @@
       <version>${xbean.version}</version>
       <scope>test</scope>
     </dependency>
-
+	<dependency>
+	    <groupId>org.slf4j</groupId>
+	    <artifactId>slf4j-simple</artifactId>
+	    <version>1.7.34</version>
+	    <scope>test</scope>
+	</dependency>
   </dependencies>
 
   <build>
@@ -234,8 +245,9 @@
               <goal>copy-dependencies</goal>
             </goals>
             <configuration>
-			  <excludeGroupIds>org.talend.studio</excludeGroupIds>
+	      <excludeGroupIds>org.talend.studio</excludeGroupIds>
               <includeScope>runtime</includeScope>
+              <excludeScope>system</excludeScope>
               <outputDirectory>${project.basedir}/lib</outputDirectory>
               <stripVersion>true</stripVersion>
             </configuration>
@@ -296,23 +308,4 @@
       </plugin>
     </plugins>
   </build>
-
-  <profiles>
-
-    <profile>
-      <!--
-           This profile makes the studio dependencies available
-           and let you build this plugin without rebuilding it's studio dependencies.
-           use : mvn clean install -P TalendP2
-      -->
-      <id>TalendP2</id>
-      <repositories>
-        <repository>
-          <id>tos-p2-repo</id>
-          <url>${tos-p2-repo.url}</url>
-          <layout>p2</layout>
-        </repository>
-      </repositories>
-    </profile>
-  </profiles>
 </project>
