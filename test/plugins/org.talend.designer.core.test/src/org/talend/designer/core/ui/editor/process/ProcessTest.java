@@ -18,12 +18,15 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
 import org.talend.core.model.components.ComponentCategory;
 import org.talend.core.model.components.IComponent;
+import org.talend.core.model.process.EConnectionType;
+import org.talend.core.model.process.IConnection;
 import org.talend.core.model.process.IElement;
 import org.talend.core.model.process.IElementParameter;
 import org.talend.core.model.process.IElementParameterDefaultValue;
@@ -35,6 +38,7 @@ import org.talend.core.ui.component.ComponentsFactoryProvider;
 import org.talend.designer.core.model.FakeElement;
 import org.talend.designer.core.model.components.ElementParameter;
 import org.talend.designer.core.model.components.ElementParameterDefaultValue;
+import org.talend.designer.core.ui.editor.connections.Connection;
 import org.talend.designer.core.ui.editor.nodecontainer.NodeContainer;
 import org.talend.designer.core.ui.editor.nodes.Node;
 
@@ -188,4 +192,115 @@ public class ProcessTest {
         assertFalse(p.isParamDistribution(param));
     }
 
+    @Test
+    public void testSortNodes() throws Exception {
+        IComponent tRowGeneratorComp = ComponentsFactoryProvider.getInstance().get("tRowGenerator",
+                ComponentCategory.CATEGORY_4_DI.getName());
+        IComponent tHashInputComp = ComponentsFactoryProvider.getInstance().get("tHashInput",
+                ComponentCategory.CATEGORY_4_DI.getName());
+        IComponent tHashOutputComp = ComponentsFactoryProvider.getInstance().get("tHashOutput",
+                ComponentCategory.CATEGORY_4_DI.getName());
+        IComponent tMapComp = ComponentsFactoryProvider.getInstance().get("tMap", ComponentCategory.CATEGORY_4_DI.getName());
+        IComponent tLogRowComp = ComponentsFactoryProvider.getInstance().get("tLogRow",
+                ComponentCategory.CATEGORY_4_DI.getName());
+
+        Process process = new Process(new FakePropertyImpl());
+        Node tRowGenerator1 = new Node(tRowGeneratorComp, process);
+        Node tHashOutput1 = new Node(tHashOutputComp, process);
+        Connection row1 = new Connection(tRowGenerator1, tHashOutput1, EConnectionType.FLOW_MAIN,
+                EConnectionType.FLOW_MAIN.getName(), "tRowGenerator1", "row1", false);
+        ((List<IConnection>) tRowGenerator1.getOutgoingConnections()).add(row1);
+        ((List<IConnection>) tHashOutput1.getIncomingConnections()).add(row1);
+        addNodeToProcess(process, tRowGenerator1);
+        addNodeToProcess(process, tHashOutput1);
+
+        Node tRowGenerator2 = new Node(tRowGeneratorComp, process);
+        Node tMap1 = new Node(tMapComp, process);
+        Connection row4 = new Connection(tRowGenerator2, tMap1, EConnectionType.FLOW_MAIN, EConnectionType.FLOW_MAIN.getName(),
+                "tRowGenerator2", "row4", false);
+        ((List<IConnection>) tRowGenerator2.getOutgoingConnections()).add(row4);
+        ((List<IConnection>) tMap1.getIncomingConnections()).add(row4);
+        Node tMap2 = new Node(tMapComp, process);
+        Connection out1 = new Connection(tMap1, tMap2, EConnectionType.FLOW_MAIN, EConnectionType.FLOW_MAIN.getName(), "out1",
+                "out1", false);
+        ((List<IConnection>) tMap1.getOutgoingConnections()).add(out1);
+        ((List<IConnection>) tMap2.getIncomingConnections()).add(out1);
+        Node tLogRow = new Node(tLogRowComp, process);
+        Connection out2 = new Connection(tMap2, tLogRow, EConnectionType.FLOW_MAIN, EConnectionType.FLOW_MAIN.getName(), "out2",
+                "out2", false);
+        addNodeToProcess(process, tRowGenerator2);
+        addNodeToProcess(process, tMap1);
+        addNodeToProcess(process, tMap2);
+        addNodeToProcess(process, tLogRow);
+
+        Node tRowGenerator3 = new Node(tRowGeneratorComp, process);
+        Node tHashOutput2 = new Node(tHashOutputComp, process);
+        Connection row2 = new Connection(tRowGenerator3, tHashOutput2, EConnectionType.FLOW_MAIN,
+                EConnectionType.FLOW_MAIN.getName(), "tRowGenerator3", "row2", false);
+        ((List<IConnection>) tRowGenerator3.getOutgoingConnections()).add(row2);
+        ((List<IConnection>) tHashOutput2.getIncomingConnections()).add(row2);
+        addNodeToProcess(process, tRowGenerator3);
+        addNodeToProcess(process, tHashOutput2);
+
+        Node tRowGenerator4 = new Node(tRowGeneratorComp, process);
+        Node tHashOutput3 = new Node(tHashOutputComp, process);
+        Connection row3 = new Connection(tRowGenerator4, tHashOutput3, EConnectionType.FLOW_MAIN,
+                EConnectionType.FLOW_MAIN.getName(), "tRowGenerator4", "row3", false);
+        ((List<IConnection>) tRowGenerator4.getOutgoingConnections()).add(row3);
+        ((List<IConnection>) tHashOutput3.getIncomingConnections()).add(row3);
+        addNodeToProcess(process, tRowGenerator4);
+        addNodeToProcess(process, tHashOutput3);
+
+        Node tHashInput1 = new Node(tHashInputComp, process);
+        Node tHashInput2 = new Node(tHashInputComp, process);
+        Node tHashInput3 = new Node(tHashInputComp, process);
+        Node tHashInput4 = new Node(tHashInputComp, process);
+        Node tMap3 = new Node(tMapComp, process);
+        Node tMap4 = new Node(tMapComp, process);
+        Connection row5 = new Connection(tHashInput4, tMap4, EConnectionType.FLOW_MAIN, EConnectionType.FLOW_MAIN.getName(),
+                "tHashInput4", "row5", false);
+        ((List<IConnection>) tHashInput4.getOutgoingConnections()).add(row5);
+        ((List<IConnection>) tMap4.getIncomingConnections()).add(row5);
+        Connection row6 = new Connection(tHashInput2, tMap4, EConnectionType.FLOW_REF, EConnectionType.FLOW_REF.getName(),
+                "tHashInput2", "row6", false);
+        ((List<IConnection>) tHashInput2.getOutgoingConnections()).add(row6);
+        ((List<IConnection>) tMap4.getIncomingConnections()).add(row6);
+        Connection out3 = new Connection(tMap4, tMap2, EConnectionType.FLOW_REF, EConnectionType.FLOW_REF.getName(), "out3",
+                "out3", false);
+        ((List<IConnection>) tMap4.getOutgoingConnections()).add(out3);
+        ((List<IConnection>) tMap2.getIncomingConnections()).add(out3);
+        addNodeToProcess(process, tHashInput4);
+        addNodeToProcess(process, tMap4);
+        addNodeToProcess(process, tHashInput2);
+
+
+        Connection row7 = new Connection(tHashInput3, tMap3, EConnectionType.FLOW_MAIN, EConnectionType.FLOW_MAIN.getName(),
+                "tHashInput3", "row7", false);
+        ((List<IConnection>) tHashInput3.getOutgoingConnections()).add(row7);
+        ((List<IConnection>) tMap3.getIncomingConnections()).add(row7);
+        Connection row8 = new Connection(tHashInput1, tMap3, EConnectionType.FLOW_REF, EConnectionType.FLOW_REF.getName(),
+                "tHashInput1", "row8", false);
+        ((List<IConnection>) tHashInput1.getOutgoingConnections()).add(row8);
+        ((List<IConnection>) tMap3.getIncomingConnections()).add(row8);
+        Connection out4 = new Connection(tMap3, tMap1, EConnectionType.FLOW_REF, EConnectionType.FLOW_REF.getName(), "out4",
+                "out4", false);
+        ((List<IConnection>) tMap3.getOutgoingConnections()).add(out4);
+        ((List<IConnection>) tMap1.getIncomingConnections()).add(out4);
+        addNodeToProcess(process, tHashInput3);
+        addNodeToProcess(process, tMap3);
+        addNodeToProcess(process, tHashInput1);
+
+        process.checkStartNodes();
+        Class<? extends Process> pClass = process.getClass();
+        Method method = pClass.getDeclaredMethod("sortNodes", List.class);
+        method.setAccessible(true);
+        List<INode> returnList = (List<INode>) method.invoke(process, process.getGraphicalNodes());
+        assertTrue(returnList.indexOf(tHashInput3) < returnList.indexOf(tHashInput4));
+
+    }
+
+    private void addNodeToProcess(Process process, Node node) {
+        NodeContainer nodeContainer = new NodeContainer(node);
+        process.addNodeContainer(nodeContainer);
+    }
 }
