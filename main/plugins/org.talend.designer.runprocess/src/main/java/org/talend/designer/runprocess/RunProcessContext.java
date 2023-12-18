@@ -1265,6 +1265,8 @@ public class RunProcessContext {
                     } catch (IOException ioe) {
                         // Do nothing
                     }
+                    
+                    ExceptionHandler.logDebug("RunProcessContext , run, exit");
                 }
             }
         }
