@@ -26,10 +26,18 @@ import org.eclipse.gef.commands.Command;
 import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.ComboBoxCellEditor;
 import org.eclipse.jface.viewers.ICellEditorListener;
+import org.eclipse.jface.viewers.ICellModifier;
 import org.eclipse.jface.viewers.TableViewer;
+import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CLabel;
+import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.dnd.DropTarget;
+import org.eclipse.swt.dnd.DropTargetAdapter;
+import org.eclipse.swt.dnd.DropTargetEvent;
+import org.eclipse.swt.dnd.TextTransfer;
+import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FormAttachment;
@@ -37,11 +45,14 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.views.properties.tabbed.ITabbedPropertyConstants;
 import org.talend.commons.ui.runtime.swt.tableviewer.TableViewerCreatorColumnNotModifiable;
 import org.talend.commons.ui.swt.advanced.dataeditor.control.ExtendedPushButton;
 import org.talend.commons.ui.swt.extended.table.ExtendedTableModel;
 import org.talend.commons.ui.swt.tableviewer.TableViewerCreator;
+import org.talend.commons.ui.swt.tableviewer.TableViewerCreatorColumn;
 import org.talend.commons.utils.data.list.IListenableListListener;
 import org.talend.commons.utils.data.list.ListenableListEvent;
 import org.talend.core.CorePlugin;
@@ -60,7 +71,6 @@ import org.talend.core.model.utils.TalendTextUtils;
 import org.talend.core.ui.metadata.celleditor.ModuleListCellEditor;
 import org.talend.core.ui.properties.tab.IDynamicProperty;
 import org.talend.designer.core.IDesignerCoreService;
-import org.talend.designer.core.model.FakeElement;
 import org.talend.designer.core.model.components.EParameterName;
 import org.talend.designer.core.ui.editor.cmd.PropertyChangeCommand;
 import org.talend.designer.core.ui.editor.connections.Connection;
@@ -76,7 +86,7 @@ import org.talend.designer.runprocess.ItemCacheManager;
 /**
  * DOC yzhang class global comment. Detailled comment <br/>
  *
- * $Id: TableController.java 1 2006-12-14 下午05:44:30 +0000 (下午05:44:30) yzhang $
+ * $Id: TableController.java 1 2006-12-14 ����05:44:30 +0000 (����05:44:30) yzhang $
  *
  */
 public class TableController extends AbstractTableController {
@@ -90,6 +100,8 @@ public class TableController extends AbstractTableController {
 
     private ITDQPatternService dqPatternService = null;
     
+    private boolean isReadOnly = false;
+
     /**
      * DOC yzhang TableController constructor comment.
      *
@@ -118,8 +130,8 @@ public class TableController extends AbstractTableController {
         tableEditorModel.setData(elem, param, getProcess(elem, part));
         AbstractPropertiesTableEditorView<Map<String, Object>> tableEditorView = getPropertiesTableEditorView(parentComposite, SWT.NONE, tableEditorModel,param, !param.isBasedOnSchema(), false);
         tableEditorView.getExtendedTableViewer().setCommandStack(getCommandStack());
-        boolean editable = !param.isReadOnly() && (elem instanceof FakeElement || !param.isRepositoryValueUsed());
-        tableEditorView.setReadOnly(!editable);
+        isReadOnly = !isTableViewerEditable(param);
+        tableEditorView.setReadOnly(isReadOnly);
         tableEditorModel.setModifiedBeanListenable(tableEditorView.getTableViewerCreator());
         tableEditorModel.addModifiedBeanListenerForAggregateComponent();
 
@@ -130,6 +142,7 @@ public class TableController extends AbstractTableController {
         ExtendedTableModel<Map<String, Object>> extendedTableModel = tableEditorView.getExtendedTableModel();
         if (extendedTableModel != null) {
             TableViewer tableViewer = extendedTableModel.getTableViewer();
+            addDndSupport(tableViewer);//Dnd support
             if (tableViewer != null) {
                 CellEditor[] cellEditors = tableViewer.getCellEditors();
                 if (cellEditors != null && cellEditors.length > 0) {
@@ -293,6 +306,73 @@ public class TableController extends AbstractTableController {
         return mainComposite;
     }
 
+    private void addDndSupport(final TableViewer tableViewer) {
+        DropTarget dropTarget = new DropTarget(tableViewer.getTable(), DND.DROP_DEFAULT | DND.DROP_COPY);
+        dropTarget.setTransfer(new Transfer[] { TextTransfer.getInstance()});
+        dropTarget.addDropListener(new DropTargetAdapter() {
+
+            @Override
+            public void dragOver(DropTargetEvent event) {
+                if(!isColumnDroptable(tableViewer, getTargetColumn(event))) {
+                    event.detail = DND.DROP_NONE;
+                } else {
+                    event.detail = DND.DROP_COPY;
+                }
+            }
+
+            @Override
+            public void dragEnter(DropTargetEvent event) {
+                // Allow dropping text only
+                for (int i = 0, n = event.dataTypes.length; i < n; i++) {
+                    if (TextTransfer.getInstance().isSupportedType(event.dataTypes[i])) {
+                        event.currentDataType = event.dataTypes[i];
+                    }
+                }
+            }
+            
+            @Override
+            public void drop(DropTargetEvent event) {
+                if (ifAnyTextDropped(event)) {
+                    pasteToTable(event);
+                }
+            }
+
+            private boolean ifAnyTextDropped(DropTargetEvent event) {
+                return TextTransfer.getInstance().isSupportedType(event.currentDataType);
+            }
+            
+            private void pasteToTable(DropTargetEvent event) {
+                int columnIndex = getTargetColumn(event);
+                
+                if(isColumnDroptable(tableViewer, columnIndex)) {
+                    TableItem item = (TableItem) event.item;
+                    String originContext = item.getText(columnIndex);
+                    
+                    String idColmn = (String) tableViewer.getColumnProperties()[columnIndex];
+                    ICellModifier cellModifier = tableViewer.getCellModifier();
+                    cellModifier.modify(event.item, idColmn, originContext + (String)event.data);
+                }
+            }
+
+            private boolean isColumnDroptable(final TableViewer tableViewer, int columnIndex) {
+                CellEditor[] cellEditors = tableViewer.getCellEditors();
+                boolean isTextCellEditor = cellEditors[columnIndex] != null 
+                        && cellEditors[columnIndex].getControl() instanceof Text;
+                return isTextCellEditor;
+            }
+
+            private int getTargetColumn(DropTargetEvent event) {
+                Point posInTable = tableViewer.getTable().toControl(event.x, event.y);
+                ViewerCell cell = tableViewer.getCell(posInTable);
+                int columnIndex = 0;
+                if(cell != null) {
+                    columnIndex = cell.getColumnIndex();
+                }
+                return columnIndex;
+            }
+        });
+    }
+
     /*
      * (non-Javadoc)
      *
@@ -310,7 +390,8 @@ public class TableController extends AbstractTableController {
         AbstractPropertiesTableEditorView<Map<String, Object>> tableEditorView = getPropertiesTableEditorView(subComposite,
                 SWT.NONE, tableEditorModel, param, !param.isBasedOnSchema(), false);
         tableEditorView.getExtendedTableViewer().setCommandStack(getCommandStack());
-        tableEditorView.setReadOnly(param.isReadOnly());
+        isReadOnly = !isTableViewerEditable(param);
+        tableEditorView.setReadOnly(isReadOnly);
         final Table table = tableEditorView.getTable();
         int toolbarSize = 0;
         if (!param.isBasedOnSchema()) {
@@ -369,8 +450,20 @@ public class TableController extends AbstractTableController {
                 tableViewerCreator.getTableViewer().refresh();
             }
         }
+        boolean isReadOnlyNow = !isTableViewerEditable(param);
+        if (isReadOnlyNow != isReadOnly) {
+            isReadOnly = isReadOnlyNow;
+            tableViewerCreator.setReadOnly(isReadOnly);
+            for (Object obj : tableViewerCreator.getColumns()) {
+                if (obj instanceof TableViewerCreatorColumn) {
+                    TableViewerCreatorColumn column = (TableViewerCreatorColumn) obj;
+                    column.setModifiable(!isReadOnly);
+                }
+            }
+            revertToolBarButtonState(!isReadOnly);
+        }
     }
-
+    
     @SuppressWarnings("unchecked")
     private void checkAndSetDefaultValue(IElementParameter param) {
         if (param != null && param.getFieldType() == EParameterFieldType.TABLE) {
@@ -712,6 +805,10 @@ public class TableController extends AbstractTableController {
         }
     }
 
+    protected boolean isTableViewerEditable(IElementParameter param) {
+        return !param.isReadOnly() && (isWidgetEnabled(param) || !param.isRepositoryValueUsed());
+    }
+    
     private void updateContextList(IElementParameter param) {
         List<String> contextParameterNamesList = new ArrayList<String>();
 
@@ -912,10 +1009,11 @@ public class TableController extends AbstractTableController {
      *
      * if flag is false, will set the button for unenabled state. (bug 3740)
      */
-    private void revertToolBarButtonState(boolean flag) {
+    protected void revertToolBarButtonState(boolean flag) {
 
         PropertiesTableToolbarEditorView toolBar = (PropertiesTableToolbarEditorView) hashCurControls.get(TOOLBAR_NAME);
         if (toolBar != null) {
+            toolBar.getExtendedTableViewer().setReadOnly(!flag);
             for (ExtendedPushButton btn : toolBar.getButtons()) {
                 if (flag) {
                     btn.getButton().setEnabled(btn.getEnabledState());

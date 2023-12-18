@@ -12,19 +12,15 @@
  */
 package org.talend.sdk.component.studio.ui.composite;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Objects;
-import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Composite;
 import org.talend.commons.exception.ExceptionHandler;
+import org.talend.core.model.metadata.builder.connection.Connection;
 import org.talend.core.model.process.EComponentCategory;
 import org.talend.core.model.process.EParameterFieldType;
 import org.talend.core.model.process.Element;
@@ -35,6 +31,8 @@ import org.talend.sdk.component.studio.model.parameter.TaCoKitElementParameter;
 import org.talend.sdk.component.studio.model.parameter.TaCoKitElementParameter.IValueChangedListener;
 import org.talend.sdk.component.studio.model.parameter.ValueConverter;
 import org.talend.sdk.component.studio.ui.composite.problemmanager.IProblemManager;
+import org.talend.sdk.component.studio.ui.wizard.page.TaCoKitPageBuildHelper;
+import org.talend.sdk.component.studio.ui.wizard.page.TaCokitForm;
 
 /**
  * Stores {@link TaCoKitConfigurationModel} and sets Configuration Model Updater listener for each
@@ -47,11 +45,14 @@ public class TaCoKitWizardComposite extends TaCoKitComposite {
     private final IValueChangedListener configurationUpdater;
 
     private final boolean isNew;
+    
+    private TaCoKitPageBuildHelper taCoKitPageBuildHelper;
 
     public TaCoKitWizardComposite(final Composite parentComposite, final int styles, final EComponentCategory section,
             final Element element, final TaCoKitConfigurationModel model, final boolean isCompactView,
-            final Color backgroundColor, final boolean isNew, final IProblemManager problemManager) {
+            final Color backgroundColor, final boolean isNew, final IProblemManager problemManager, final TaCoKitPageBuildHelper taCoKitPageBuildHelper) {
         super(parentComposite, styles, section, element, isCompactView, backgroundColor, problemManager);
+        this.taCoKitPageBuildHelper = taCoKitPageBuildHelper;
         this.configurationModel = model;
         this.isNew = isNew;
         configurationUpdater = new ConfigurationModelUpdater();
@@ -76,30 +77,77 @@ public class TaCoKitWizardComposite extends TaCoKitComposite {
                 .forEach(p -> p.unregisterRedrawListener("show", getRedrawListener()));
     }
 
+    public void updateParameter() {
+        boolean isContextMode = configurationModel.getConnection().isContextMode();
+        elem.getElementParameters().stream().filter(p -> p instanceof TaCoKitElementParameter)
+                .map(p -> (TaCoKitElementParameter) p).filter(TaCoKitElementParameter::isPersisted)
+                .filter(p -> !EParameterFieldType.SCHEMA_TYPE.equals(p.getFieldType())).forEach(parameter -> {
+                    parameter.addValueChangeListener(configurationUpdater);
+                    try {
+                        String key = parameter.getName();
+                        ValueModel valueModel = configurationModel.getValue(key);
+                        if (isSupportContextFieldType(parameter)) {
+                            parameter.setContextMode(isContextMode);
+                            parameter.setReadOnly(isContextMode);   
+                        }
+                        if (valueModel != null) {
+                            if (valueModel.getConfigurationModel() != configurationModel) {
+                                parameter.setReadOnly(true);
+                                TaCoKitConfigurationModel parentConfigurationModel = configurationModel
+                                        .getParentConfigurationModel();
+                                if (isSupportContextFieldType(parameter) && parentConfigurationModel != null) {
+                                    Connection parentConnection = parentConfigurationModel.getConnection();
+                                    if (parentConnection != null) {
+                                        boolean contextMode = parentConnection.isContextMode();
+                                        parameter.setContextMode(contextMode);
+                                    }
+                                }
+                            }
+                            String value = valueModel.getValue();
+                            if (value != null) {
+                                parameter.setValue(value);
+                            }
+                        }
+                    } catch (Exception e) {
+                        ExceptionHandler.process(e);
+                    }
+                });
+
+    }
+
     private void init() {
-        elem
-                .getElementParameters()
-                .stream()
-                .filter(p -> p instanceof TaCoKitElementParameter)
-                .map(p -> (TaCoKitElementParameter) p)
-                .filter(TaCoKitElementParameter::isPersisted)
-                .filter(p -> !EParameterFieldType.SCHEMA_TYPE.equals(p.getFieldType()))
-                .forEach(parameter -> {
+        boolean isContextMode = configurationModel.getConnection().isContextMode();
+        elem.getElementParameters().stream().filter(p -> p instanceof TaCoKitElementParameter)
+                .map(p -> (TaCoKitElementParameter) p).filter(TaCoKitElementParameter::isPersisted)
+                .filter(p -> !EParameterFieldType.SCHEMA_TYPE.equals(p.getFieldType())).forEach(parameter -> {
                     parameter.addValueChangeListener(configurationUpdater);
                     try {
                         String key = parameter.getName();
                         if (isNew) {
                             parameter.setValue(parameter.getValue());
                         }
+                        if (isSupportContextFieldType(parameter)) {
+                            parameter.setContextMode(isContextMode);
+                            parameter.setReadOnly(isContextMode);
+                        }
+
                         ValueModel valueModel = configurationModel.getValue(key);
                         if (valueModel != null) {
                             if (valueModel.getConfigurationModel() != configurationModel) {
                                 parameter.setReadOnly(true);
+                                TaCoKitConfigurationModel parentConfigurationModel = configurationModel
+                                        .getParentConfigurationModel();
+                                if (isSupportContextFieldType(parameter) && parentConfigurationModel != null) {
+                                    Connection parentConnection = parentConfigurationModel.getConnection();
+                                    if (parentConnection != null) {
+                                        boolean contextMode = parentConnection.isContextMode();
+                                        parameter.setContextMode(contextMode);
+                                    }
+                                }
                             }
                             if (StringUtils.isEmpty(valueModel.getValue())) {
                                 return;
                             }
-
                             EParameterFieldType fieldType = parameter.getFieldType();
                             if (EParameterFieldType.TABLE == fieldType) {
                                 List<Map<String, Object>> tableValueList = getTableParameterValue(valueModel, parameter);
@@ -113,31 +161,24 @@ public class TaCoKitWizardComposite extends TaCoKitComposite {
                     }
                 });
     }
+    
+    public boolean isSupportContextFieldType(IElementParameter param) {
+        EParameterFieldType eParameterFieldType = param.getFieldType();
+        if (eParameterFieldType == EParameterFieldType.TACOKIT_BUTTON || eParameterFieldType == EParameterFieldType.MAPPING_TYPE
+                || eParameterFieldType == EParameterFieldType.CLOSED_LIST || eParameterFieldType == EParameterFieldType.CHECK
+                || eParameterFieldType == EParameterFieldType.TABLE) {
+            return false;
+        }
+
+        return true;
+    }
 
     private List<Map<String, Object>> getTableParameterValue(ValueModel valueModel, IElementParameter parameter) {
         String value = valueModel.getValue();
-        List<Map<String, Object>> tableValueList = new ArrayList<Map<String, Object>>();
         if (value == null || value instanceof String) {
-            final List<Map<String, Object>> tableValue = ValueConverter.toTable((String) valueModel.getValue());
-
-            for (Map<String, Object> map : tableValue) {
-                Set<Entry<String, Object>> entrySet = map.entrySet();
-                Iterator<Entry<String, Object>> iterator = entrySet.iterator();
-                Map<String, Object> newMap = new HashMap<String, Object>();
-                while (iterator.hasNext()) {
-                    Entry<String, Object> next = iterator.next();
-                    String k = next.getKey();
-                    String substringAfter = StringUtils.substringAfter(k, "[]");
-                    String name = parameter.getName();
-                    String newKey = name + "[]" + substringAfter;
-
-                    newMap.put(newKey, next.getValue());
-
-                }
-                tableValueList.add(newMap);
-            }
+            return ValueConverter.toTable((String) valueModel.getValue());
         }
-        return tableValueList;
+        return null;
     }
 
     /**
@@ -195,5 +236,9 @@ public class TaCoKitWizardComposite extends TaCoKitComposite {
         }
 
     }
-
+  
+    public TaCoKitPageBuildHelper getTaCoKitPageBuildHelper() {
+        return taCoKitPageBuildHelper;
+    }
+  
 }
