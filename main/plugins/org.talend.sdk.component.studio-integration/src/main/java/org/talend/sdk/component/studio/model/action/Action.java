@@ -37,20 +37,20 @@ import org.talend.commons.utils.PasswordEncryptUtil;
 import org.talend.core.GlobalServiceRegister;
 import org.talend.core.ILibraryManagerService;
 import org.talend.core.model.context.ContextUtils;
+import org.talend.core.model.general.ModuleNeeded;
 import org.talend.core.model.metadata.builder.connection.Connection;
 import org.talend.core.model.process.IContext;
 import org.talend.core.model.process.IContextManager;
 import org.talend.core.model.process.IContextParameter;
 import org.talend.core.model.properties.ContextItem;
+import org.talend.core.runtime.maven.MavenUrlHelper;
 import org.talend.core.service.IMetadataManagmentUiService;
 import org.talend.core.service.ITCKUIService;
 import org.talend.core.utils.TalendQuoteUtils;
 import org.talend.designer.core.model.utils.emf.talendfile.ContextType;
-import org.talend.metadata.managment.ui.utils.ConnectionContextHelper;
 import org.talend.sdk.component.studio.Lookups;
 import org.talend.sdk.component.studio.lang.Pair;
 import org.talend.sdk.component.studio.model.parameter.TableActionParameter;
-import org.talend.sdk.component.studio.model.parameter.ValueConverter;
 import org.talend.sdk.component.studio.websocket.WebSocketClient.V1Action;
 import org.talend.utils.security.StudioEncryption;
 
@@ -153,9 +153,16 @@ public class Action<T> {
     public Map<String, T> callback() {
         Map<String, String> payLoad = payload();
         if (ITCKUIService.get().getTCKJDBCType().getLabel().equals(getFamily())) {
+            convertDriverPath(payLoad);
             retrieveDrivers(payLoad);
         }
         return actionClient().execute(Map.class, family, type, actionName, payLoad);
+    }
+
+    private void convertDriverPath(Map<String, String> payLoad) {
+        payLoad.entrySet().stream().filter(entry -> entry.getKey().matches("\\S*.jdbcDriver\\[\\d\\].path"))
+                .filter(entry -> !MavenUrlHelper.isMvnUrl(entry.getValue()))
+                .forEach(entry -> entry.setValue(new ModuleNeeded("", entry.getValue(), "", true).getMavenUri()));
     }
 
     protected void retrieveDrivers(Map<String, String> payLoad) {
