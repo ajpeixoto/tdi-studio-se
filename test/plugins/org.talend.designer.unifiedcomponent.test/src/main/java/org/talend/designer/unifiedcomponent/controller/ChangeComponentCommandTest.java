@@ -334,8 +334,7 @@ public class ChangeComponentCommandTest {
                 ComponentCategory.CATEGORY_4_DI.getName());
         IComponent tPostgresqlInput = compService.getComponentsFactory().get("tPostgresqlInput",
                 ComponentCategory.CATEGORY_4_DI.getName());
-        IComponent tPostgresPlusInput = compService.getComponentsFactory().get("tPostgresPlusInput",
-                ComponentCategory.CATEGORY_4_DI.getName());
+
         IComponent tSAPHanaInput = compService.getComponentsFactory().get("tSAPHanaInput",
                 ComponentCategory.CATEGORY_4_DI.getName());
         IComponent tSQLiteInput = compService.getComponentsFactory().get("tSQLiteInput",
@@ -373,7 +372,6 @@ public class ChangeComponentCommandTest {
         tDBInputs.add(tNetezzaInput);
         tDBInputs.add(tOracleInput);
         tDBInputs.add(tPostgresqlInput);
-        tDBInputs.add(tPostgresPlusInput);
         tDBInputs.add(tSAPHanaInput);
         tDBInputs.add(tSQLiteInput);
         tDBInputs.add(tSybaseInput);
