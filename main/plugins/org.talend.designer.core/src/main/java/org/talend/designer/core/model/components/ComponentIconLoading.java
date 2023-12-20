@@ -13,14 +13,10 @@
 package org.talend.designer.core.model.components;
 
 import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Map;
 
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.talend.commons.CommonsPlugin;
-import org.talend.commons.exception.SystemException;
-import org.talend.commons.ui.runtime.exception.ExceptionHandler;
 import org.talend.commons.ui.runtime.image.EImage;
 import org.talend.commons.ui.runtime.image.ImageProvider;
 
@@ -30,11 +26,9 @@ import org.talend.commons.ui.runtime.image.ImageProvider;
  * $Id: talend.epf 1 2006-09-29 17:06:40 +0000 (ven., 29 sept. 2006) nrousseau $
  *
  */
-public class ComponentIconLoading {
+public abstract class ComponentIconLoading {
 
     private File folder;
-
-    private URL folderUrl;
 
     private Map<String, ImageDescriptor> registry;
 
@@ -49,11 +43,10 @@ public class ComponentIconLoading {
         super();
         this.folder = folder;
         this.registry = componentsImageRegistry;
-        try {
-            this.folderUrl = folder.toURI().toURL();
-        } catch (MalformedURLException e) {
-            ExceptionHandler.process(new SystemException("Cannot load component icon " + folder.getName(), e)); //$NON-NLS-1$
-        }
+    }
+
+    protected File getFolder() {
+        return this.folder;
     }
 
     public ImageDescriptor getImage32() {
@@ -103,17 +96,6 @@ public class ComponentIconLoading {
         return image16;
     }
 
-    private ImageDescriptor getImage(String name) {
-        try {
-            File imageFile = new File(folder, name);
-            if (imageFile.exists()) {
-                return ImageDescriptor.createFromURL(imageFile.toURI().toURL());
-            } else {
-                return ImageProvider.getImageDesc(EComponentsImage.DEFAULT_COMPONENT_ICON);
-            }
-        } catch (MalformedURLException e) {
-            ExceptionHandler.process(new SystemException("Cannot load component icon " + name, e)); //$NON-NLS-1$
-            return ImageProvider.getImageDesc(EComponentsImage.DEFAULT_COMPONENT_ICON);
-        }
-    }
+    abstract protected ImageDescriptor getImage(String name);
+
 }

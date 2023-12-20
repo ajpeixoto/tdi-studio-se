@@ -3704,7 +3704,8 @@ public class EmfComponent extends AbstractBasicComponent {
         if (!this.imageRegistry.containsKey(getName() + "_16")) { //$NON-NLS-1$
             String path = new Path(ComponentBundleToPath.getPathFromBundle(bundleName)).append(this.pathSource).append(this.name)
                     .toPortableString();
-            ComponentIconLoading cil = new ComponentIconLoading(imageRegistry, new File(path));
+//            ComponentIconLoading cil = new ComponentIconLoading(imageRegistry, new File(path));
+            ComponentIconLoading cil = new ComponentIconLoadingFromBundle(imageRegistry, bundleName, new File(path));
 
             // only call to initialize the icons in the registry
             cil.getImage32();
@@ -3724,7 +3725,8 @@ public class EmfComponent extends AbstractBasicComponent {
         if (!this.imageRegistry.containsKey(getName() + "_24")) { //$NON-NLS-1$
             String path = new Path(ComponentBundleToPath.getPathFromBundle(bundleName)).append(this.pathSource).append(this.name)
                     .toPortableString();
-            ComponentIconLoading cil = new ComponentIconLoading(imageRegistry, new File(path));
+//            ComponentIconLoading cil = new ComponentIconLoading(imageRegistry, new File(path));
+            ComponentIconLoading cil = new ComponentIconLoadingFromBundle(imageRegistry, bundleName, new File(path));
 
             // only call to initialize the icons in the registry
             cil.getImage32();
@@ -3744,7 +3746,8 @@ public class EmfComponent extends AbstractBasicComponent {
         if (!this.imageRegistry.containsKey(getName() + "_32")) { //$NON-NLS-1$
             String path = new Path(ComponentBundleToPath.getPathFromBundle(bundleName)).append(this.pathSource).append(this.name)
                     .toPortableString();
-            ComponentIconLoading cil = new ComponentIconLoading(imageRegistry, new File(path));
+//            ComponentIconLoading cil = new ComponentIconLoading(imageRegistry, new File(path));
+            ComponentIconLoading cil = new ComponentIconLoadingFromBundle(imageRegistry, bundleName, new File(path));
 
             // only call to initialize the icons in the registry
             cil.getImage32();
