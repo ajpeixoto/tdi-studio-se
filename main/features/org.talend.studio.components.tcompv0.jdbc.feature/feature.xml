@@ -16,8 +16,4 @@
       [Enter License Description here.]
    </license>
 
-   <requires>
-      <import feature="org.talend.lite.root.feature" version="0.0.0" match="greaterOrEqual"/>
-   </requires>
-
 </feature>
