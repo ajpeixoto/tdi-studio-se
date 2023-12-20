@@ -99,6 +99,8 @@ public abstract class AbstractPublishJobAction implements IRunnableWithProgress 
         case MSESB_IMAGE:
             exportJobForImage(monitor);
             break;
+        case MSESB_STANDALONE:
+            exportJobForMicroservice(monitor);
         default:
             exportJobForOSGI(monitor);
             break;
@@ -108,6 +110,49 @@ public abstract class AbstractPublishJobAction implements IRunnableWithProgress 
     }
 
     private void exportJobForOSGI(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+        File tmpJob = null;
+        try {
+            tmpJob = File.createTempFile("item", ".jar", null);
+
+            // TDI-32861, because for publish job, so means, must be binaries
+            exportChoiceMap.put(ExportChoice.binaries, true);
+            exportChoiceMap.put(ExportChoice.includeLibs, true);
+            
+            // TESB-26145 adding context to published job
+            exportChoiceMap.put(ExportChoice.needContext, true);
+
+            ProcessItem processItem = (ProcessItem) node.getObject().getProperty().getItem();
+
+            String contextName = (String) exportChoiceMap.get(ExportChoice.contextName);
+            if (contextName == null) {
+                contextName = processItem.getProcess().getDefaultContext();
+            }
+            BuildJobManager.getInstance().buildJob(tmpJob.getAbsolutePath(), processItem, jobVersion, contextName,
+                    exportChoiceMap, exportType, monitor);
+            if (GlobalServiceRegister.getDefault().isServiceRegistered(IRunProcessService.class)) {
+                IRunProcessService service = (IRunProcessService) GlobalServiceRegister.getDefault().getService(
+                        IRunProcessService.class);
+                boolean hasError = service.checkExportProcess(new StructuredSelection(node), true);
+                if (hasError) {
+                    return;
+                }
+            }
+
+            monitor.beginTask("Deploy to Artifact Repository....", IProgressMonitor.UNKNOWN);
+            FeaturesModel featuresModel = getFeatureModel(tmpJob);
+            process(processItem, featuresModel, monitor);
+        } catch (InterruptedException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new InvocationTargetException(e);
+        } finally {
+            if (tmpJob != null && tmpJob.exists()) {
+                tmpJob.delete();
+            }
+        }
+    }
+    
+    private void exportJobForMicroservice(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
         File tmpJob = null;
         try {
             tmpJob = File.createTempFile("item", ".jar", null);
