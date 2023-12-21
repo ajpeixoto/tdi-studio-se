@@ -13,8 +13,8 @@
 package org.talend.sdk.component.studio.ui.wizard.page;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -38,6 +38,7 @@ import org.talend.sdk.component.studio.metadata.model.TaCoKitConfigurationModel;
 import org.talend.sdk.component.studio.metadata.model.TaCoKitConfigurationModel.ValueModel;
 import org.talend.sdk.component.studio.model.parameter.ValueConverter;
 import org.talend.sdk.component.studio.model.parameter.VersionParameter;
+import org.talend.sdk.component.studio.util.TacokitContextUtil;
 
 public class TaCoKitContextHandler extends AbstractRepositoryContextHandler {
 
@@ -141,12 +142,15 @@ public class TaCoKitContextHandler extends AbstractRepositoryContextHandler {
                     for (Map<String, Object> map : tableValueList) {
                         for (Entry<String, Object> entryTable : map.entrySet()) {
                             Object value = entryTable.getValue();
+                            if (value != null && !TacokitContextUtil.isContextualValue(value)) {
+                                return;
+                            }
                             if (value instanceof String) {
                                 String tableOriginalValue = ContextParameterUtils.getOriginalValue(contextType, value.toString());
                                 if (tableOriginalValue != null) {
                                     String[] splitValues = tableOriginalValue.split(";");
                                     for (String s : splitValues) {
-                                        Map<String, Object> originMap = new HashMap<String, Object>();
+                                        Map<String, Object> originMap = new LinkedHashMap<String, Object>();
                                         originalTableValueList.add(originMap);
                                         originMap.put(entryTable.getKey(), TalendQuoteUtils.removeQuotes(s));
                                     }
