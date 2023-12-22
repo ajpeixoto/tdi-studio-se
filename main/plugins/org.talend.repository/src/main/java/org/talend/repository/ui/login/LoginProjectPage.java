@@ -77,6 +77,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.forms.events.HyperlinkAdapter;
 import org.eclipse.ui.forms.events.HyperlinkEvent;
 import org.eclipse.ui.forms.widgets.Hyperlink;
@@ -1507,8 +1508,14 @@ public class LoginProjectPage extends AbstractLoginActionPage {
                         forceRefresh = true;
                     }
 
-                    if (LoginHelper.isRemotesConnection(connection) && !isWorkSpaceSame()) {
-                        forceRefresh = true;
+                    if (LoginHelper.isRemotesConnection(connection)) {
+                        if (!isWorkSpaceSame()) {
+                            forceRefresh = true;
+                        }
+                        if (curConn != null && StringUtils.equals(connection.getName(), curConn.getName())
+                                && !connection.equals(curConn)) {
+                            forceRefresh = true;
+                        }
                     }
                 }
                 onConnectionSelected(new NullProgressMonitor(), forceRefresh);
@@ -2712,6 +2719,9 @@ public class LoginProjectPage extends AbstractLoginActionPage {
 
     private void onConnectionSelected(IProgressMonitor monitor, boolean forceRefresh) {
         try {
+            if (monitor.isCanceled()) {
+                return;
+            }
             if (forceRefresh) {
                 Display.getDefault().syncExec(() -> selectExistingProject.setEnabled(true));
             }
@@ -2733,21 +2743,41 @@ public class LoginProjectPage extends AbstractLoginActionPage {
                 return;
             }
             // validate PAT
-            if (!this.isSSOMode && connection.isToken() && !connection.isLoginViaCloud() && !LoginHelper.validatePAT(connection)) {
-                cancelAllBackgroundJobs(null);
-                resetProjectOperationSelection(false);
-                try {
-                    gotoNextPage();
-                    if (!containsLinkListener(loginDialog.errorTextLabel.getListeners(SWT.MouseDown))) {
-                        loginDialog.errorTextLabel.addListener(SWT.MouseDown, new MorelinkListener());
+            if (!this.isSSOMode && connection.isToken() && !connection.isLoginViaCloud()
+                    && !LoginHelper.validatePAT(connection)) {
+                AtomicBoolean forceReturn = new AtomicBoolean(false);
+                Display.getDefault().syncExec(() -> {
+                    cancelAllBackgroundJobs(null);
+                    if (backgroundLoadUIJob != null) {
+                        backgroundLoadUIJob.cancel();
+                        backgroundLoadUIJob = null;
                     }
-                    showInvalidPATMessage(errorManager);
+                    resetProjectOperationSelection(false);
+                    try {
+                        final String AUTO_SWITCHED_KEY = "LOGIN_SWITCHED_FOR_PAT_60DAYS";
+                        if (!PlatformUI.getPreferenceStore().getBoolean(AUTO_SWITCHED_KEY)) {
+                            PlatformUI.getPreferenceStore().setValue(AUTO_SWITCHED_KEY, true);
+                            gotoNextPage();
+                        } else {
+                            changeFinishButtonAction(FINISH_ACTION_OPEN_PROJECT);
+                            refreshProjectOperationAreaEnable(false);
+                            finishButton.setEnabled(false);
+                        }
+                        if (!containsLinkListener(loginDialog.errorTextLabel.getListeners(SWT.MouseDown))) {
+                            loginDialog.errorTextLabel.addListener(SWT.MouseDown, new MorelinkListener());
+                        }
+                        showInvalidPATMessage(errorManager);
+                        forceReturn.set(true);
+                        return;
+                    } catch (Throwable e1) {
+                        MessageDialog.openError(Display.getDefault().getActiveShell(), getShell().getText(), e1.getMessage());
+                    }
+                });
+                if (forceReturn.get()) {
                     return;
-                } catch (Throwable e1) {
-                    MessageDialog.openError(Display.getDefault().getActiveShell(), getShell().getText(), e1.getMessage());
                 }
             }
-            
+
             if (!forceRefresh && connection.equals(LoginHelper.getInstance().getCurrentSelectedConnBean())) {
                 // in case they are equal but different object id
                 LoginHelper.getInstance().setCurrentSelectedConnBean(connection);
@@ -3017,7 +3047,8 @@ public class LoginProjectPage extends AbstractLoginActionPage {
 
         }.schedule();
     }  
-    
+
+    @Override
     public AbstractActionPage getNextPage() {
         ConnectionBean connection = this.getConnection();
         if (!this.isSSOMode && connection.isToken() && !connection.isLoginViaCloud()) {
