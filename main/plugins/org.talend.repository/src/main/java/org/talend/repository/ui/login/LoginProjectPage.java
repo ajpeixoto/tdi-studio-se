@@ -2743,9 +2743,9 @@ public class LoginProjectPage extends AbstractLoginActionPage {
                 return;
             }
             // validate PAT
+            AtomicBoolean forceReturn = new AtomicBoolean(false);
             if (!this.isSSOMode && connection.isToken() && !connection.isLoginViaCloud()
                     && !LoginHelper.validatePAT(connection)) {
-                AtomicBoolean forceReturn = new AtomicBoolean(false);
                 Display.getDefault().syncExec(() -> {
                     cancelAllBackgroundJobs(null);
                     if (backgroundLoadUIJob != null) {
@@ -2754,12 +2754,14 @@ public class LoginProjectPage extends AbstractLoginActionPage {
                     }
                     resetProjectOperationSelection(false);
                     try {
+                        errorManager.clearAllMessages();
                         final String AUTO_SWITCHED_KEY = "LOGIN_SWITCHED_FOR_PAT_60DAYS";
                         if (!PlatformUI.getPreferenceStore().getBoolean(AUTO_SWITCHED_KEY)) {
                             PlatformUI.getPreferenceStore().setValue(AUTO_SWITCHED_KEY, true);
                             gotoNextPage();
                         } else {
                             changeFinishButtonAction(FINISH_ACTION_OPEN_PROJECT);
+                            clearAndDisableProjectList();
                             refreshProjectOperationAreaEnable(false);
                             finishButton.setEnabled(false);
                         }
@@ -2773,9 +2775,6 @@ public class LoginProjectPage extends AbstractLoginActionPage {
                         MessageDialog.openError(Display.getDefault().getActiveShell(), getShell().getText(), e1.getMessage());
                     }
                 });
-                if (forceReturn.get()) {
-                    return;
-                }
             }
 
             if (!forceRefresh && connection.equals(LoginHelper.getInstance().getCurrentSelectedConnBean())) {
@@ -2784,6 +2783,9 @@ public class LoginProjectPage extends AbstractLoginActionPage {
                 return;
             } else {
                 LoginHelper.getInstance().setCurrentSelectedConnBean(connection);
+            }
+            if (forceReturn.get()) {
+                return;
             }
             cancelAllBackgroundJobs(null);
             if (monitor.isCanceled() || isDisposed()) {
