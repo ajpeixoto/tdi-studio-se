@@ -87,7 +87,7 @@
     </PARAMETER>
     
     <PARAMETER NAME="USE_SSL_NOTE" FIELD="LABEL" REQUIRED="false" NUM_ROW="19" COLOR="255;0;0" SHOW_IF="(USE_CONNECTION == 'false') AND (SERVER == 'ACTIVEMQ') AND (USE_SSL == 'true')">
-      <DEFAULT><![CDATA[Notice: You should use tSetKeysore or JVM arguments to specify keystore or truststore]]></DEFAULT>
+      <DEFAULT><![CDATA[Notice: You should use tSetKeystore or JVM arguments to specify keystore or truststore]]></DEFAULT>
     </PARAMETER>
 
     <!--npruss start: changes for static discovery and custom connection parameters-->	
