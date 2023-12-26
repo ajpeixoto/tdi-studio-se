@@ -14,6 +14,7 @@ package org.talend.designer.dbmap.language.oracle;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -413,7 +414,13 @@ public class OracleGenerationManager extends DbGenerationManager {
         }
         if (map.size() > 0) {
             List<String> list = map.get(expression);
-            Collections.sort(list);
+            Collections.sort(list, new Comparator<String>() {
+
+                @Override
+                public int compare(String o1, String o2) {
+                    return o1.length() - o2.length();
+                }
+            });
             String specialColumn = list.get(list.size() - 1);
             if (expression.contains(specialColumn)) {
                 int begin = expression.indexOf(specialColumn);

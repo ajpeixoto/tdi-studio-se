@@ -132,6 +132,17 @@ public class OracleGenerationManagerTest extends DbGenerationManagerTestHelper {
         //
     }
 
+    @Test
+    public void testAddQuoteForSpecialChar_Order6() throws Exception {
+        when(conn.getMetadataTable()).thenReturn(createMetadataTable(new String[] { "Employee ID", "Worker Type",
+                "Contingent Worker Type", "Termination Date", "Future Termination Date" }));
+        checkValue("A.Employee ID", "A.\\\"Employee ID\\\"");
+        checkValue("A.Worker Type", "A.\\\"Worker Type\\\"");
+        checkValue("A.Contingent Worker Type", "A.\\\"Contingent Worker Type\\\"");
+        checkValue("A.Termination Date", "A.\\\"Termination Date\\\"");
+        checkValue("A.Future Termination Date", "A.\\\"Future Termination Date\\\"");
+    }
+
     public void testEscape() throws Exception {
 
         checkValue("A.\\\"id\\\"", "A.\\\"id\\\"");
