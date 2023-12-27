@@ -201,7 +201,12 @@ class XML_API_<%=cid%>{
     public org.w3c.dom.NodeList getNodeList(org.w3c.dom.Node node, String xpath) throws javax.xml.xpath.XPathExpressionException {
         javax.xml.xpath.XPathExpression expression = xpathEvaluator.compile(util.addDefaultNSPrefix(xpath));
         Object result = expression.evaluate(node, javax.xml.xpath.XPathConstants.NODESET);
-        return org.w3c.dom.NodeList.class.cast(result);
+        org.w3c.dom.NodeList resultList = org.w3c.dom.NodeList.class.cast(result);
+        // if xpath equals to "/" it returns document node instead of root element node
+        if(xpath.equals("/")) {
+            resultList = resultList.item(0).getChildNodes();
+        }
+		return resultList;
     }
     
 }
