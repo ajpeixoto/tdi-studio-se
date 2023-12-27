@@ -6,7 +6,7 @@ Bundle-Version: 8.0.1.qualifier
 Eclipse-BundleShape: dir
 Bundle-ClassPath: .,
  lib/staxon-1.2.jar,
- lib/xom-1.2.7.jar
+ lib/xom-1.3.9.jar
 Export-Package: de.odysseus.staxon.base,
  de.odysseus.staxon.event,
  de.odysseus.staxon.json,
