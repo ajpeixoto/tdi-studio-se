@@ -28,12 +28,10 @@ import javax.json.bind.JsonbBuilder;
 
 import org.eclipse.gef.commands.CommandStack;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
-import org.eclipse.jface.window.Window;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
 import org.talend.commons.exception.ExceptionHandler;
 import org.talend.commons.ui.runtime.exception.ExceptionMessageDialog;
 import org.talend.core.GlobalServiceRegister;
@@ -49,11 +47,12 @@ import org.talend.core.model.process.IElement;
 import org.talend.core.model.process.IElementParameter;
 import org.talend.core.model.process.INodeConnector;
 import org.talend.core.runtime.IAdditionalInfo;
+import org.talend.core.service.IMetadataManagmentUiService;
 import org.talend.core.ui.metadata.dialog.MetadataDialog;
 import org.talend.core.utils.KeywordsValidator;
 import org.talend.designer.core.ui.editor.cmd.ChangeMetadataCommand;
 import org.talend.designer.core.ui.editor.nodes.Node;
-import org.talend.designer.core.ui.editor.properties.controllers.uidialog.OpenContextChooseComboDialog;
+import org.talend.metadata.managment.utils.MetadataConnectionUtils;
 import org.talend.sdk.component.studio.i18n.Messages;
 import org.talend.sdk.component.studio.ui.guessschema.TaCoKitGuessSchemaProcess.GuessSchemaResult;
 import org.talend.sdk.component.studio.util.TaCoKitUtil;
@@ -81,21 +80,25 @@ public class GuessSchemaSelectionAdapter extends SelectionAdapter {
     }
 
     private IContext selectContext() {
-        Shell parentShell = composite.getShell();
-        List<IContext> allContexts = Node.class.cast(elementParameter.getElement())
-                .getProcess().getContextManager().getListContext();
-        OpenContextChooseComboDialog dialog = new OpenContextChooseComboDialog(parentShell, allContexts);
-        dialog.create();
-        dialog.getShell().setText(CONTEXT_CHOOSE_DIALOG_TITLE);
-        IContext selectContext = null;
-        // job only have defoult context,or the query isn't context mode
-        if (allContexts.size() == 1) {
-            selectContext = Node.class.cast(elementParameter.getElement())
-                    .getProcess().getContextManager().getDefaultContext();
-        } else if (Window.OK == dialog.open()) {
-            selectContext = dialog.getSelectedContext();
+        List<IContext> allContexts = Node.class.cast(elementParameter.getElement()).getProcess().getContextManager()
+                .getListContext();
+        IContext defaultContext = Node.class.cast(elementParameter.getElement()).getProcess().getContextManager()
+                .getDefaultContext();
+        IContext selectedContext = null;
+        if (allContexts != null && allContexts.size() > 0
+                && GlobalServiceRegister.getDefault().isServiceRegistered(IMetadataManagmentUiService.class)) {
+            IMetadataManagmentUiService mmUIService = GlobalServiceRegister.getDefault()
+                    .getService(IMetadataManagmentUiService.class);
+            selectedContext = mmUIService.promptConfirmLauch(Display.getDefault().getActiveShell(), allContexts, defaultContext);
         }
-        return selectContext;
+        if (selectedContext == null) {
+            if (!MetadataConnectionUtils.isPromptNeeded(allContexts)) {
+                selectedContext = defaultContext;
+            } else {
+                return null;
+            }
+        }
+        return selectedContext;
     }
 
     @Override
