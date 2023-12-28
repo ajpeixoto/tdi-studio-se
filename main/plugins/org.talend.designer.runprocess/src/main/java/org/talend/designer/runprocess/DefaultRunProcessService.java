@@ -251,30 +251,30 @@ public class DefaultRunProcessService implements IRunProcessService {
 
         final String buildType = (String) property.getAdditionalProperties().get(TalendProcessArgumentConstant.ARG_BUILD_TYPE);
         
+        if (GlobalServiceRegister.getDefault().isServiceRegistered(IESBMicroService.class)) {
+            microService = GlobalServiceRegister.getDefault().getService(IESBMicroService.class);
+        }
+        
+        if (GlobalServiceRegister.getDefault().isServiceRegistered(IESBStandaloneMicroService.class)) {
+            standaloneMicroService = GlobalServiceRegister.getDefault().getService(IESBStandaloneMicroService.class);
+        }
+        
         if (property != null && property.getAdditionalProperties() != null
-                && ("REST_MS".equals(buildType) || "ROUTE_MICROSERVICE".equals(buildType))) {
-
-            if (GlobalServiceRegister.getDefault().isServiceRegistered(IESBMicroService.class)) {
-                microService = GlobalServiceRegister.getDefault().getService(IESBMicroService.class);
+                && ("REST_MS".equals(buildType))) {
 
                 if (microService != null) {
-                    IProcessor processor = microService.createJavaProcessor(process, property, filenameFromLabel, "ROUTE_MICROSERVICE".equals(buildType));
+                    IProcessor processor = microService.createJavaProcessor(process, property, filenameFromLabel, false);
                     if (processor != null) {
                         return processor;
-                        }
                     }
                 }
         } else if (property != null && property.getAdditionalProperties() != null
-                && ("REST_STANDALONE_MS".equals(buildType) || "ROUTE_STANDALONE_MICROSERVICE".equals(buildType))) {
-
-            if (GlobalServiceRegister.getDefault().isServiceRegistered(IESBStandaloneMicroService.class)) {
-                standaloneMicroService = GlobalServiceRegister.getDefault().getService(IESBStandaloneMicroService.class);
+                && ("REST_STANDALONE_MS".equals(buildType))) {
 
                 if (standaloneMicroService != null) {
                     IProcessor processor = standaloneMicroService.createJavaProcessor(process, property, filenameFromLabel, false);
                     if (processor != null) {
                         return processor;
-                        }
                     }
                 }
         }

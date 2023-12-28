@@ -33,6 +33,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Priority;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
@@ -80,7 +81,6 @@ import org.talend.designer.core.i18n.Messages;
 import org.talend.designer.core.model.components.ComponentHit;
 import org.talend.designer.core.model.components.StitchPseudoComponent;
 import org.talend.designer.core.model.process.AbstractProcessProvider;
-import org.talend.designer.core.model.process.GenericProcessProvider;
 import org.talend.designer.core.ui.editor.nodes.Node;
 import org.talend.designer.core.ui.editor.notes.NoteCreationFactory;
 import org.talend.designer.core.ui.editor.palette.TalendCombinedTemplateCreationEntry;
@@ -402,9 +402,15 @@ public final class TalendEditorPaletteFactory {
             String oraFamily = component.getOriginalFamilyName();
             if ("Business/NetSuite".equalsIgnoreCase(oraFamily) || "Cloud/NetSuite".equalsIgnoreCase(oraFamily)) { //$NON-NLS-1$ //$NON-NLS-2$
                 iter.remove();
+                continue;
             }
             if (needCheckVisible
                     && (component == null || !ComponentUtilities.isComponentVisible(component) || component.isTechnical())) {
+                iter.remove();
+                continue;
+            }
+            String componentName = component.getName().toLowerCase();
+            if (componentName.contains("jdbcoutputbulk") || componentName.contains("jdbcbulk")) {
                 iter.remove();
             }
         }
@@ -504,7 +510,7 @@ public final class TalendEditorPaletteFactory {
         return componentList;
     }
 
-	protected static List<IComponent> sortResultsBasedOnRecentlyUsed(List<IComponent> relatedComponents) {
+    protected static List<IComponent> sortResultsBasedOnRecentlyUsed(List<IComponent> relatedComponents) {
         if (relatedComponents == null || relatedComponents.isEmpty()) {
             return relatedComponents;
         }
@@ -1293,7 +1299,7 @@ public final class TalendEditorPaletteFactory {
         int histate = DesignerPlugin.getDefault().getPreferenceStore().getInt("HiddenState"); //$NON-NLS-1$
         palette = root;
         AbstractProcessProvider.loadComponentsFromProviders(getJobletObjectType(compFac.getComponentsHandler()));
-        GenericProcessProvider.getInstance().loadComponentsFromProviders();
+        ComponentsFactoryProvider.getInstance().initializeComponents(new NullProgressMonitor());
         createComponentsDrawer(compFac, false, histate);
         return palette;
     }
@@ -1308,7 +1314,7 @@ public final class TalendEditorPaletteFactory {
         int histate = DesignerPlugin.getDefault().getPreferenceStore().getInt("HiddenState"); //$NON-NLS-1$
         palette = root;
         AbstractProcessProvider.loadComponentsFromProviders(getJobletObjectType(compFac.getComponentsHandler()));
-        GenericProcessProvider.getInstance().loadComponentsFromProviders();
+        ComponentsFactoryProvider.getInstance().initializeComponents(new NullProgressMonitor());
         createComponentsDrawer(compFac, false, isFavorite, histate);
         return palette;
     }
@@ -1316,7 +1322,7 @@ public final class TalendEditorPaletteFactory {
     public static PaletteRoot getAllNodeStructure(final IComponentsFactory compFac) {
         palette = new PaletteRoot();
         AbstractProcessProvider.loadComponentsFromProviders(getJobletObjectType(compFac.getComponentsHandler()));
-        GenericProcessProvider.getInstance().loadComponentsFromProviders();
+        ComponentsFactoryProvider.getInstance().initializeComponents(new NullProgressMonitor());
         createComponentsDrawer(compFac, true, 0);
         return palette;
     }
@@ -1325,7 +1331,7 @@ public final class TalendEditorPaletteFactory {
         palette = root;
         int histate = DesignerPlugin.getDefault().getPreferenceStore().getInt("HiddenState"); //$NON-NLS-1$
         AbstractProcessProvider.loadComponentsFromProviders(getJobletObjectType(compFac.getComponentsHandler()));
-        GenericProcessProvider.getInstance().loadComponentsFromProviders();
+        ComponentsFactoryProvider.getInstance().initializeComponents(new NullProgressMonitor());
         createComponentsDrawer(compFac, false, histate);
         return palette;
     }

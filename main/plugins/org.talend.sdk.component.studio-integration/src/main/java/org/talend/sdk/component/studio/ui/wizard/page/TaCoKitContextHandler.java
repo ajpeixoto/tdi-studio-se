@@ -136,28 +136,24 @@ public class TaCoKitContextHandler extends AbstractRepositoryContextHandler {
             EParameterFieldType eParameterFieldType = taCoKitConfigurationModel.getEParameterFieldType(key);
             if (valueModel != null) {
                 if (eParameterFieldType == EParameterFieldType.TABLE) {
-                    String tableValue = valueModel.getValue();
-                    List<Map<String, Object>> tableValueList = ValueConverter.toTable((String) tableValue);
-                    List<Map<String, Object>> originalTableValueList = new ArrayList<Map<String, Object>>();
-                    for (int i = 0; i < tableValueList.size(); i++) {
-                        Map<String, Object> map = tableValueList.get(i);;
-                        for (Entry<String, Object> entryTable : map.entrySet()) {                            
+                    List<Map<String, Object>> tableValueList = ValueConverter.toTable((String) valueModel.getValue());
+                    List<Map<String, Object>> originalTableValueList = new ArrayList<>();
+                    for (Map<String, Object> map : tableValueList) {
+                        for (Entry<String, Object> entryTable : map.entrySet()) {
                             Object value = entryTable.getValue();
                             if (value instanceof String) {
-                                String tableOriginalValue = TalendQuoteUtils
-                                        .removeQuotes(ContextParameterUtils.getOriginalValue(contextType, value.toString()));
+                                String tableOriginalValue = ContextParameterUtils.getOriginalValue(contextType, value.toString());
                                 if (tableOriginalValue != null) {
                                     String[] splitValues = tableOriginalValue.split(";");
-                                    for (String s: splitValues) {
+                                    for (String s : splitValues) {
                                         Map<String, Object> originMap = new HashMap<String, Object>();
                                         originalTableValueList.add(originMap);
-                                        originMap.put(entryTable.getKey(), s);
+                                        originMap.put(entryTable.getKey(), TalendQuoteUtils.removeQuotes(s));
                                     }
                                 }
                             }
                         }
                     }
-
                     taCoKitConfigurationModel.setValue(key, originalTableValueList.toString());
                     return;
                 }

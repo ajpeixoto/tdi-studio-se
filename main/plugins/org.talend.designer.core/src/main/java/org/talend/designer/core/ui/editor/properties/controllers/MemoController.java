@@ -13,6 +13,7 @@
 package org.talend.designer.core.ui.editor.properties.controllers;
 
 import java.beans.PropertyChangeEvent;
+import java.util.regex.Pattern;
 
 import org.eclipse.jface.fieldassist.DecoratedField;
 import org.eclipse.jface.fieldassist.FieldDecoration;
@@ -51,6 +52,12 @@ public class MemoController extends AbstractElementPropertySectionController {
     private static int rowSizeFixed = 0;
 
     private static int rowSizeByLine = 0;
+
+    private final static Pattern CONTEXT_PATTERN = Pattern.compile("^(context\\.).*");
+
+    private Font defaultFont;
+
+    private Font textFont;
 
     /**
      * DOC dev MemoController constructor comment.
@@ -101,12 +108,13 @@ public class MemoController extends AbstractElementPropertySectionController {
         } else {
             text.setEditable(!param.isReadOnly() && !param.isRepositoryValueUsed());
         }
+        defaultFont = text.getFont();
         IPreferenceStore preferenceStore = CorePlugin.getDefault().getPreferenceStore();
         String fontType = preferenceStore.getString(TalendDesignerPrefConstants.MEMO_TEXT_FONT);
         FontData fontData = new FontData(fontType);
-        Font font = new Font(null, fontData);
-        addResourceDisposeListener(text, font);
-        text.setFont(font);
+        textFont = new Font(null, fontData);
+        addResourceDisposeListener(text, textFont);
+        text.setFont(textFont);
         if (elem instanceof Node) {
             text.setToolTipText(VARIABLE_TOOLTIP + param.getVariableName());
         }
@@ -222,6 +230,24 @@ public class MemoController extends AbstractElementPropertySectionController {
         if (checkErrorsWhenViewRefreshed) {
             checkErrorsForPropertiesOnly(text);
         }
+        if (isTacokit(param)) {
+            text.setEditable(isWidgetEnabled(param));
+            text.setFont(isContextualValue(param.getValue()) ? defaultFont : textFont);
+        }
+    }
+
+    private boolean isContextualValue(final Object value) {
+        if (!String.class.isInstance(value)) {
+            return false;
+        }
+        String strValue = (String) value;
+        String[] tokens = strValue.split(" ");
+        for (String token : tokens) {
+            if (CONTEXT_PATTERN.matcher(token).matches()) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

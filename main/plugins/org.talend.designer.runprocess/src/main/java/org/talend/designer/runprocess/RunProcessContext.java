@@ -569,8 +569,9 @@ public class RunProcessContext {
      * Launch the process.
      */
     public void exec(final Shell shell) {
-        boolean isMsBuildType = Arrays.asList("ROUTE_MICROSERVICE","REST_MS").contains
-                (process.getAdditionalProperties().get(TalendProcessArgumentConstant.ARG_BUILD_TYPE));
+        boolean isMsBuildType = Arrays
+                .asList("ROUTE_MICROSERVICE", "REST_MS", "REST_STANDALONE_MS", "ROUTE_STANDALONE_MICROSERVICE")
+                .contains(process.getAdditionalProperties().get(TalendProcessArgumentConstant.ARG_BUILD_TYPE));
         
         if (isMsBuildType && !isMavenOnlineTempMode) {
             isMavenOnlineTempMode = promptToOnline();

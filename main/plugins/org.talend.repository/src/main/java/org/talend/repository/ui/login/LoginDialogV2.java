@@ -57,6 +57,7 @@ import org.talend.core.ui.branding.IBrandingService;
 import org.talend.core.ui.workspace.ChooseWorkspaceData;
 import org.talend.registration.license.LicenseManagement;
 import org.talend.repository.i18n.Messages;
+import org.talend.repository.ui.image.ImageUtils;
 import org.talend.repository.ui.login.connections.ConnectionUserPerReader;
 
 /**
@@ -382,7 +383,11 @@ public class LoginDialogV2 extends TrayDialog {
                                                                                          // better
             int height = (int) Math.ceil(realHeightRate * imageCanvas.getBounds().height);
             Image scaledImage = scaleImage(imageCanvas, width, height);
+            if (ImageUtils.isSonoma()) {
+                scaledImage = ImageUtils.flipImage(brandingArea.getDisplay(), scaledImage);
+            }
             brandingArea.setBackgroundImage(scaledImage);
+            ImageUtils.addResourceDisposeListener(brandingArea, scaledImage);
             brandingAreaGridData.widthHint = scaledImage.getBounds().width;
             brandingAreaGridData.heightHint = scaledImage.getBounds().height;
         } else {

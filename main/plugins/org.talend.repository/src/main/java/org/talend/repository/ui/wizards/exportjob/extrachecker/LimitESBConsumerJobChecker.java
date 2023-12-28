@@ -1,5 +1,6 @@
 package org.talend.repository.ui.wizards.exportjob.extrachecker;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -26,9 +27,10 @@ public class LimitESBConsumerJobChecker extends AbstractJobNodeChecker {
 
 	@Override
 	String checkNode(JobExportType exportType, NodeType nodeType) {
-        if (exportType == JobExportType.OSGI || exportType == JobExportType.MSESB || exportType == JobExportType.MSESB_IMAGE) {
-			return null;
-		}
+        if (Arrays.asList(JobExportType.OSGI, JobExportType.MSESB, JobExportType.MSESB_IMAGE,
+                JobExportType.MSESB_STANDALONE, JobExportType.MSESB_STANDALONE_IMAGE).contains(exportType)) {
+            return null;
+        }
 		String componentName = nodeType.getComponentName();
 		if (isESBConsumerComponent(componentName)) {
 			if (exportType != JobExportType.POJO && exportType != JobExportType.IMAGE) {
