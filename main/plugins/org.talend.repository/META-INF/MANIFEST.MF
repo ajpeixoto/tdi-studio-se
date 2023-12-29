@@ -106,7 +106,8 @@ Export-Package: org.talend.repository,
  org.talend.repository.ui.wizards.routines,
  org.talend.repository.ui.wizards.routinesjar,
  org.talend.repository.ui.wizards.sqlpattern,
- org.talend.repository.utils
+ org.talend.repository.utils,
+ org.talend.repository.ui.image
 Bundle-Activator: org.talend.repository.RepositoryPlugin
 Bundle-ClassPath: .,
  lib/velocity-engine-core-2.3.jar
