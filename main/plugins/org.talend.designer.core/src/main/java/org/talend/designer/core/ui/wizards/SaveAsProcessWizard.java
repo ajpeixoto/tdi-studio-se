@@ -32,8 +32,6 @@ import org.talend.commons.exception.ExceptionHandler;
 import org.talend.commons.exception.LoginException;
 import org.talend.commons.exception.PersistenceException;
 import org.talend.commons.ui.runtime.exception.MessageBoxExceptionHandler;
-import org.talend.commons.ui.runtime.image.ECoreImage;
-import org.talend.commons.ui.runtime.image.ImageProvider;
 import org.talend.core.CorePlugin;
 import org.talend.core.model.process.IProcess2;
 import org.talend.core.model.properties.ProcessItem;
@@ -108,7 +106,6 @@ public class SaveAsProcessWizard extends Wizard {
 
         repositoryFactory = ProxyRepositoryFactory.getInstance();
 
-        setDefaultPageImageDescriptor(ImageProvider.getImageDesc(ECoreImage.PROCESS_WIZ));
     }
 
     @Override

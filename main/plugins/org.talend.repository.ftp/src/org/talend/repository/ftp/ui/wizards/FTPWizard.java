@@ -26,8 +26,6 @@ import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 import org.talend.commons.exception.PersistenceException;
-import org.talend.commons.ui.runtime.image.ECoreImage;
-import org.talend.commons.ui.runtime.image.ImageProvider;
 import org.talend.commons.ui.swt.dialogs.ErrorDialogWidthDetailArea;
 import org.talend.commons.utils.VersionUtils;
 import org.talend.core.CorePlugin;
@@ -220,7 +218,6 @@ public class FTPWizard extends RepositoryWizard implements INewWizard {
             windowTitle = Messages.getString("FTPWizard.EditFTPWizard");
         }
         setWindowTitle(windowTitle);//$NON-NLS-1$
-        setDefaultPageImageDescriptor(ImageProvider.getImageDesc(ECoreImage.UNKNOWN));
         if (isToolBar) {
             pathToSave = null;
         }

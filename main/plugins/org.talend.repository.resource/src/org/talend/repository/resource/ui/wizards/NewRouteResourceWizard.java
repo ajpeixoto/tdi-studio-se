@@ -23,8 +23,6 @@ import org.talend.commons.exception.ExceptionHandler;
 import org.talend.commons.exception.LoginException;
 import org.talend.commons.exception.PersistenceException;
 import org.talend.commons.ui.runtime.exception.MessageBoxExceptionHandler;
-import org.talend.commons.ui.runtime.image.ECoreImage;
-import org.talend.commons.ui.runtime.image.ImageProvider;
 import org.talend.commons.utils.VersionUtils;
 import org.talend.core.CorePlugin;
 import org.talend.core.context.Context;
@@ -90,8 +88,6 @@ public class NewRouteResourceWizard extends Wizard {
 		repositoryFactory = DesignerPlugin.getDefault().getRepositoryService()
 				.getProxyRepositoryFactory();
 
-		setDefaultPageImageDescriptor(ImageProvider
-				.getImageDesc(ECoreImage.DEFAULT_WIZ));
 	}
 
 	/**

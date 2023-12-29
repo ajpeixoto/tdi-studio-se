@@ -22,8 +22,6 @@ import org.eclipse.jface.wizard.Wizard;
 import org.talend.commons.exception.PersistenceException;
 import org.talend.commons.ui.runtime.exception.ExceptionHandler;
 import org.talend.commons.ui.runtime.exception.RuntimeExceptionHandler;
-import org.talend.commons.ui.runtime.image.ECoreImage;
-import org.talend.commons.ui.runtime.image.ImageProvider;
 import org.talend.commons.utils.VersionUtils;
 import org.talend.core.CorePlugin;
 import org.talend.core.context.Context;
@@ -104,7 +102,6 @@ public class NewRoutineWizard extends Wizard {
         mainPage = new NewRoutineWizardPage(property, path);
         addPage(mainPage);
         setWindowTitle(Messages.getString("NewRoutineWizard.title")); //$NON-NLS-1$
-        setDefaultPageImageDescriptor(ImageProvider.getImageDesc(ECoreImage.ROUTINE_WIZ));
     }
 
     /**
