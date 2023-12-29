@@ -167,19 +167,29 @@ public class JavaVersionProjectSettingPage extends AbstractProjectSettingPage {
         if (backupVal != selected) {
             getPreferenceStore().setValue(JavaUtils.ALLOW_JAVA_INTERNAL_ACCESS_BACKUP, selected);
         }
+        getPreferenceStore().setValue(JavaUtils.JOB_COMPLIANCE_SET, true);
     }
     
     private void restorePreference() {
-        boolean selected = getPreferenceStore().getBoolean(JavaUtils.ALLOW_JAVA_INTERNAL_ACCESS);
-        boolean backupVal = getPreferenceStore().getBoolean(JavaUtils.ALLOW_JAVA_INTERNAL_ACCESS_BACKUP);
-        if (backupVal != selected) {
-            getPreferenceStore().setValue(JavaUtils.ALLOW_JAVA_INTERNAL_ACCESS, backupVal);
+        boolean jobComplianceSet = getPreferenceStore().getBoolean(JavaUtils.JOB_COMPLIANCE_SET);
+        if (jobComplianceSet) {
+            boolean selected = getPreferenceStore().getBoolean(JavaUtils.ALLOW_JAVA_INTERNAL_ACCESS);
+            boolean backupVal = getPreferenceStore().getBoolean(JavaUtils.ALLOW_JAVA_INTERNAL_ACCESS_BACKUP);
+            if (backupVal != selected) {
+                getPreferenceStore().setValue(JavaUtils.ALLOW_JAVA_INTERNAL_ACCESS, backupVal);
+            }
+            // restored, unset
+            getPreferenceStore().setValue(JavaUtils.JOB_COMPLIANCE_SET, false);
         }
     }
 
     private void updateUI() {
         if (JavaUtils.isComplianceLevelSet()) {
             backupPreference();
+            boolean selected = getPreferenceStore().getBoolean(JavaUtils.ALLOW_JAVA_INTERNAL_ACCESS);
+            if (!selected) {
+                getPreferenceStore().setValue(JavaUtils.ALLOW_JAVA_INTERNAL_ACCESS, true);
+            }
             javaVersionCombo.setEnabled(false);
             accessCheckbox.setSelection(true);
             accessCheckbox.setEnabled(false);
