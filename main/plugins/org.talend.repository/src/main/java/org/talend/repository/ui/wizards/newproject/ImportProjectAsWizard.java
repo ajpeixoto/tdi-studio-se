@@ -27,8 +27,6 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.talend.commons.exception.PersistenceException;
 import org.talend.commons.ui.runtime.exception.ExceptionHandler;
 import org.talend.commons.ui.runtime.exception.MessageBoxExceptionHandler;
-import org.talend.commons.ui.runtime.image.ECoreImage;
-import org.talend.commons.ui.runtime.image.ImageProvider;
 import org.talend.commons.ui.swt.dialogs.EventLoopProgressMonitor;
 import org.talend.commons.ui.swt.dialogs.ProgressDialog;
 import org.talend.commons.utils.workbench.resources.ResourceUtils;
@@ -68,7 +66,6 @@ public class ImportProjectAsWizard extends Wizard {
      */
     public ImportProjectAsWizard() {
         super();
-        setDefaultPageImageDescriptor(ImageProvider.getImageDesc(ECoreImage.PROJECT_WIZ));
         setNeedsProgressMonitor(true);
         setDialogSettings(RepositoryPlugin.getDefault().getDialogSettings());
         getDialogSettings().put("WizardProjectsImportPage.STORE_COPY_PROJECT_ID", true); //$NON-NLS-1$
