@@ -86,7 +86,7 @@ public class XmlDragSourceListener extends MapperDragSourceListener {
 
         if (type != null) {
             if (filtedSelection.size() > 1) {
-                partList.addAll(lastSelection.getParent().getChildren());
+                partList.addAll((List<TableEntityPart>)lastSelection.getParent().getChildren());
                 Map<EditPart, Integer> partAndIndex = new HashMap<EditPart, Integer>();
                 if (type == TransferdType.INPUT) {
                     for (EditPart treePart : filtedSelection) {
@@ -100,7 +100,7 @@ public class XmlDragSourceListener extends MapperDragSourceListener {
                         partList = MapperUtils.getFlatChildrenPartList(abstractInOutTreePart);
                     }
                 } else {
-                    partList.addAll(lastSelection.getParent().getChildren());
+                    partList.addAll((List<TableEntityPart>)lastSelection.getParent().getChildren());
                 }
 
                 for (EditPart selected : filtedSelection) {

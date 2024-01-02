@@ -2,6 +2,7 @@ package org.talend.designer.core.ui.action;
 
 import java.util.List;
 
+import org.eclipse.gef.GraphicalEditPart;
 import org.eclipse.gef.ui.actions.SelectionAction;
 import org.eclipse.ui.IWorkbenchPart;
 import org.talend.core.model.components.ComponentCategory;
@@ -79,7 +80,7 @@ public class DisableParallelizationAction extends SelectionAction {
                 getCommandStack().execute(new DisableParallelizationCommand(node));
             } else if (o instanceof SubjobContainerPart) {
                 boolean hasStartNode = false;
-                List<NodeContainerPart> childNodes = ((SubjobContainerPart) o).getChildren();
+                List<NodeContainerPart> childNodes = (List<NodeContainerPart>)((SubjobContainerPart) o).getChildren();
                 for (NodeContainerPart childNode : childNodes) {
                     NodeContainerPart part = (NodeContainerPart) childNode;
                     NodeContainer node = (NodeContainer) part.getModel();

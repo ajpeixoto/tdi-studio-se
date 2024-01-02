@@ -88,8 +88,8 @@ public class TalendDrawerEditPart extends DrawerEditPart {
             }
         };
         getViewer().getControl().setData("ANIMATE", Boolean.TRUE); //$NON-NLS-1$
-        fig.setExpanded(getDrawer().isInitiallyOpen());
-        fig.setPinned(getDrawer().isInitiallyPinned());
+        fig.setExpanded(getModel().isInitiallyOpen());
+        fig.setPinned(getModel().isInitiallyPinned());
 
         fig.getCollapseToggle().addFocusListener(new FocusListener.Stub() {
 
@@ -109,11 +109,11 @@ public class TalendDrawerEditPart extends DrawerEditPart {
         String property = evt.getPropertyName();
         if (property.equals(PaletteDrawer.PROPERTY_INITIAL_STATUS)) {
             boolean isExpaned = getDrawerFigure().isExpanded();
-            if (isExpaned == getDrawer().isInitiallyOpen()) {
+            if (isExpaned == getModel().isInitiallyOpen()) {
                 return;
             }
             try {
-                getDrawerFigure().setExpanded(getDrawer().isInitiallyOpen());
+                getDrawerFigure().setExpanded(getModel().isInitiallyOpen());
                 refreshVisuals();
             } catch (Exception e) {
                 // do nothing
@@ -127,8 +127,8 @@ public class TalendDrawerEditPart extends DrawerEditPart {
         getDrawerFigure().setToolTip(createToolTip());
 
         if (cssStyleSetting.isShowFolderImage()) {
-            ImageDescriptor img = getDrawer().getSmallIcon();
-            if (img == null && getDrawer().showDefaultIcon()) {
+            ImageDescriptor img = getModel().getSmallIcon();
+            if (img == null && getModel().showDefaultIcon()) {
                 img = InternalImages.DESC_FOLDER_OPEN;
             }
             setImageDescriptor(img);
@@ -140,7 +140,7 @@ public class TalendDrawerEditPart extends DrawerEditPart {
         boolean showPin = getPreferenceSource().getAutoCollapseSetting() == PaletteViewerPreferences.COLLAPSE_AS_NEEDED;
         getDrawerFigure().showPin(showPin);
 
-        Color background = getDrawer().getDrawerType().equals(PaletteTemplateEntry.PALETTE_TYPE_TEMPLATE) ? PaletteColorUtil.WIDGET_LIST_BACKGROUND
+        Color background = getModel().getDrawerType().equals(PaletteTemplateEntry.PALETTE_TYPE_TEMPLATE) ? PaletteColorUtil.WIDGET_LIST_BACKGROUND
                 : null;
         getDrawerFigure().getScrollpane().setBackgroundColor(background);
     }
