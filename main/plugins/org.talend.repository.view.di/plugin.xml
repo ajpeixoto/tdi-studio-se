@@ -1420,6 +1420,7 @@
             activeByDefault="true"
             appearsBefore="org.talend.repository.viewer.metadata.webService"
             contentProvider="org.talend.repository.view.di.metadata.content.RulesTopNodeContentProvider"
+            icon="icons/rulesManagement.gif"
             id="org.talend.repository.viewer.metadata.rules"
             labelProvider="org.talend.repository.viewer.label.RepositoryViewLabelProvider"
             name="Rules Management"
