@@ -41,6 +41,7 @@ import org.talend.repository.bigquery.BigQueryPlugin;
 import org.talend.repository.bigquery.i18n.Messages;
 import org.talend.repository.bigquery.ui.util.MetaTableHelper;
 import org.talend.repository.model.IProxyRepositoryFactory;
+import orgomg.cwm.objectmodel.core.Package;
 
 public class BigQueryTableWizard extends CheckLastVersionRepositoryWizard implements INewWizard {
 
