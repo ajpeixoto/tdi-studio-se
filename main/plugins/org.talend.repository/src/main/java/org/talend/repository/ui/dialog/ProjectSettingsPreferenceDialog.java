@@ -100,7 +100,6 @@ public class ProjectSettingsPreferenceDialog extends PreferenceDialog implements
         switch (buttonId) {
         case IDialogConstants.OK_ID: {
             okPressed();
-            commiteProjectSettings();
             return;
         }
         case IDialogConstants.CANCEL_ID: {
@@ -142,6 +141,7 @@ public class ProjectSettingsPreferenceDialog extends PreferenceDialog implements
         super.okPressed();
         rollBack(false);
         setInReopen(false);
+        commiteProjectSettings();
         if (ProjectSettingPage.isRestart()) {
             ProjectSettingPage.setRestart(false);
             PlatformUI.getWorkbench().restart();
