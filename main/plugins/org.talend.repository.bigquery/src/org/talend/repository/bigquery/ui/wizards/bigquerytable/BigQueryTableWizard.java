@@ -25,8 +25,6 @@ import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 import org.talend.commons.exception.ExceptionHandler;
 import org.talend.commons.exception.PersistenceException;
-import org.talend.commons.ui.runtime.image.ECoreImage;
-import org.talend.commons.ui.runtime.image.ImageProvider;
 import org.talend.commons.ui.swt.dialogs.ErrorDialogWidthDetailArea;
 import org.talend.core.model.metadata.IMetadataTable;
 import org.talend.core.model.metadata.builder.connection.BigQueryConnection;
@@ -43,8 +41,6 @@ import org.talend.repository.bigquery.BigQueryPlugin;
 import org.talend.repository.bigquery.i18n.Messages;
 import org.talend.repository.bigquery.ui.util.MetaTableHelper;
 import org.talend.repository.model.IProxyRepositoryFactory;
-
-import orgomg.cwm.objectmodel.core.Package;
 
 public class BigQueryTableWizard extends CheckLastVersionRepositoryWizard implements INewWizard {
 
@@ -109,7 +105,6 @@ public class BigQueryTableWizard extends CheckLastVersionRepositoryWizard implem
     @Override
     public void addPages() {
         setWindowTitle(Messages.getString("BigQueryTableWizard.windowTitle"));
-        setDefaultPageImageDescriptor(ImageProvider.getImageDesc(ECoreImage.METADATA_TABLE_WIZ));
         tableSelectPage = new BigQueryTableSelectWizardPage(tempConnection, clientManager, isRepositoryObjectEditable());
         tableSelectPage.setPageComplete(false);
         tablePage = new BigQueryTableWizardPage(clientManager, tempConnection, repTable, isRepositoryObjectEditable());
