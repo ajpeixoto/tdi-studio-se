@@ -33,7 +33,7 @@ Require-Bundle: org.eclipse.ui,
  org.apache.commons.lang,
  org.talend.common.ui.runtime,
  org.talend.cwm.mip,
- org.apache.commons.codec,
+ org.apache.commons.commons-codec,
  org.talend.studio.studio-utils,
  avro
 Bundle-ActivationPolicy: lazy
