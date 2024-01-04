@@ -76,7 +76,7 @@ public final class ComponentsProviderManager {
                                             + id + ", folderName: " + folderName + ", contributor: " + contributerName);
                         }
                         // if provider's java version == project's java version
-                        String projectJavaVersion = JavaUtils.getProjectJavaVersion();
+                        String projectJavaVersion = JavaUtils.getComplianceLevel();
                         if (VersionUtils.compareTo(javaMajorVersion, projectJavaVersion) != 0) {
                             log
                                     .warn("Java version: " + javaMajorVersion + ", project java version: "
