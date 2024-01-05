@@ -79,6 +79,16 @@ public final class ValueConverter {
         }
         return table;
     }
+    
+    
+    /**
+     * The logic same with TableElementParameter.getStringValue
+     * @param list
+     * @return
+     */
+    public static String toStringValue(List<Map<String, String>> list) {
+        return list.toString();
+    }
 
     /**
      * Checks whether String representation of the list is empty or not
@@ -96,7 +106,7 @@ public final class ValueConverter {
      * @param str String to trim
      * @return trimmed string
      */
-    private static String trimBrackets(final String str) {
+    public static String trimBrackets(final String str) {
         return BRACKETS_PATTERN.matcher(str).replaceAll("");
     }
 
@@ -110,4 +120,32 @@ public final class ValueConverter {
         return CURLY_BRACKETS_PATTERN.matcher(str).replaceAll("");
     }
 
+
+    public static String getMainTableParameterName(String name) {
+        int begin = name.indexOf("[");
+        int end = name.indexOf("]");
+        if (begin > 0 && end > 0 && end > begin) {
+            return name.substring(0, begin);
+        }
+        return name;
+    }
+
+
+    public static int getTableParameterIndex(String name) {
+        int begin = name.indexOf("[");
+        int end = name.indexOf("]");
+        if (begin > 0 && end > 0 && end > begin) {
+            return Integer.parseInt(name.substring(begin + 1, end));
+        }
+        return -1;
+    }
+    
+    public static String getTableParameterNameInProperties(String name) {
+        int begin = name.indexOf("[");
+        int end = name.indexOf("]");
+        if (begin > 0 && end > 0 && end > begin) {
+            return name.substring(0, begin + 1) + name.substring(end);
+        }
+        return name;
+    }
 }
