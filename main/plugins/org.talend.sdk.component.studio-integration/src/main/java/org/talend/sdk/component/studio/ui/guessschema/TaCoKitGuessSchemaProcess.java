@@ -132,8 +132,8 @@ public class TaCoKitGuessSchemaProcess {
                     while (reader.ready()) {
                         String readLine = reader.readLine();
                         err.add(readLine);
-                        if (!pattern.matcher(readLine).find() && (readLine.startsWith("[") || readLine.startsWith("{"))) {
-                            outList.add(readLine + "\n");
+                        if (!pattern.matcher(readLine).find() && ((readLine.startsWith("[") || readLine.startsWith("{")))) {
+                            outList.add(readLine);
                         }
                     }
                 }
