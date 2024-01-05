@@ -124,30 +124,35 @@ public class TaCoKitGuessSchemaProcess {
             
             final Future<GuessSchemaResult> result = executorService.submit(() -> {
                 final Pattern pattern = Pattern.compile("^\\[\\s*(INFO|WARN|ERROR|DEBUG|TRACE)\\s*]");
-                String out;
+                final List<String> outList = new ArrayList();
                 final List<String> err = new ArrayList();
                 // read stdout stream
                 try (final BufferedReader reader =
                              new BufferedReader(new InputStreamReader(executeProcess.getInputStream()))) {
-                    out = reader.lines()
-                            .peek(l -> err.add(l)) // may have interesting infos during execution, adding to stack
-                            .filter(l -> !pattern.matcher(l).find())                // filter out logs
-                            .filter(l -> l.startsWith("[") || l.startsWith("{"))    // ignore line with non json data
-                            .collect(joining("\n"));
+                    while (reader.ready()) {
+                        String readLine = reader.readLine();
+                        err.add(readLine);
+                        if (!pattern.matcher(readLine).find() && (readLine.startsWith("[") || readLine.startsWith("{"))) {
+                            outList.add(readLine + "\n");
+                        }
+                    }
                 }
                 // read stderr stream
                 try (final BufferedReader reader = new BufferedReader(new InputStreamReader(executeProcess.getErrorStream()))) {
                     err.addAll(reader.lines().parallel().collect(toList()));
                     err.add("===== Root cause ======");
                 }
-
-                return new GuessSchemaResult(out, err.stream().collect(joining("\n")));
+                return new GuessSchemaResult(outList.stream().collect(joining("\n")), err.stream().collect(joining("\n")));
             });
 
             executeProcess.waitFor();
             final GuessSchemaResult guessResult = result.get();
             if (executeProcess.exitValue() != 0){
-                return new GuessSchemaResult(guessResult.getError(), guessResult.getError());
+                String error = guessResult.getError();
+                if (error != null && !error.isEmpty()) {
+                    throw new IllegalStateException(error);
+                }
+                return new GuessSchemaResult(guessResult.getResult(), guessResult.getError());
             }
             final String resultStr = guessResult.getResult();
             if (resultStr != null && !resultStr.trim().isEmpty()) {
