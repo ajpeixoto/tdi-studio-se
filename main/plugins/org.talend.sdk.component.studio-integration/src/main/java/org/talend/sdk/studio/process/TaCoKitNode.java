@@ -204,11 +204,11 @@ public final class TaCoKitNode {
                             eValue.setValue(paramValue);
                             return;
                         } else {
-                            index ++;
+                            index++;
                         }
                     }
                 }
-            }              
+            }
         }
         if (sameNameParam == null) {
             sameNameParam = TalendFileFactoryImpl.eINSTANCE.createElementParameterType();
@@ -219,7 +219,28 @@ public final class TaCoKitNode {
         ElementValueType elementValueType = TalendFileFactoryImpl.eINSTANCE.createElementValueType();
         elementValueType.setElementRef(elemRef);
         elementValueType.setValue(paramValue);
-        sameNameParam.getElementValue().add(elementValueType);
+        boolean isAdded = false;
+        if (sameNameParam.getElementValue().size() > 0) {
+            int rowIndex = -1;
+            String firstKey = null;
+            for (int insertIndex = 0; insertIndex < sameNameParam.getElementValue().size(); insertIndex++) {
+                ElementValueType e = (ElementValueType) sameNameParam.getElementValue().get(insertIndex);
+                if (firstKey == null) {
+                    firstKey = e.getElementRef();
+                }
+                if (firstKey.equals(e.getElementRef())) {
+                    rowIndex++;
+                }
+                if (rowIndex > paramIndex) {
+                    sameNameParam.getElementValue().add(insertIndex, elementValueType);
+                    isAdded = true;
+                    break;
+                }
+            }
+        }
+        if (!isAdded) {
+            sameNameParam.getElementValue().add(elementValueType);
+        }
     }
 
     private ElementParameterType createParameter(final String name, final String value) {
