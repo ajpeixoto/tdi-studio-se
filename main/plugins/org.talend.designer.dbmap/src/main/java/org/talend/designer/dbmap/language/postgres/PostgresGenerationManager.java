@@ -68,6 +68,8 @@ public class PostgresGenerationManager extends DbGenerationManager {
             if (inputConnections == null) {
                 return expression;
             }
+            List<String> contextList = getContextList(component);
+            Set<String> contextSet = new HashSet<String>(contextList);
             for (ExternalDbMapTable input : data.getInputTables()) {
                 ExternalDbMapTable inputTable = input;
                 IConnection connection = null;
@@ -115,9 +117,13 @@ public class PostgresGenerationManager extends DbGenerationManager {
                         replacedStrings.add(tableNameStr);
                     }
                 }
+
+
                 for (IMetadataColumn co : connection.getMetadataTable().getListColumns()) {
                     String columnLabel = co.getOriginalDbColumnName();
-                    if (!replacedStrings.contains(columnLabel) && expression.contains(columnLabel)) {
+
+                    if (!replacedStrings.contains(columnLabel) && expression.contains(columnLabel)
+                            && !contextNameEqualsColumnName(contextSet, expression, columnLabel)) {
                         expression = replaceFields4Expression(component, expression, columnLabel);
                         replacedStrings.add(columnLabel);
                     }
@@ -133,7 +139,9 @@ public class PostgresGenerationManager extends DbGenerationManager {
                     replacedStrings.add(expression);
                     for (IMetadataColumn column : table.getListColumns()) {
                         String columnLabel = column.getOriginalDbColumnName();
-                        if (!replacedStrings.contains(columnLabel) && expression.contains(columnLabel)) {
+
+                        if (!replacedStrings.contains(columnLabel) && expression.contains(columnLabel)
+                                && !contextNameEqualsColumnName(contextSet, expression, columnLabel)) {
                             expression = replaceFields4Expression(component, expression, columnLabel);
                             replacedStrings.add(columnLabel);
                         }
@@ -144,6 +152,17 @@ public class PostgresGenerationManager extends DbGenerationManager {
 
         return expression;
 
+    }
+
+    private boolean contextNameEqualsColumnName(Set<String> contextSet, String expression, String columnLabel) {
+
+        String contextVar = ContextParameterUtils.JAVA_NEW_CONTEXT_PREFIX + columnLabel;
+
+        boolean containsContextVar = StringUtils.contains(expression, contextVar);
+
+        boolean existInContextList = contextSet.contains(contextVar);
+
+        return containsContextVar && existInContextList;
     }
 
     private String replaceFields4Expression(DbMapComponent component, String expression, String subExpression) {
