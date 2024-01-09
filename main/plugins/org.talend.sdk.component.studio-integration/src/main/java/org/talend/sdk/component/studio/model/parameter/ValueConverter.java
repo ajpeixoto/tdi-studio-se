@@ -16,9 +16,12 @@
 package org.talend.sdk.component.studio.model.parameter;
 
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.regex.Pattern;
 
 /**
@@ -106,7 +109,7 @@ public final class ValueConverter {
      * @param str String to trim
      * @return trimmed string
      */
-    public static String trimBrackets(final String str) {
+    private static String trimBrackets(final String str) {
         return BRACKETS_PATTERN.matcher(str).replaceAll("");
     }
 
@@ -149,6 +152,36 @@ public final class ValueConverter {
         return name;
     }
     
+    /**
+     *  Get same main name parameters that key sorted by index
+     * @param paramName
+     * @param migratedProperties
+     * @return same main name parameters that key sorted by index
+     */
+    public static Map<String, String> getSameNameTableParameter(String paramName, Map<String, String> migratedProperties) {
+        Map<String, String> properties = new HashMap<String, String>();
+        for (String key : migratedProperties.keySet()) {
+            String name = ValueConverter.getMainTableParameterName(key);
+            if (paramName.equals(name)) {
+                properties.put(key, migratedProperties.get(key));
+            }
+        }
+        Map<String, String> sortedMap = new TreeMap<String, String>(new Comparator<String>() {
+
+            @Override
+            public int compare(String o1, String o2) {
+                int index1 = ValueConverter.getTableParameterIndex(o1);
+                int index2 = ValueConverter.getTableParameterIndex(o2);
+                if (index1 != index2) {
+                    return index1 - index2;
+                }
+                return o1.compareTo(o2);
+            }
+        });
+        sortedMap.putAll(properties);
+        return sortedMap;
+    }
+
     public static boolean isListParameterValue(String value) {
         if (value != null && value.trim().startsWith("[") && value.trim().endsWith("]")) {
             return true;
