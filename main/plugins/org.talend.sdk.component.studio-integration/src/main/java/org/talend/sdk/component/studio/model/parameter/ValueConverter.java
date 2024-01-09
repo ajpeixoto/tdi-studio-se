@@ -148,4 +148,11 @@ public final class ValueConverter {
         }
         return name;
     }
+    
+    public static boolean isListParameterValue(String value) {
+        if (value != null && value.trim().startsWith("[") && value.trim().endsWith("]")) {
+            return true;
+        }
+        return false;
+    }
 }

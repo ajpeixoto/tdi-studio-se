@@ -200,15 +200,9 @@ public class TaCoKitMigrationManager {
     private Map<String, String> expandTableParameters(TaCoKitConfigurationModel configModel) {
         Map<String, String> properties = new HashMap<>();
         for (String key : configModel.getProperties().keySet()) {
-            boolean isArrayParameter = false;
-            for (SimplePropertyDefinition p : configModel.getConfigTypeNode().getProperties()) {
-                if (key.equals(p.getPath()) && p.getType().equals("ARRAY")) {
-                    isArrayParameter = true;
-                    break;
-                }
-            }
-            if (isArrayParameter) {
-                List<Map<String, Object>> dataList = ValueConverter.toTable(configModel.getProperties().get(key));
+            String value = configModel.getProperties().get(key);
+            if (ValueConverter.isListParameterValue(value)) {
+                List<Map<String, Object>> dataList = ValueConverter.toTable(value);
                 for (int i = 0; i < dataList.size(); i++) {
                     Map<String, Object> map = dataList.get(i);
                     for (String name : map.keySet()) {
