@@ -96,7 +96,7 @@ public class TaCoKitEidtQueriesAction extends TaCoKitMetadataContextualAction {
     protected boolean isValidChildNode () {
         RepositoryNode parentNode = selectedNode.getParent();
         while (parentNode != null) {
-            if(parentNode instanceof ITaCoKitRepositoryNode  && parentNode.getObjectType().equals(ERepositoryObjectType.METADATA_TACOKIT_JDBC)) {
+            if(parentNode instanceof ITaCoKitRepositoryNode  && ERepositoryObjectType.METADATA_TACOKIT_JDBC.equals(parentNode.getObjectType())) {
                 return true;
             }
             parentNode = parentNode.getParent();

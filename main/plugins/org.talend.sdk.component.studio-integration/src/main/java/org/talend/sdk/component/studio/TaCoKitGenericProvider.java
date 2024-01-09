@@ -18,11 +18,11 @@ package org.talend.sdk.component.studio;
 import static java.util.Collections.emptyList;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -50,16 +50,19 @@ import org.talend.sdk.component.server.front.model.ComponentDetail;
 import org.talend.sdk.component.server.front.model.ComponentIndex;
 import org.talend.sdk.component.server.front.model.ConfigTypeNodes;
 import org.talend.sdk.component.studio.VirtualComponentModel.VirtualComponentModelType;
+import org.talend.sdk.component.studio.enums.ETaCoKitComponentType;
 import org.talend.sdk.component.studio.lang.Pair;
 import org.talend.sdk.component.studio.service.ComponentService;
 import org.talend.sdk.component.studio.util.TaCoKitConst;
 import org.talend.sdk.component.studio.util.TaCokitImageUtil;
 import org.talend.sdk.component.studio.websocket.ServicesClient;
+import org.talend.sdk.component.studio.websocket.WebSocketClient;
 
 // note: for now we load the component on the server but
 // we can use the mojo generating the meta later
 // to avoid to load all components at startup
 public class TaCoKitGenericProvider implements IGenericProvider {
+
     @Override
     public void loadComponentsFromExtensionPoint() {
         if (ProjectManager.getInstance().getCurrentProject() == null || !Lookups.configuration().isActive()) {
@@ -80,8 +83,7 @@ public class TaCoKitGenericProvider implements IGenericProvider {
         final ComponentService service = Lookups.service();
         final IComponentsFactory factory = ComponentsFactoryProvider.getInstance();
         final Set<IComponent> components = factory.getComponentsForInit();
-        final Set<String> createdConnectionFamiliySet = new HashSet<String>();
-        final Set<String> createdCloseFamiliySet = new HashSet<String>();
+        final Set<String> virtualComponentSeeds = initVirtualComponentSeeds(client);
         synchronized (components) {
             components.removeIf(component -> {
                 if (TaCoKitConst.GUESS_SCHEMA_COMPONENT_NAME.equals(component.getName())) { // this should likely
@@ -122,28 +124,23 @@ public class TaCoKitGenericProvider implements IGenericProvider {
                 if (isJDBCFamily) {
                     jdbcComponentMap.put(componentModel.getDisplayName(), componentModel);
                 }
-                if (!createdConnectionFamiliySet.contains(index.getId().getFamily())) {
+                if (virtualComponentSeeds.contains(detail.getId().getId())) {
                     ActionList actionList = Lookups.taCoKitCache().getActionList(index.getId().getFamily());
-                    IComponent connectionModel = createConnectionComponent(index, detail, configTypes, reportPath, isCatcherAvailable, createdConnectionFamiliySet, actionList);
+                    IComponent connectionModel = createConnectionComponent(index, detail, configTypes, reportPath, isCatcherAvailable, actionList);
                     if (connectionModel != null) {
                         components.add(connectionModel);
                         if (isJDBCFamily) {
                             jdbcComponentMap.put(connectionModel.getDisplayName(), connectionModel);
                         }
                     }
-                }
-                
-                if (!createdCloseFamiliySet.contains(index.getId().getFamily())) {
-                    ActionList actionList = Lookups.taCoKitCache().getActionList(index.getId().getFamily());
-                    IComponent closeModel = createCloseConnectionComponent(index, detail, configTypes, reportPath, isCatcherAvailable, createdCloseFamiliySet, actionList);
+                    IComponent closeModel = createCloseConnectionComponent(index, detail, configTypes, reportPath, isCatcherAvailable, actionList);
                     if (closeModel != null) {
                         components.add(closeModel);
                         if (isJDBCFamily) {
                             jdbcComponentMap.put(closeModel.getDisplayName(), closeModel);
                         }
-                    }
+                    }   
                 }
-
             });
 
             // init additional JDBC components
@@ -179,9 +176,30 @@ public class TaCoKitGenericProvider implements IGenericProvider {
             }
         }
     }
+    
+    private Set<String> initVirtualComponentSeeds(ServicesClient client) {
+        Stream<Pair<ComponentIndex, ComponentDetail>> details = client.v1().component()
+                .details(Locale.getDefault().getLanguage());
+        Map<String, ComponentDetail> familyToComponentMap = new HashMap<String, ComponentDetail>();
+        details.forEach(pair -> {
+            ComponentIndex index = pair.getFirst();
+            ComponentDetail detail = pair.getSecond();
+            if (!familyToComponentMap.containsKey(index.getId().getFamilyId())) {
+                familyToComponentMap.put(index.getId().getFamilyId(), detail);
+            } else if (isInputComponentType(detail)
+                    && !isInputComponentType(familyToComponentMap.get(index.getId().getFamilyId()))) {
+                familyToComponentMap.put(index.getId().getFamilyId(), detail);
+            }
+        });
+        return familyToComponentMap.values().stream().map(d -> d.getId().getId()).collect(Collectors.toSet());
+    }
 
+    private boolean isInputComponentType(ComponentDetail detail) {
+        return ETaCoKitComponentType.input.equals(ETaCoKitComponentType.valueOf(detail.getType().toLowerCase()));
+    }
+    
     private VirtualComponentModel createCloseConnectionComponent(final ComponentIndex index, final ComponentDetail detail,
-            final ConfigTypeNodes configTypeNodes, String reportPath, boolean isCatcherAvailable, Set<String> createdFamiliySet, ActionList actionList) {
+            final ConfigTypeNodes configTypeNodes, String reportPath, boolean isCatcherAvailable, ActionList actionList) {
         boolean isSupport = false;
         String iconKey = null;
         VirtualComponentModel model = null;
@@ -194,7 +212,7 @@ public class TaCoKitGenericProvider implements IGenericProvider {
                 }
             }
         }
-        if (isSupport && !createdFamiliySet.contains(index.getId().getFamily())) {
+        if (isSupport) {
             ImageDescriptor imageDesc = null;
             
             try {
@@ -213,14 +231,13 @@ public class TaCoKitGenericProvider implements IGenericProvider {
             model = new VirtualComponentModel(index, detail, configTypeNodes, imageDesc, reportPath, isCatcherAvailable,
                     VirtualComponentModelType.CLOSE);
             Lookups.taCoKitCache().registeVirtualComponent(model);
-            createdFamiliySet.add(index.getId().getFamily());
         }
 
         return model;
     }
 
     private VirtualComponentModel createConnectionComponent(final ComponentIndex index, final ComponentDetail detail,
-            final ConfigTypeNodes configTypeNodes, String reportPath, boolean isCatcherAvailable, Set<String> createdFamiliySet, ActionList actionList) {
+            final ConfigTypeNodes configTypeNodes, String reportPath, boolean isCatcherAvailable, ActionList actionList) {
         boolean isSupport = false;
         String iconKey = null;
         VirtualComponentModel model = null;
@@ -233,7 +250,7 @@ public class TaCoKitGenericProvider implements IGenericProvider {
                 }
             }
         }
-        if (isSupport && !createdFamiliySet.contains(index.getId().getFamily())) {
+        if (isSupport) {
             ImageDescriptor imageDesc = null;
             
             try {
@@ -252,7 +269,6 @@ public class TaCoKitGenericProvider implements IGenericProvider {
             model = new VirtualComponentModel(index, detail, configTypeNodes, imageDesc, reportPath, isCatcherAvailable,
                     VirtualComponentModelType.CONNECTION);
             Lookups.taCoKitCache().registeVirtualComponent(model);
-            createdFamiliySet.add(index.getId().getFamily());
         }
         return model;
     }
