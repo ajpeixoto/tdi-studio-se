@@ -370,13 +370,13 @@
             <IMPORT
                 NAME="jaxb-xjc"
                 MODULE="jaxb-xjc-2.2.6-modified.jar"
-                MVN="mvn:org.talend.libraries/jaxb-xjc-2.2.6-modified/6.0.0"
+                MVN="mvn:com.sun.xml.bind/jaxb-xjc/2.2.6-modified"
                 REQUIRED="true"
             />
             <IMPORT
                 NAME="jaxb-impl"
                 MODULE="jaxb-impl-2.2.6-modified.jar"
-                MVN="mvn:org.talend.libraries/jaxb-impl-2.2.6-modified/6.0.0"
+                MVN="mvn:com.sun.xml.bind/jaxb-impl/2.2.6-modified"
                 REQUIRED="true"
             />
         </IMPORTS>
