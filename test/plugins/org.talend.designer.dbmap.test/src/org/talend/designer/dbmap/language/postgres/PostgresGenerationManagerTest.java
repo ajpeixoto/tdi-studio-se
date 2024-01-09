@@ -943,4 +943,105 @@ public class PostgresGenerationManagerTest extends DbGenerationManagerTestHelper
         assertEquals(expectedQuery, query);
     }
 
+    @Test
+    public void testSelectWithContextAndContextNameEqualsColumnName() {
+        String schema = "";
+        String main_table = "context.main_table";
+        String lookup_table = "context.lookup";
+        String contextValue = "context.name";
+        JobContext context = new JobContext("Default");
+
+        IContextParameter mainTableContext = new JobContextParameter();
+        mainTableContext.setName("main_table");
+        mainTableContext.setValue("mainTable");
+        mainTableContext.setType("String");
+        context.getContextParameterList().add(mainTableContext);
+
+        IContextParameter lookupTableContext = new JobContextParameter();
+        lookupTableContext.setName("lookup");
+        lookupTableContext.setValue("lookupTable");
+        lookupTableContext.setType("String");
+        context.getContextParameterList().add(lookupTableContext);
+
+        IContextParameter valueContext = new JobContextParameter();
+        valueContext.setName("name");
+        valueContext.setValue("999999");
+        valueContext.setType("Integer");
+        context.getContextParameterList().add(valueContext);
+
+        List<IConnection> incomingConnections = new ArrayList<IConnection>();
+        String[] mainTableEntities = new String[] { "id", "name", "classNum" };
+        String[] lookupEndtities = new String[] { "id", "score" };
+        incomingConnections.add(mockConnection(schema, main_table, mainTableEntities, mainTableEntities));
+        incomingConnections.add(mockConnection(schema, lookup_table, lookupEndtities, lookupEndtities));
+        dbMapComponent.setIncomingConnections(incomingConnections);
+
+        ExternalDbMapData externalData = new ExternalDbMapData();
+        List<ExternalDbMapTable> inputs = new ArrayList<ExternalDbMapTable>();
+        List<ExternalDbMapTable> outputs = new ArrayList<ExternalDbMapTable>();
+        // main table
+        ExternalDbMapTable inputTable = new ExternalDbMapTable();
+        inputTable.setTableName(StringUtils.isNotBlank(schema) ? schema + "." + main_table : main_table);
+        inputTable.setName(StringUtils.isNotBlank(schema) ? schema + "." + main_table : main_table);
+        List<ExternalDbMapEntry> entities = getMetadataEntities(mainTableEntities, new String[3]);
+
+        ExternalDbMapEntry entity = new ExternalDbMapEntry();
+        entity.setName("id");
+        entity.setExpression(contextValue);
+        entity.setOperator("=");
+        entities.set(0, entity);
+        inputTable.setMetadataTableEntries(entities);
+        inputs.add(inputTable);
+
+        // lookup table
+        inputTable = new ExternalDbMapTable();
+        inputTable.setTableName(StringUtils.isNotBlank(schema) ? schema + "." + lookup_table : lookup_table);
+        inputTable.setName(StringUtils.isNotBlank(schema) ? schema + "." + lookup_table : lookup_table);
+        entities = getMetadataEntities(lookupEndtities, new String[2]);
+        ExternalDbMapEntry newColumn = entities.get(0);
+        newColumn.setExpression(StringUtils.isNotBlank(schema) ? schema + "." + main_table + ".id" : main_table + ".id");
+        newColumn.setOperator("=");
+        inputTable.setJoinType("INNER_JOIN");
+        newColumn.setJoin(true);
+        inputTable.setMetadataTableEntries(entities);
+        inputs.add(inputTable);
+
+        // output
+        ExternalDbMapTable outputTable = new ExternalDbMapTable();
+        outputTable.setName("grade");
+        String[] names = new String[] { "id", "name", "classNum", "score" };
+        String[] expressions = new String[] { schema + "." + main_table + ".id", schema + "." + main_table + ".name",
+                schema + "." + main_table + ".classNum", schema + "." + lookup_table + ".score" };
+        if (StringUtils.isBlank(schema)) {
+            expressions = new String[] { main_table + ".id", main_table + ".name", main_table + ".classNum",
+                    lookup_table + ".score" };
+        }
+        outputTable.setMetadataTableEntries(getMetadataEntities(names, expressions));
+        outputs.add(outputTable);
+
+        externalData.setInputTables(inputs);
+        externalData.setOutputTables(outputs);
+        dbMapComponent.setExternalData(externalData);
+        List<IMetadataTable> metadataList = new ArrayList<IMetadataTable>();
+        MetadataTable metadataTable = getMetadataTable(names, names);
+        metadataTable.setLabel("grade");
+        metadataList.add(metadataTable);
+        dbMapComponent.setMetadataList(metadataList);
+        Process process = mock(Process.class);
+        when(process.getContextManager()).thenReturn(new JobContextManager());
+        dbMapComponent.setProcess(process);
+        dbMapComponent.getProcess().getContextManager().setDefaultContext(context);
+
+        PostgresGenerationManager manager = new PostgresGenerationManager();
+        manager.setAddQuotesInColumns(true);
+        String query = manager.buildSqlSelect(dbMapComponent, "grade");
+
+        String expectedQuery = "\"SELECT\n"
+                + "\\\"\"+context.main_table+\"\\\".id, \\\"\"+context.main_table+\"\\\".name, \\\"\"+context.main_table+\"\\\".classNum, \\\"\"+context.lookup+\"\\\".score\n"
+                + "FROM\n"
+                + " context.main_table INNER JOIN  context.lookup ON(  context.lookup.\\\"id\\\" = \\\"\"+context.main_table+\"\\\".id )\n"
+                + "WHERE\n" + "  context.main_table.\\\"id\\\" = \" +context.name";
+        assertEquals(expectedQuery, query);
+    }
+
 }
