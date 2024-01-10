@@ -46,7 +46,7 @@ import org.talend.designer.core.ui.editor.process.Process;
 import org.talend.designer.core.ui.views.problems.Problems;
 import org.talend.designer.core.utils.DesignerColorUtils;
 
-public class JobletContainerFigure extends Figure {
+public class JobletContainerFigure extends Figure implements ICollapsableFigure {
 
     public static final String KEY_REDUCE = "reduce_"; //$NON-NLS-1$
 
