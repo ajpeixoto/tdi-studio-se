@@ -246,7 +246,7 @@ globalMap.put("<%=cid %>_MAPPINGS_URL", mappings_url_<%=cid %>);
                 } else {
                     value = ElementParameterParser.getStringElementParameterValue(p);
                     
-                    if(isJDBC && p.getFieldType() == EParameterFieldType.MEMO_SQL && (value.contains("+") || org.talend.core.model.utils.TalendTextUtils.isEnclosed(value))) {
+                    if(isJDBC && (p.getFieldType() == EParameterFieldType.MEMO_SQL) && (value.contains("+") || org.talend.core.model.utils.TalendTextUtils.isEnclosed(value))) {
                         value = org.talend.core.model.utils.NodeUtil.replaceCRLFInMEMO_SQL(value).trim();
                         value = value.endsWith(";") ? value.substring(0, value.length() -1) : value;
                     } else if(isJDBC && key.contains("tableName") && (value.contains("+") || value.contains(".") || "pid".equals(value.trim()))) {
@@ -255,11 +255,35 @@ globalMap.put("<%=cid %>_MAPPINGS_URL", mappings_url_<%=cid %>);
                         //not change value, keep origin one
                         value = "String.valueOf(" + value + ")";
                     } else {
+                        boolean isExpressionWithVar = false;
+                        if(value != null) {
+                            boolean inQuote = false;
+                            boolean escapeEscapeChar = true;
+                            char preChar = ' ';
+                            for(int i=0;i<value.length();i++) {
+                                char c = value.charAt(i);
+                                
+                                if(c == '\"' && (preChar != '\\' || escapeEscapeChar)) {
+                                    inQuote = !inQuote;
+                                    escapeEscapeChar = false;
+                                } else if(c == '\\' && preChar == '\\') {
+                                    escapeEscapeChar = !escapeEscapeChar;
+                                } else if(c == '+' && !inQuote) {
+                                    isExpressionWithVar = true;
+                                    break;
+                                } else {
+                                    escapeEscapeChar = false;
+                                }
+                                
+                                preChar = c;
+                            }
+                        }
+                        
                         // fix MEMO Types: behave now as TEXT_AREA
                         if (p.getFieldType().toString().startsWith("MEMO")){
                             value = value.replace("\n", " ").replace("\r", " ");
                         }
-                        if (org.talend.core.model.utils.ContextParameterUtils.isDynamic(value)) {
+                        if (org.talend.core.model.utils.ContextParameterUtils.isDynamic(value) || isExpressionWithVar) {
                             value = "String.valueOf(" + value + ")";
                         } else {
                             if (org.talend.core.model.utils.TalendTextUtils.isEnclosed(value)) {
