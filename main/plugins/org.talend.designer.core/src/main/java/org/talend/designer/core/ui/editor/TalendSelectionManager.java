@@ -31,6 +31,7 @@ import org.talend.designer.core.ui.editor.nodes.NodeLabelEditPart;
 import org.talend.designer.core.ui.editor.nodes.NodePart;
 import org.talend.designer.core.ui.editor.notes.NoteEditPart;
 import org.talend.designer.core.ui.editor.process.ProcessPart;
+import org.talend.designer.core.ui.editor.subjobcontainer.SubjobContainer;
 import org.talend.designer.core.ui.editor.subjobcontainer.SubjobContainerPart;
 
 /**
@@ -183,14 +184,18 @@ public class TalendSelectionManager extends SelectionManager {
         List newSelection = new ArrayList(selection.toList());
         for (Object element : selection.toArray()) {
             if (element instanceof SubjobContainerPart) {
-                // childrens are NodeContainer part
-                newSelection.remove(element);
-                List<NodeContainerPart> nodeContainerParts = ((SubjobContainerPart) element).getChildren();
-                for (NodeContainerPart nodeContainerPart : nodeContainerParts) {
-                    for (Object object : nodeContainerPart.getChildren()) {
-                        if (object instanceof NodePart) {
-                            if (!newSelection.contains(object)) {
-                                newSelection.add(object);
+                SubjobContainerPart subjobContainerPart = (SubjobContainerPart) element;
+                SubjobContainer subjobContainer = (SubjobContainer) subjobContainerPart.getModel();
+                if (!subjobContainer.isCollapsed()) {
+                    // childrens are NodeContainer part
+                    newSelection.remove(element);
+                    List<NodeContainerPart> nodeContainerParts = subjobContainerPart.getChildren();
+                    for (NodeContainerPart nodeContainerPart : nodeContainerParts) {
+                        for (Object object : nodeContainerPart.getChildren()) {
+                            if (object instanceof NodePart) {
+                                if (!newSelection.contains(object)) {
+                                    newSelection.add(object);
+                                }
                             }
                         }
                     }

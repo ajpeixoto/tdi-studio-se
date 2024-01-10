@@ -12,8 +12,11 @@
 // ============================================================================
 package org.talend.designer.core.ui.action;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.gef.EditPart;
 import org.eclipse.gef.ui.actions.Clipboard;
 import org.eclipse.gef.ui.actions.SelectionAction;
 import org.eclipse.jface.action.IAction;
@@ -25,6 +28,7 @@ import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.actions.ActionFactory;
 import org.talend.core.model.components.IComponent;
+import org.talend.core.model.process.IProcess2;
 import org.talend.designer.core.i18n.Messages;
 import org.talend.designer.core.model.process.AbstractProcessProvider;
 import org.talend.designer.core.ui.editor.AbstractTalendEditor;
@@ -34,6 +38,7 @@ import org.talend.designer.core.ui.editor.nodes.NodeLabelEditPart;
 import org.talend.designer.core.ui.editor.nodes.NodePart;
 import org.talend.designer.core.ui.editor.notes.NoteDirectEditManager;
 import org.talend.designer.core.ui.editor.notes.NoteEditPart;
+import org.talend.designer.core.ui.editor.subjobcontainer.SubjobContainer;
 import org.talend.designer.core.ui.editor.subjobcontainer.SubjobContainerPart;
 
 /**
@@ -66,6 +71,7 @@ public class GEFCopyAction extends SelectionAction {
     protected boolean calculateEnabled() {
         List objects = getSelectedObjects();
         if (!objects.isEmpty()) {
+            AbstractProcessProvider pProvider = AbstractProcessProvider.findProcessProviderFromPID(IComponent.JOBLET_PID);
             for (Object o : objects) {
                 if (o instanceof NoteEditPart) {
                     return true;
@@ -83,7 +89,6 @@ public class GEFCopyAction extends SelectionAction {
                 if (!(o instanceof NodePart) && !(o instanceof NoteEditPart)) {
                     return false;
                 }
-                AbstractProcessProvider pProvider = AbstractProcessProvider.findProcessProviderFromPID(IComponent.JOBLET_PID);
                 if (pProvider != null && !pProvider.canCopyNode((Node) ((NodePart) o).getModel())) {
                     return false;
                 }
@@ -167,5 +172,39 @@ public class GEFCopyAction extends SelectionAction {
             IAction action = talendEditor.getActionRegistry().getAction(ActionFactory.PASTE.getId());
             action.setEnabled(true);
         }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.eclipse.gef.ui.actions.SelectionAction#getSelectedObjects()
+     */
+    @Override
+    protected List getSelectedObjects() {
+        List<Object> subJobContainerParts = new ArrayList<>();
+
+        // if selected nodes is from collapsed subjob, replaced it with subjob as selected
+        List selectedObjects = new ArrayList(super.getSelectedObjects());
+        Iterator it = selectedObjects.iterator();
+        while (it.hasNext()) {
+            Object obj = it.next();
+            if (obj instanceof NodePart) {
+                NodePart nodePart = (NodePart) obj;
+                EditPart nodeParent = nodePart.getParent();
+                if (nodeParent != null && nodeParent.getParent() instanceof SubjobContainerPart) {
+                    SubjobContainerPart subJobContainerPart = (SubjobContainerPart) nodeParent.getParent();
+                    SubjobContainer subjobContainer = (SubjobContainer) subJobContainerPart.getModel();
+                    if (subjobContainer.isCollapsed()) {
+                        it.remove();
+                        if (!subJobContainerParts.contains(subJobContainerPart)) {
+                            subJobContainerParts.add(subJobContainerPart);
+                        }
+                    }
+                }
+            }
+        }
+        selectedObjects.addAll(subJobContainerParts);
+
+        return selectedObjects;
     }
 }
