@@ -143,13 +143,23 @@ public final class ValueConverter {
         return -1;
     }
     
-    public static String getTableParameterNameInProperties(String name) {
+    public static String getTableParameterNameNoIndex(String name) {
         int begin = name.indexOf("[");
         int end = name.indexOf("]");
         if (begin > 0 && end > 0 && end > begin) {
             return name.substring(0, begin + 1) + name.substring(end);
         }
         return name;
+    }
+    
+    public static String getTableParameterNameWithIndex(int index, String paramName) {
+        if (paramName != null && paramName.indexOf("[") >= 0 && paramName.indexOf("]") > 0) {
+            StringBuffer sb = new StringBuffer();
+            sb.append(paramName.substring(0, paramName.indexOf("[") + 1)).append(index)
+                    .append(paramName.substring(paramName.indexOf("]")));
+            return sb.toString();
+        }
+        return null;
     }
     
     /**

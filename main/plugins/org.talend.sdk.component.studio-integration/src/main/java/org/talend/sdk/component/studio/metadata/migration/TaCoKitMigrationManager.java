@@ -237,7 +237,7 @@ public class TaCoKitMigrationManager {
                 String firstKey = null;
                 Map<String, String> data = null;
                 for (String newParamName : newParams.keySet()) {
-                    String propertyName = ValueConverter.getTableParameterNameInProperties(newParamName);
+                    String propertyName = ValueConverter.getTableParameterNameNoIndex(newParamName);
                     if (firstKey == null) {
                         firstKey = propertyName;
                     }

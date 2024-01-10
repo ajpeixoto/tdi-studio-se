@@ -14,6 +14,7 @@ package org.talend.sdk.component.studio.model.parameter;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
@@ -83,15 +84,26 @@ public class ValueConverterTest {
     }
 
     @Test
-    public void testGetTableParameterNameInProperties() {
+    public void testGetTableParameterNameNoIndex() {
         String paramName = "configuration.headers[0].key";
-        assertEquals("configuration.headers[].key", ValueConverter.getTableParameterNameInProperties(paramName));
+        assertEquals("configuration.headers[].key", ValueConverter.getTableParameterNameNoIndex(paramName));
 
         paramName = "configuration.headers[1].key";
-        assertEquals("configuration.headers[].key", ValueConverter.getTableParameterNameInProperties(paramName));
+        assertEquals("configuration.headers[].key", ValueConverter.getTableParameterNameNoIndex(paramName));
 
         paramName = "configuration.headers[0].value";
-        assertEquals("configuration.headers[].value", ValueConverter.getTableParameterNameInProperties(paramName));
+        assertEquals("configuration.headers[].value", ValueConverter.getTableParameterNameNoIndex(paramName));
+    }
+    
+    @Test
+    public void testGetTableParameterNameWithIndex() {
+        String paramName = "configuration.headers[].key";
+        assertEquals("configuration.headers[0].key", ValueConverter.getTableParameterNameWithIndex(0, paramName));
+
+        assertEquals("configuration.headers[1].key", ValueConverter.getTableParameterNameWithIndex(1, paramName));
+
+        paramName = "configuration.headers";
+        assertNull(ValueConverter.getTableParameterNameWithIndex(1, paramName));
     }
 
     @Test

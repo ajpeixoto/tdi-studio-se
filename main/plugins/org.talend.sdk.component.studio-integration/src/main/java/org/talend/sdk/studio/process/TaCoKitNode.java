@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.eclipse.emf.common.util.EList;
@@ -28,6 +27,7 @@ import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.server.front.model.SimplePropertyDefinition;
 import org.talend.sdk.component.studio.Lookups;
 import org.talend.sdk.component.studio.model.parameter.PropertyDefinitionDecorator;
+import org.talend.sdk.component.studio.model.parameter.ValueConverter;
 import org.talend.sdk.component.studio.model.parameter.VersionParameter;
 import org.talend.sdk.component.studio.model.parameter.WidgetTypeMapper;
 import org.talend.sdk.component.studio.util.TaCoKitConst;
@@ -136,24 +136,13 @@ public final class TaCoKitNode {
                     } else if (firstColumnKey.equals(eValue.getElementRef())){
                         index++;
                     }
-                    String paramName = getTableParamName(index, eValue);
+                    String paramName = ValueConverter.getTableParameterNameWithIndex(index, eValue.getElementRef());
                     if (paramName != null) {
                         properties.put(paramName, eValue.getValue());
                     }
                 }
             }
         }
-    }
-
-    private String getTableParamName(int index, ElementValueType elementValueType) {
-        String paramValue = elementValueType.getElementRef();
-        if (paramValue != null && paramValue.indexOf("[") >= 0 && paramValue.indexOf("]") > 0) {
-            StringBuffer sb = new StringBuffer();
-            sb.append(paramValue.substring(0, paramValue.indexOf("[") + 1)).append(index)
-                    .append(paramValue.substring(paramValue.indexOf("]")));
-            return sb.toString();
-        }
-        return null;
     }
 
     private boolean isComponentProperty(Collection<SimplePropertyDefinition> props, final String name) {
@@ -188,9 +177,9 @@ public final class TaCoKitNode {
     }
 
     private void fillTableParamData(List<ElementParameterType> tableFieldParamList, String paramKey, String paramValue) {
-        String paramName = paramKey.substring(0, paramKey.indexOf("["));
-        String elemRef = paramKey.substring(0, paramKey.indexOf("[") + 1) + paramKey.substring(paramKey.indexOf("]"));
-        int paramIndex = Integer.parseInt(paramKey.substring(paramKey.indexOf("[") + 1, paramKey.indexOf("]")));
+        String paramName = ValueConverter.getMainTableParameterName(paramKey);
+        String elemRef = ValueConverter.getTableParameterNameNoIndex(paramKey);
+        int paramIndex = ValueConverter.getTableParameterIndex(paramKey);
         ElementParameterType sameNameParam = null;
         for (ElementParameterType param : tableFieldParamList) {
             if (param.getName().equals(paramName)) {
