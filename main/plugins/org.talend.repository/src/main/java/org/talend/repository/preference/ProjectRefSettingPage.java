@@ -838,9 +838,11 @@ public class ProjectRefSettingPage extends ProjectSettingPage {
         if (isRollback) {
             ReferenceProjectProvider.removeAllTempReferenceList();
         } else {
+            Project project = ProjectManager.getInstance().getCurrentProject();
             List<ProjectReference> newReferenceSetting = convertToProjectReference(viewerInput);
-            ReferenceProjectProvider.setTempReferenceList(ProjectManager.getInstance().getCurrentProject().getTechnicalLabel(),
-                    newReferenceSetting);
+            ReferenceProjectProvider.setTempReferenceList(project.getTechnicalLabel(), newReferenceSetting);
+            // reset to force to read reference projects from temp during relogin
+            project.getReferenceProjectProvider().resetReferenceProjectList();
         }
         monitor.subTask(Messages.getString("RepoReferenceProjectSetupAction.TaskLogon", switchProject.getLabel())); //$NON-NLS-1$
         try {
