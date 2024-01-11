@@ -4,10 +4,9 @@
   <parent>
     <groupId>org.talend.studio</groupId>
     <artifactId>tdi-studio-se</artifactId>
-    <version>8.8.8-SNAPSHOT</version>
+    <version>8.0.2-SNAPSHOT</version>
     <relativePath>../../../</relativePath>
   </parent>
   <artifactId>org.talend.sqlbuilder.test</artifactId>
   <packaging>eclipse-plugin</packaging>
 </project>
-
