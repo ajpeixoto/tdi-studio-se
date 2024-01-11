@@ -35,7 +35,6 @@ public class ImageUtils {
             transform.setElements(1, 0, 0, -1, 0, 0);
             transform.translate(0, -bounds.height);
             gc.setTransform(transform);
-
             gc.drawImage(srcImage, 0, 0, bounds.width, bounds.height, 0, 0, bounds.width, bounds.height);
 
             gc.dispose();
