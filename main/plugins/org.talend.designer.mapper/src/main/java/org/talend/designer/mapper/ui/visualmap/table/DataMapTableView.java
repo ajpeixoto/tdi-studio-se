@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.TrayDialog;
 import org.eclipse.jface.fieldassist.IContentProposal;
@@ -97,7 +98,6 @@ import org.talend.commons.ui.runtime.swt.tableviewer.TableViewerCreatorNotModifi
 import org.talend.commons.ui.runtime.swt.tableviewer.TableViewerCreatorNotModifiable.LAYOUT_MODE;
 import org.talend.commons.ui.runtime.swt.tableviewer.behavior.CellEditorValueAdapter;
 import org.talend.commons.ui.runtime.swt.tableviewer.behavior.DefaultTableLabelProvider;
-import org.talend.commons.ui.runtime.swt.tableviewer.behavior.IColumnColorProvider;
 import org.talend.commons.ui.runtime.swt.tableviewer.behavior.ITableCellValueModifiedListener;
 import org.talend.commons.ui.runtime.swt.tableviewer.behavior.TableCellValueModifiedEvent;
 import org.talend.commons.ui.runtime.swt.tableviewer.celleditor.CellEditorDialogBehavior;
@@ -143,7 +143,6 @@ import org.talend.core.model.repository.ERepositoryObjectType;
 import org.talend.core.model.repository.IRepositoryViewObject;
 import org.talend.core.model.utils.NodeUtil;
 import org.talend.core.runtime.services.IExpressionBuilderDialogService;
-import org.talend.core.ui.CoreUIPlugin;
 import org.talend.core.ui.metadata.editor.MetadataTableEditorView;
 import org.talend.core.ui.proposal.TalendProposalProvider;
 import org.talend.designer.abstractmap.model.table.IDataMapTable;
@@ -189,6 +188,7 @@ import org.talend.repository.model.IProxyRepositoryFactory;
 import org.talend.repository.model.IProxyRepositoryService;
 import org.talend.repository.model.RepositoryNode;
 import org.talend.repository.ui.dialog.RepositoryReviewDialog;
+import org.talend.themes.core.elements.utils.TalendThemeUtils;
 
 /**
  * DOC amaumont class global comment. Detailled comment <br/>
@@ -2391,7 +2391,11 @@ public abstract class DataMapTableView extends Composite implements IDataMapTabl
         if (column.getId().equals(ID_EXPRESSION_COLUMN)) {
             return expressionColorProvider.getBackgroundColor(entry.getProblems() == null ? true : false);
         } else if (column.getId().equals(PREVIEW_COLUMN)) {
-            return ColorInfo.COLOR_TMAP_PREVIEW();
+            if (TalendThemeUtils.isDarkModeTheme()) {
+                return ColorConstants.darkGray;
+            } else {
+                return ColorInfo.COLOR_TMAP_PREVIEW();
+            }
         }
         return null;
     }
