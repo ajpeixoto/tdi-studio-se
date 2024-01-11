@@ -32,6 +32,7 @@ import org.talend.designer.mapper.ui.color.ColorInfo;
 import org.talend.designer.xmlmap.model.emf.xmlmap.OutputXmlTree;
 import org.talend.designer.xmlmap.model.emf.xmlmap.XmlmapPackage;
 import org.talend.designer.xmlmap.util.XmlMapUtil;
+import org.talend.themes.core.elements.utils.TalendThemeUtils;
 
 /**
  * created by Administrator on 2013-1-21 Detailled comment
@@ -159,7 +160,14 @@ public class OutputTreeSettingTable extends AbstractTable {
         showOrHideDocumentSetting();
 
         settingsContainer.setOpaque(true);
-        settingsContainer.setBackgroundColor(ColorConstants.white);
+
+
+        if (TalendThemeUtils.isDarkModeTheme()) {
+
+            settingsContainer.setBackgroundColor(ColorConstants.darkGray);
+        } else {
+            settingsContainer.setBackgroundColor(ColorConstants.white);
+        }
 
         // show selection
         settingsContainer.addMouseListener(new MouseListener() {
