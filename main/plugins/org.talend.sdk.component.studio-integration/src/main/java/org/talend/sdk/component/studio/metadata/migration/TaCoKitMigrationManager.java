@@ -213,7 +213,7 @@ public class TaCoKitMigrationManager {
                 }
             }
             if (!isAdded) {
-                properties.put(key, configModel.getProperties().get(key));
+                properties.put(key, value);
             }
         }
         return properties;
