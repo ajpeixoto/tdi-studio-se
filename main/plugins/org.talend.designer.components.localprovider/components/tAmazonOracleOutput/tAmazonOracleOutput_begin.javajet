@@ -137,10 +137,10 @@ for(Column column : stmtStructure) {
 		column.setSqlStmt("XMLType(?)");
 		xmlTypeExist = true;
 	}
-	if (column.getColumn()!= null){
+	if (column.getColumn() != null) {
 		String typeToGenerate=JavaTypesManager.getTypeToGenerate(column.getColumn().getTalendType(),column.getColumn().isNullable());
 		if(column.getColumn()!=null&&"CLOB".equals(column.getColumn().getType())&&typeToGenerate.equals("Object")&&!column.isDynamic()){
-		clobTypeExist=true;
+			clobTypeExist=true;
 		}
 	}
 }
