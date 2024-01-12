@@ -364,10 +364,6 @@
 				MODULE="j2objc-annotations-1.3.jar" MVN="mvn:com.google.j2objc/j2objc-annotations/1.3" REQUIRED="true"/>
 			<IMPORT NAME="jdo2-api"
 				MODULE="jdo2-api-2.3-eb.jar" MVN="mvn:javax.jdo/jdo2-api/2.3-eb" REQUIRED="true"/>
-			<IMPORT NAME="jetty"
-				MODULE="jetty-6.1.26.jar" MVN="mvn:org.mortbay.jetty/jetty/6.1.26" REQUIRED="true"/>
-			<IMPORT NAME="jetty-util"
-				MODULE="jetty-util-6.1.26.jar" MVN="mvn:org.mortbay.jetty/jetty-util/6.1.26" REQUIRED="true"/>
 			<IMPORT NAME="jsr305"
 				MODULE="jsr305-3.0.2.jar" MVN="mvn:com.google.code.findbugs/jsr305/3.0.2" REQUIRED="true"/>
 			<IMPORT NAME="opencensus-api"
