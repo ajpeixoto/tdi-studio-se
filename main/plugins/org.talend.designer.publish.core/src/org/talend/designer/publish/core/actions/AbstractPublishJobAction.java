@@ -102,6 +102,7 @@ public abstract class AbstractPublishJobAction implements IRunnableWithProgress 
             break;
         case MSESB_STANDALONE:
             exportJobForMicroservice(monitor);
+            break;
         default:
             exportJobForOSGI(monitor);
             break;
