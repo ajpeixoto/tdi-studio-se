@@ -18,6 +18,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.draw2d.IFigure;
 import org.eclipse.gef.EditPolicy;
 import org.eclipse.gef.RequestConstants;
 import org.eclipse.gef.commands.Command;
@@ -39,13 +40,17 @@ import org.talend.designer.core.ui.editor.connections.Connection;
 import org.talend.designer.core.ui.editor.connections.ConnectionLabel;
 import org.talend.designer.core.ui.editor.connections.ICrossPlatformConnLabelEditPart;
 import org.talend.designer.core.ui.editor.connections.ICrossPlatformConnectionPart;
+import org.talend.designer.core.ui.editor.jobletcontainer.AbstractJobletContainer;
 import org.talend.designer.core.ui.editor.jobletcontainer.CrossPlatformJobletContainerFigure;
+import org.talend.designer.core.ui.editor.jobletcontainer.ICollapsableFigure;
 import org.talend.designer.core.ui.editor.jobletcontainer.ICrossPlatformJobletContainerPart;
 import org.talend.designer.core.ui.editor.jobletcontainer.JobletContainer;
 import org.talend.designer.core.ui.editor.nodecontainer.ICrossPlatformNodeContainerPart;
 import org.talend.designer.core.ui.editor.nodecontainer.NodeContainer;
 import org.talend.designer.core.ui.editor.nodes.CrossPlatformNodeEditPolicy;
 import org.talend.designer.core.ui.editor.nodes.CrossPlatformNodePart;
+import org.talend.designer.core.ui.editor.nodes.CrossPlatformSwtFigureProxy;
+import org.talend.designer.core.ui.editor.nodes.ICrossPlatformFigure;
 import org.talend.designer.core.ui.editor.nodes.ICrossPlatformNodePart;
 import org.talend.designer.core.ui.editor.nodes.Node;
 import org.talend.designer.core.ui.editor.notes.ICrossPlatformNoteEditPart;
@@ -302,15 +307,26 @@ public class CrossPlatformProcessNodeDeleteAction extends AbsCrossPlatformProces
 
                 for (Iterator iterator = subjob.getCrossPlatformChildren().iterator(); iterator.hasNext();) {
                     ICrossPlatformNodeContainerPart nodeContainerPart = (ICrossPlatformNodeContainerPart) iterator.next();
-                    if (nodeContainerPart instanceof ICrossPlatformJobletContainerPart) {
-                        JobletContainer jobletCon = (JobletContainer) ((ICrossPlatformJobletContainerPart) nodeContainerPart)
-                                .getCrossPlatformModel();
-                        CrossPlatformJobletContainerFigure jobletFigure = (CrossPlatformJobletContainerFigure) ((ICrossPlatformJobletContainerPart) nodeContainerPart)
-                                .getCrossPlatformFigure();
-                        if (!jobletCon.isCollapsed()) {
-                            jobletFigure.doCollapse();
+                    Object crossPlatformModel = nodeContainerPart.getCrossPlatformModel();
+                    ICrossPlatformFigure crossPlatformFigure = nodeContainerPart.getCrossPlatformFigure();
+                    if (crossPlatformModel instanceof AbstractJobletContainer) {
+                        boolean collapsed = ((AbstractJobletContainer) crossPlatformModel).isCollapsed();
+
+                        if (!collapsed && crossPlatformFigure instanceof CrossPlatformSwtFigureProxy) {
+                            IFigure figure = ((CrossPlatformSwtFigureProxy) crossPlatformFigure).getFigure();
+                            if (figure instanceof ICollapsableFigure) {
+                                ((ICollapsableFigure) figure).doCollapse();
+                            }
                         }
                     }
+//                    if (nodeContainerPart instanceof ICrossPlatformJobletContainerPart) {
+//                        JobletContainer jobletCon = (JobletContainer) ((ICrossPlatformJobletContainerPart) nodeContainerPart)
+//                                .getCrossPlatformModel();
+//                        CrossPlatformJobletContainerFigure jobletFigure = (CrossPlatformJobletContainerFigure) crossPlatformFigure;
+//                        if (!jobletCon.isCollapsed()) {
+//                            jobletFigure.doCollapse();
+//                        }
+//                    }
                     ICrossPlatformNodePart nodePart = nodeContainerPart.getCrossPlatformNodePart();
                     if (nodePart != null) {
                         Node model = (Node) nodePart.getCrossPlatformModel();

@@ -13,13 +13,18 @@
 package org.talend.designer.core.ui.action;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.gef.EditPart;
 import org.eclipse.gef.commands.Command;
 import org.eclipse.gef.ui.actions.DeleteAction;
 import org.eclipse.ui.IWorkbenchPart;
 import org.talend.designer.core.ui.action.business.CrossPlatformProcessNodeDeleteAction;
 import org.talend.designer.core.ui.editor.AbstractTalendEditor;
+import org.talend.designer.core.ui.editor.nodes.NodePart;
+import org.talend.designer.core.ui.editor.subjobcontainer.SubjobContainer;
+import org.talend.designer.core.ui.editor.subjobcontainer.SubjobContainerPart;
 
 /**
  * Modification of the delete action to enhance the speed of the action from GEF. <br/>
@@ -69,4 +74,32 @@ public class GEFDeleteAction extends DeleteAction implements ICrossPlatformDelet
         return delegate.createCommand(objects);
     }
 
+    @Override
+    protected List getSelectedObjects() {
+        List<Object> subJobContainerParts = new ArrayList<>();
+
+        // if selected nodes is from collapsed subjob, replaced it with subjob as selected
+        List selectedObjects = new ArrayList(super.getSelectedObjects());
+        Iterator it = selectedObjects.iterator();
+        while (it.hasNext()) {
+            Object obj = it.next();
+            if (obj instanceof NodePart) {
+                NodePart nodePart = (NodePart) obj;
+                EditPart nodeParent = nodePart.getParent();
+                if (nodeParent != null && nodeParent.getParent() instanceof SubjobContainerPart) {
+                    SubjobContainerPart subJobContainerPart = (SubjobContainerPart) nodeParent.getParent();
+                    SubjobContainer subjobContainer = (SubjobContainer) subJobContainerPart.getModel();
+                    if (subjobContainer.isCollapsed()) {
+                        it.remove();
+                        if (!subJobContainerParts.contains(subJobContainerPart)) {
+                            subJobContainerParts.add(subJobContainerPart);
+                        }
+                    }
+                }
+            }
+        }
+        selectedObjects.addAll(subJobContainerParts);
+
+        return selectedObjects;
+    }
 }

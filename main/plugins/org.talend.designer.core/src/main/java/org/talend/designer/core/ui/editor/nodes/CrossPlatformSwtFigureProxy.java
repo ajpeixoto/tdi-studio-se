@@ -22,4 +22,8 @@ public class CrossPlatformSwtFigureProxy implements ICrossPlatformFigure {
         this.figure = figure;
     }
 
+    public IFigure getFigure() {
+        return this.figure;
+    }
+
 }
