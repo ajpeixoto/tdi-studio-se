@@ -1123,7 +1123,7 @@ public class LoginHelper {
         return this.gitProviderService;
     }
     
-    public static boolean validatePAT(ConnectionBean selectedConnBean) {
+    public static boolean validatePAT(ConnectionBean selectedConnBean) throws Exception {
         if (selectedConnBean.isToken() && !selectedConnBean.isLoginViaCloud()) {
             String tmcUrl = selectedConnBean.getDynamicFields().get(RepositoryConstants.REPOSITORY_URL);
             String pat = selectedConnBean.getPassword();
