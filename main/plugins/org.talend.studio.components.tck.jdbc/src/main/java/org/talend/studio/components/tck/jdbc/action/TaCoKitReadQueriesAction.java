@@ -78,7 +78,7 @@ public class TaCoKitReadQueriesAction extends TaCoKitMetadataContextualAction {
         RepositoryNode parentNode = selectedNode.getParent();
         while (parentNode != null) {
             if (parentNode instanceof ITaCoKitRepositoryNode
-                    && parentNode.getObjectType().equals(ERepositoryObjectType.METADATA_TACOKIT_JDBC)) {
+                    && ERepositoryObjectType.METADATA_TACOKIT_JDBC.equals(parentNode.getObjectType())) {
                 return true;
             }
             parentNode = parentNode.getParent();

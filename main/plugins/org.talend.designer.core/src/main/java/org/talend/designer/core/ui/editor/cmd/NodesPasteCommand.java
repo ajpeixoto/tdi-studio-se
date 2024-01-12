@@ -36,6 +36,7 @@ import org.talend.commons.ui.runtime.exception.ExceptionHandler;
 import org.talend.core.CorePlugin;
 import org.talend.core.GlobalServiceRegister;
 import org.talend.core.ITDQComponentService;
+import org.talend.core.model.components.IComponent;
 import org.talend.core.model.metadata.IMetadataColumn;
 import org.talend.core.model.metadata.IMetadataTable;
 import org.talend.core.model.process.EConnectionType;
@@ -60,6 +61,7 @@ import org.talend.designer.core.model.components.ElementParameter;
 import org.talend.designer.core.ui.AbstractMultiPageTalendEditor;
 import org.talend.designer.core.ui.editor.TalendEditor;
 import org.talend.designer.core.ui.editor.connections.Connection;
+import org.talend.designer.core.ui.editor.jobletcontainer.AbstractJobletContainer;
 import org.talend.designer.core.ui.editor.nodecontainer.NodeContainer;
 import org.talend.designer.core.ui.editor.nodecontainer.NodeContainerPart;
 import org.talend.designer.core.ui.editor.nodes.Node;
@@ -166,9 +168,9 @@ public class NodesPasteCommand extends Command {
 
     public NodesPasteCommand(List<NodePart> nodeParts, IProcess2 process, Point cursorLocation) {
         this.process = process;
-        nodePart = nodeParts.get(0);
-        setCursorLocation(cursorLocation);
         orderNodeParts(nodeParts);
+        nodePart = this.nodeParts.get(0);
+        setCursorLocation(cursorLocation);
         setLabel(Messages.getString("NodesPasteCommand.label")); //$NON-NLS-1$
 
     }
@@ -621,6 +623,12 @@ public class NodesPasteCommand extends Command {
                 // if the targeted node is not in the nodes to paste, then the
                 // string will be null
                 String nodeToConnect = oldNameTonewNameMap.get(targetNode.getUniqueName());
+                if (nodeToConnect == null) {// if target node is 'INPUT' node of expand joblet
+                    INode jobletNode = targetNode.getJobletNode();
+                    if (jobletNode != null) {
+                        nodeToConnect = oldNameTonewNameMap.get(jobletNode.getUniqueName());
+                    }
+                }
                 if (nodeToConnect != null) {
                     for (NodeContainer nodeContainer : nodeContainerList) {
                         INode node = nodeContainer.getNode();
@@ -904,6 +912,8 @@ public class NodesPasteCommand extends Command {
                 List<EditPart> sel = new ArrayList<EditPart>();
                 for (EditPart editPart : (List<EditPart>) processPart.getChildren()) {
                     if (editPart instanceof SubjobContainerPart) {
+                        SubjobContainerPart subJobContainerPart = (SubjobContainerPart) editPart;
+                        SubjobContainer subjobContainer = (SubjobContainer) subJobContainerPart.getModel();
                         for (EditPart subjobChildsPart : (List<EditPart>) editPart.getChildren()) {
                             if (subjobChildsPart instanceof NodeContainerPart) {
                                 if (nodeContainerList.contains(((NodeContainerPart) subjobChildsPart).getModel())) {
@@ -913,12 +923,14 @@ public class NodesPasteCommand extends Command {
                                                 ((Node) nodePart.getModel()).getNodeContainer(),
                                                 EParameterName.COLLAPSED.getName(), false);
                                         ppc.execute();
-                                        for (EditPart jobletChildren : (List<EditPart>) subjobChildsPart.getChildren()) {
-                                            if (jobletChildren instanceof NodePart) {
-                                                sel.add(jobletChildren);
+                                        if (!subjobContainer.isCollapsed()) {
+                                            for (EditPart jobletChildren : (List<EditPart>) subjobChildsPart.getChildren()) {
+                                                if (jobletChildren instanceof NodePart) {
+                                                    sel.add(jobletChildren);
+                                                }
                                             }
                                         }
-                                    } else if (nodePart != null) {
+                                    } else if (nodePart != null && !subjobContainer.isCollapsed()) {
                                         sel.add(nodePart);
                                     }
                                 }
