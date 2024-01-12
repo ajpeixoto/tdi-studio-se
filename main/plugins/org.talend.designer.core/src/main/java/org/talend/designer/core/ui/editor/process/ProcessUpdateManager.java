@@ -2259,6 +2259,7 @@ public class ProcessUpdateManager extends AbstractUpdateManager {
                                                             .convertToTable((String) objectValue);
                                                     if (convertMapList.size() != oldList.size()) {
                                                         sameValues = false;
+                                                        break;
                                                     }
                                                     for (int i = 0; i < convertMapList.size(); i++) {
                                                         if (convertMapList.get(i).keySet().size() != oldList.get(i).keySet()

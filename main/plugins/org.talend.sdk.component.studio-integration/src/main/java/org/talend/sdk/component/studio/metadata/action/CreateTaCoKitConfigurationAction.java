@@ -34,6 +34,7 @@ import org.talend.core.model.properties.ConnectionItem;
 import org.talend.core.model.properties.PropertiesFactory;
 import org.talend.core.model.properties.Property;
 import org.talend.core.model.repository.IRepositoryViewObject;
+import org.talend.repository.model.IRepositoryNode;
 import org.talend.repository.model.RepositoryNode;
 import org.talend.sdk.component.server.front.model.ConfigTypeNode;
 import org.talend.sdk.component.studio.metadata.model.TaCoKitConfigurationModel;
@@ -129,6 +130,11 @@ public class CreateTaCoKitConfigurationAction extends TaCoKitMetadataContextualA
             connection = ConnectionFactory.eINSTANCE.createConnection();
             connectionItem = PropertiesFactory.eINSTANCE.createConnectionItem();
             IRepositoryViewObject parentObject = repositoryNode.getObject();
+            IRepositoryNode currentNode = repositoryNode;
+            while (parentObject == null && currentNode.getParent() != null) {
+                parentObject = currentNode.getParent().getObject();
+                currentNode = currentNode.getParent();
+            }
             ConnectionItem parentItem = ((ConnectionItem) parentObject.getProperty().getItem());
             connection.setContextMode(parentItem.getConnection().isContextMode());
             connection.setContextName(parentItem.getConnection().getContextName());
