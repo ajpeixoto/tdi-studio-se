@@ -179,7 +179,7 @@
 				REQUIRED_IF="(READ_BY == 'XPATH')" BundleID="" />
 			<IMPORT NAME="ezmorph" MODULE="ezmorph-1.0.6.jar" MVN="mvn:net.sf.ezmorph/ezmorph/1.0.6"  UrlPath="platform:/plugin/org.talend.libraries.jackson/lib/ezmorph-1.0.6.jar"
 			    REQUIRED_IF="(READ_BY == 'XPATH')" />
-			<IMPORT NAME="xom" MODULE="xom-1.2.7.jar" MVN="mvn:org.talend.libraries/xom-1.2.7/6.0.0"
+			<IMPORT NAME="xom" MODULE="xom-1.3.9.jar" MVN="mvn:xom/xom/1.3.9"
 			    REQUIRED_IF="(READ_BY == 'XPATH')" />
 			<IMPORT NAME="commons_beanutils" MODULE="commons-beanutils-1.9.4.jar" MVN="mvn:commons-beanutils/commons-beanutils/1.9.4"
 				REQUIRED_IF="(READ_BY == 'XPATH')" />
