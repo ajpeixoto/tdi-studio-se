@@ -18,10 +18,6 @@ import java.util.jar.JarFile;
 
 public class TalendAgent {
 
-    private static void asm(String arguments, Instrumentation instrumentation) {
-
-    }
-
     private static void javassist(String arguments, Instrumentation instrumentation) throws UnmodifiableClassException, IOException {
         //TODO pass it from start jvm parameter or classpath relative location or jar define : "Boot-Class-Path" by https://docs.oracle.com/javase/8/docs/api/java/lang/instrument/package-summary.html
         instrumentation.appendToBootstrapClassLoaderSearch(new JarFile(new File("/Users/wwang/.m2/repository/org/talend/metrics/talendboot/1.0.0-SNAPSHOT/talendboot-1.0.0-SNAPSHOT.jar")));
