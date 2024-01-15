@@ -133,7 +133,9 @@ public class SetGlobalTimestampOptionForPreviousVersions extends AbstractJobMigr
                     ColumnType column = (ColumnType) oc;
                     if(column.getType().equals("id_Date")) {
                     	if ("false".equals(ComponentUtilities.getNodePropertyValue(node, CHECKBOX_TIMESTAMP_NODE))) {
-                            column.setPattern("\"dd-MM-yyyy\"");
+                            if (column.getPattern().length() > 12) {
+                            	column.setPattern("\"dd-MM-yyyy\"");
+                            }
                         } else {
                         	column.setPattern("\"yyyy-MM-dd HH:mm:ss\"");
                         }

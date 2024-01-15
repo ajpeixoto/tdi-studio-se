@@ -753,11 +753,11 @@ if(valueMap.get("<%=currEleName%>")!=null) {//open if 8080
 			} else if(loopNodes.size() > 1) {
 				if(!keepOrder4Document) {
 %>
-					<%=parentName%>.elements().add(<%=currEleName%>);
+					<%=parentName%>.content().add(<%=currEleName%>);
 <%
 				} else {
 %>
-					List allElements_<%=cid %> = <%=parentName%>.elements();
+					List allElements_<%=cid %> = <%=parentName%>.content();
 					if(allElements_<%=cid %>.isEmpty()) {//when the group or loop element appear first time
 						allElements_<%=cid %>.add(<%=currEleName%>);
 					} else {
@@ -796,7 +796,7 @@ if(valueMap.get("<%=currEleName%>")!=null) {//open if 8080
 				}
 			} else {
 %>
-				<%=parentName%>.elements().add(orderHelper.getInsertLocation(<%=XMLOrderUtil.getCurrPos(node) %>,<%=XMLOrderUtil.getCurrOrder(node) %>),<%=currEleName%>);
+				<%=parentName%>.content().add(orderHelper.getInsertLocation(<%=XMLOrderUtil.getCurrPos(node) %>,<%=XMLOrderUtil.getCurrOrder(node) %>),<%=currEleName%>);
 <%
 			}
 		} else {

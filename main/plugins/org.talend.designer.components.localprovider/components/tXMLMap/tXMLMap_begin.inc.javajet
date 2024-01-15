@@ -670,7 +670,7 @@ if(valueMap.get("<%=currEleName%>")!=null) {//open if 8080
 <%
 			} else {
 %>
-				<%=parentName%>.elements().add(orderHelper.getInsertLocation(<%=XMLOrderUtil.getCurrPos(node) %>,<%=XMLOrderUtil.getCurrOrder(node) %>),<%=currEleName%>);
+				<%=parentName%>.content().add(orderHelper.getInsertLocation(<%=XMLOrderUtil.getCurrPos(node) %>,<%=XMLOrderUtil.getCurrOrder(node) %>),<%=currEleName%>);
 <%
 			}
 		} else {
