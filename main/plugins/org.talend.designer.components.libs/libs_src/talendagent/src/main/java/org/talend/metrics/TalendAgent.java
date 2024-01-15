@@ -18,15 +18,30 @@ import java.util.jar.JarFile;
 
 public class TalendAgent {
 
+    private static final String BOOTJAR = "bootjar";
+
     private static void javassist(String arguments, Instrumentation instrumentation) throws UnmodifiableClassException, IOException {
-        //TODO pass it from start jvm parameter or classpath relative location or jar define : "Boot-Class-Path" by https://docs.oracle.com/javase/8/docs/api/java/lang/instrument/package-summary.html
-        instrumentation.appendToBootstrapClassLoaderSearch(new JarFile(new File("/Users/wwang/.m2/repository/org/talend/metrics/talendboot/1.0.0-SNAPSHOT/talendboot-1.0.0-SNAPSHOT.jar")));
+        String bootjar = null;
+        if(arguments != null) {
+            String[] kv = arguments.split("=");
+            if(kv!=null && kv.length == 2) {
+                bootjar = kv[1];
+            }
+        }
+        
+        if(bootjar == null) {
+            throw new RuntimeException("Miss boot jar, please set like this : -javaagent:${agentjarpath}=bootjar=${bootjarpath}");
+        }
+        
+        System.out.println("Boot jar:" + bootjar);
+        
+        instrumentation.appendToBootstrapClassLoaderSearch(new JarFile(new File(bootjar)));
         instrumentation.addTransformer(new ClassFileTransformer() {
             @Override
             public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
                 final ClassPool cp = ClassPool.getDefault();
                 if ("java/io/FileInputStream".equals(className)) {
-                    System.out.println("begin convert java/io/FileInputStream: ");
+                    System.out.println("Begin convert java/io/FileInputStream: ");
                     try {
                         CtClass ctClass = cp.get("java.io.FileInputStream");
 
@@ -46,7 +61,7 @@ public class TalendAgent {
                         ex.printStackTrace();
                     }
                 } else if("java/net/Socket$SocketInputStream".equals(className)) {//jre 17 use this
-                    System.out.println("begin convert java/net/Socket$SocketInputStream: ");
+                    System.out.println("Begin convert java/net/Socket$SocketInputStream: ");
                     try {
                         CtClass ctClass = cp.get("java.net.Socket$SocketInputStream");
 
@@ -60,7 +75,7 @@ public class TalendAgent {
                         ex.printStackTrace();
                     }
                 } else if("java/net/SocketInputStream".equals(className)) {//jre 8/11 use this, (also jre 17 have this code, but not sure when use it)
-                    System.out.println("begin convert java/net/SocketInputStream: ");
+                    System.out.println("Begin convert java/net/SocketInputStream: ");
                     try {
                         CtClass ctClass = cp.get("java.net.SocketInputStream");
 
@@ -100,6 +115,7 @@ public class TalendAgent {
     public static void premain(String arguments, Instrumentation instrumentation) throws UnmodifiableClassException, IOException {
         System.out.println("Talend Agent is loaded!");
         System.out.println("Current java version : " + System.getProperty("java.version"));
+        System.out.println("Current arguments : " + arguments);
 
         javassist(arguments, instrumentation);
     }
