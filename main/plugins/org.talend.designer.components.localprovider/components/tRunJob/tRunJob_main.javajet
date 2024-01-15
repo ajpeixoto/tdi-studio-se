@@ -765,7 +765,7 @@ globalMap.put("<%=cid%>_ERROR_MESSAGE",ioe.getMessage());
 		Process ps_<%=cid %> = null;
 		<%if(loadContextFile) {%>
 		//Write contexts to tmp file
-		org.talend.components.lib.ContextWriter writer_<%=cid%> = new org.talend.components.lib.ContextWriter(pid);
+		org.talend.components.lib.ContextWriter writer_<%=cid%> = new org.talend.components.lib.ContextWriter(pid + "<%=cid %>");
 		writer_<%=cid%>.write2File(paraList_<%=cid %>);
 		resourceMap.put("context_writer_<%=cid%>",writer_<%=cid%>);
         <%}%>

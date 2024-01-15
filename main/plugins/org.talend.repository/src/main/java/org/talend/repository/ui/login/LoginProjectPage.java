@@ -2744,43 +2744,60 @@ public class LoginProjectPage extends AbstractLoginActionPage {
             }
             // validate PAT
             AtomicBoolean forceReturn = new AtomicBoolean(false);
-            if (!this.isSSOMode && connection.isToken() && !connection.isLoginViaCloud()
-                    && !LoginHelper.validatePAT(connection)) {
-                Display.getDefault().syncExec(() -> {
+            if (!this.isSSOMode && connection.isToken() && !connection.isLoginViaCloud()) {
+                boolean validPat = false;
+                try {
+                    validPat = LoginHelper.validatePAT(connection);
+                    if (!validPat) {
+                        Display.getDefault().syncExec(() -> {
+                            cancelAllBackgroundJobs(null);
+                            if (backgroundLoadUIJob != null) {
+                                backgroundLoadUIJob.cancel();
+                                backgroundLoadUIJob = null;
+                            }
+                            resetProjectOperationSelection(false);
+                            try {
+                                errorManager.clearAllMessages();
+                                final String AUTO_SWITCHED_KEY = "LOGIN_SWITCHED_FOR_PAT_60DAYS";
+                                if (!PlatformUI.getPreferenceStore().getBoolean(AUTO_SWITCHED_KEY)) {
+                                    PlatformUI.getPreferenceStore().setValue(AUTO_SWITCHED_KEY, true);
+                                    gotoNextPage();
+                                } else {
+                                    changeFinishButtonAction(FINISH_ACTION_OPEN_PROJECT);
+                                    clearAndDisableProjectList();
+                                    refreshProjectOperationAreaEnable(false);
+                                    finishButton.setEnabled(false);
+                                }
+                                if (!containsLinkListener(loginDialog.errorTextLabel.getListeners(SWT.MouseDown))) {
+                                    loginDialog.errorTextLabel.addListener(SWT.MouseDown, new MorelinkListener());
+                                }
+                                showInvalidPATMessage(errorManager);
+                                forceReturn.set(true);
+                                return;
+                            } catch (Throwable e1) {
+                                MessageDialog.openError(Display.getDefault().getActiveShell(), getShell().getText(), e1.getMessage());
+                            }
+                        });
+                    }
+                } catch (Exception e) {
                     cancelAllBackgroundJobs(null);
-                    if (backgroundLoadUIJob != null) {
-                        backgroundLoadUIJob.cancel();
-                        backgroundLoadUIJob = null;
-                    }
                     resetProjectOperationSelection(false);
-                    try {
-                        errorManager.clearAllMessages();
-                        final String AUTO_SWITCHED_KEY = "LOGIN_SWITCHED_FOR_PAT_60DAYS";
-                        if (!PlatformUI.getPreferenceStore().getBoolean(AUTO_SWITCHED_KEY)) {
-                            PlatformUI.getPreferenceStore().setValue(AUTO_SWITCHED_KEY, true);
-                            gotoNextPage();
-                        } else {
-                            changeFinishButtonAction(FINISH_ACTION_OPEN_PROJECT);
-                            clearAndDisableProjectList();
-                            refreshProjectOperationAreaEnable(false);
-                            finishButton.setEnabled(false);
-                        }
-                        if (!containsLinkListener(loginDialog.errorTextLabel.getListeners(SWT.MouseDown))) {
-                            loginDialog.errorTextLabel.addListener(SWT.MouseDown, new MorelinkListener());
-                        }
-                        showInvalidPATMessage(errorManager);
-                        forceReturn.set(true);
-                        return;
-                    } catch (Throwable e1) {
-                        MessageDialog.openError(Display.getDefault().getActiveShell(), getShell().getText(), e1.getMessage());
-                    }
-                });
+                    errorManager.clearAllMessages();
+                    changeFinishButtonAction(FINISH_ACTION_OPEN_PROJECT);
+                    clearAndDisableProjectList();
+                    refreshProjectOperationAreaEnable(false);
+                    finishButton.setEnabled(false);
+                    MessageDialog.openError(Display.getDefault().getActiveShell(), getShell().getText(), Messages.getString("LoginProjectPage.invalidPAT.network.error"));
+                    return;
+                }
             }
 
             if (!forceRefresh && connection.equals(LoginHelper.getInstance().getCurrentSelectedConnBean())) {
                 // in case they are equal but different object id
                 LoginHelper.getInstance().setCurrentSelectedConnBean(connection);
-                return;
+                if (projectViewer.getInput() != null) {
+                    return;
+                }
             } else {
                 LoginHelper.getInstance().setCurrentSelectedConnBean(connection);
             }

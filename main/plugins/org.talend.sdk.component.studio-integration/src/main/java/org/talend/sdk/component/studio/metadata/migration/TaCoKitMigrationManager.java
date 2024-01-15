@@ -204,8 +204,7 @@ public class TaCoKitMigrationManager {
                     for (int i = 0; i < listValue.size(); i++) {
                         Map<String, Object> map = listValue.get(i);
                         for (String name : map.keySet()) {
-                            String nameWithIndex = name.substring(0, name.indexOf("[") + 1) + String.valueOf(i)
-                                    + name.substring(name.indexOf("]"));
+                            String nameWithIndex = ValueConverter.getTableParameterNameWithIndex(i, name);
                             properties.put(nameWithIndex, map.get(name).toString());
                         }
                     }
