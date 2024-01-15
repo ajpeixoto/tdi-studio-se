@@ -24,7 +24,7 @@ public class TalendAgent {
 
     private static void javassist(String arguments, Instrumentation instrumentation) throws UnmodifiableClassException, IOException {
         //TODO pass it from start jvm parameter or classpath relative location or jar define : "Boot-Class-Path" by https://docs.oracle.com/javase/8/docs/api/java/lang/instrument/package-summary.html
-        instrumentation.appendToBootstrapClassLoaderSearch(new JarFile(new File("/Users/wwang/.m2/repository/org/talend/metrics/talendboot/1.0.0-SNAPSHOT/talendboot-1.0-SNAPSHOT.jar")));
+        instrumentation.appendToBootstrapClassLoaderSearch(new JarFile(new File("/Users/wwang/.m2/repository/org/talend/metrics/talendboot/1.0.0-SNAPSHOT/talendboot-1.0.0-SNAPSHOT.jar")));
         instrumentation.addTransformer(new ClassFileTransformer() {
             @Override
             public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
