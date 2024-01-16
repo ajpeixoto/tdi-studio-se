@@ -55,6 +55,7 @@ import org.talend.core.service.ICloudSignOnService;
 import org.talend.core.ui.branding.IBrandingConfiguration;
 import org.talend.core.ui.branding.IBrandingService;
 import org.talend.core.ui.workspace.ChooseWorkspaceData;
+import org.talend.designer.core.IDesignerCoreService;
 import org.talend.registration.license.LicenseManagement;
 import org.talend.repository.i18n.Messages;
 import org.talend.repository.ui.image.ImageUtils;
@@ -146,6 +147,11 @@ public class LoginDialogV2 extends TrayDialog {
         backgroundColor = colorRegistry.get(COLOR_LOGON_DIALOG_BACKGROUND);
         if (backgroundColor == null) {
             backgroundColor = ColorConstants.white;
+            IDesignerCoreService service = (IDesignerCoreService) GlobalServiceRegister.getDefault()
+                    .getService(IDesignerCoreService.class);
+            if (service != null && service.isDarkModeTheme()) {
+                    backgroundColor = ColorConstants.darkGray;
+            }
             // backgroundColor = new Color(null, 215, 215, 215);
             colorRegistry.put(COLOR_LOGON_DIALOG_BACKGROUND, backgroundColor.getRGB());
         }

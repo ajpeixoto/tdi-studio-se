@@ -116,6 +116,7 @@ import org.talend.librariesmanager.model.ModulesNeededProvider;
 import org.talend.repository.ProjectManager;
 import org.talend.repository.ui.actions.routines.CreateRoutineAction;
 import org.talend.repository.ui.utils.UpdateLog4jJarUtils;
+import org.talend.themes.core.elements.utils.TalendThemeUtils;
 
 /**
  * Detailled comment <br/>
@@ -933,4 +934,10 @@ public class DesignerCoreService implements IDesignerCoreService {
         ProjectAnalysisTask analysisTask = new ProjectAnalysisTask();
         return analysisTask.analysis(project);
     }
+
+    @Override
+    public boolean isDarkModeTheme() {
+        return TalendThemeUtils.isDarkModeTheme();
+    }
+
 }
