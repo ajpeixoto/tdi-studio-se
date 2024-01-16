@@ -18,6 +18,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.draw2d.IFigure;
 import org.eclipse.gef.EditPart;
 import org.eclipse.gef.EditPolicy;
 import org.eclipse.gef.RequestConstants;
@@ -43,9 +44,8 @@ import org.talend.designer.core.ui.editor.connections.ConnLabelEditPart;
 import org.talend.designer.core.ui.editor.connections.Connection;
 import org.talend.designer.core.ui.editor.connections.ConnectionLabel;
 import org.talend.designer.core.ui.editor.connections.ConnectionPart;
-import org.talend.designer.core.ui.editor.jobletcontainer.JobletContainer;
-import org.talend.designer.core.ui.editor.jobletcontainer.JobletContainerFigure;
-import org.talend.designer.core.ui.editor.jobletcontainer.JobletContainerPart;
+import org.talend.designer.core.ui.editor.jobletcontainer.AbstractJobletContainer;
+import org.talend.designer.core.ui.editor.jobletcontainer.ICollapsableFigure;
 import org.talend.designer.core.ui.editor.nodecontainer.NodeContainer;
 import org.talend.designer.core.ui.editor.nodecontainer.NodeContainerPart;
 import org.talend.designer.core.ui.editor.nodes.Node;
@@ -87,7 +87,7 @@ public class GEFDeleteAction extends DeleteAction {
         AbstractTalendEditor editor = (AbstractTalendEditor) this.getWorkbenchPart();
         AbstractProcessProvider pProvider = AbstractProcessProvider.findProcessProviderFromPID(IComponent.JOBLET_PID);
         if (pProvider != null) {
-            Map<JobletContainerPart, List<NodePart>> jobletMap = new HashMap<JobletContainerPart, List<NodePart>>();
+            Map<NodeContainerPart, List<NodePart>> jobletMap = new HashMap<NodeContainerPart, List<NodePart>>();
             boolean nodeInJoblet = false;
             boolean allJunitnode = true;
             boolean hasNode = false;
@@ -114,8 +114,8 @@ public class GEFDeleteAction extends DeleteAction {
                     if (editor.getProcess().getGraphicalNodes().contains(nodePart.getModel())) {
                         isCollapsedNode = true;
                     }
-                    if (!isCollapsedNode && nodePart.getParent() instanceof JobletContainerPart) {
-                        JobletContainerPart jobletContainer = (JobletContainerPart) nodePart.getParent();
+                    if (!isCollapsedNode && nodePart.getParent() instanceof NodeContainerPart) {
+                        NodeContainerPart jobletContainer = (NodeContainerPart) nodePart.getParent();
                         List<NodePart> jobletNodeParts = jobletMap.get(jobletContainer);
                         if (jobletNodeParts == null) {
                             jobletNodeParts = new ArrayList<NodePart>();
@@ -172,7 +172,7 @@ public class GEFDeleteAction extends DeleteAction {
                 }
             }
 
-            for (JobletContainerPart jobletContainer : jobletMap.keySet()) {
+            for (NodeContainerPart jobletContainer : jobletMap.keySet()) {
                 boolean copyJobletNode = true;
                 List<NodePart> list = jobletMap.get(jobletContainer);
                 for (Object obj : jobletContainer.getChildren()) {
@@ -302,12 +302,13 @@ public class GEFDeleteAction extends DeleteAction {
 
                 for (Iterator iterator = subjob.getChildren().iterator(); iterator.hasNext();) {
                     NodeContainerPart nodeContainerPart = (NodeContainerPart) iterator.next();
-                    if (nodeContainerPart instanceof JobletContainerPart) {
-                        JobletContainer jobletCon = (JobletContainer) ((JobletContainerPart) nodeContainerPart).getModel();
-                        JobletContainerFigure jobletFigure = (JobletContainerFigure) ((JobletContainerPart) nodeContainerPart)
-                                .getFigure();
+                    if (nodeContainerPart.getModel() instanceof AbstractJobletContainer) {
+                        AbstractJobletContainer jobletCon = (AbstractJobletContainer) nodeContainerPart.getModel();
+                        IFigure jobletFigure = nodeContainerPart.getFigure();
                         if (!jobletCon.isCollapsed()) {
-                            jobletFigure.doCollapse();
+                            if (jobletFigure instanceof ICollapsableFigure) {
+                                ((ICollapsableFigure) jobletFigure).doCollapse();
+                            }
                         }
                     }
                     NodePart nodePart = nodeContainerPart.getNodePart();
@@ -347,4 +348,32 @@ public class GEFDeleteAction extends DeleteAction {
         }
     }
 
+    @Override
+    protected List getSelectedObjects() {
+        List<Object> subJobContainerParts = new ArrayList<>();
+
+        // if selected nodes is from collapsed subjob, replaced it with subjob as selected
+        List selectedObjects = new ArrayList(super.getSelectedObjects());
+        Iterator it = selectedObjects.iterator();
+        while (it.hasNext()) {
+            Object obj = it.next();
+            if (obj instanceof NodePart) {
+                NodePart nodePart = (NodePart) obj;
+                EditPart nodeParent = nodePart.getParent();
+                if (nodeParent != null && nodeParent.getParent() instanceof SubjobContainerPart) {
+                    SubjobContainerPart subJobContainerPart = (SubjobContainerPart) nodeParent.getParent();
+                    SubjobContainer subjobContainer = (SubjobContainer) subJobContainerPart.getModel();
+                    if (subjobContainer.isCollapsed()) {
+                        it.remove();
+                        if (!subJobContainerParts.contains(subJobContainerPart)) {
+                            subJobContainerParts.add(subJobContainerPart);
+                        }
+                    }
+                }
+            }
+        }
+        selectedObjects.addAll(subJobContainerParts);
+
+        return selectedObjects;
+    }
 }
