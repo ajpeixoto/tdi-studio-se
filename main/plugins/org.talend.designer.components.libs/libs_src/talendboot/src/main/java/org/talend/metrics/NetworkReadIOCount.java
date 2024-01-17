@@ -9,6 +9,10 @@ public class NetworkReadIOCount {
         count.addAndGet(val);
     }
 
+    public static void add(long val) {
+        count.addAndGet(val);
+    }
+
     public static AtomicLong get() {
         return count;
     }

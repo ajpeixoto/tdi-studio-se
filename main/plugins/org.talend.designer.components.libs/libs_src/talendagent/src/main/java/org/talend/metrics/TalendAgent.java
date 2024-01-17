@@ -2,6 +2,7 @@ package org.talend.metrics;
 
 import javassist.ClassPool;
 import javassist.CtClass;
+import javassist.CtConstructor;
 import javassist.CtMethod;
 
 import java.io.File;
@@ -45,14 +46,17 @@ public class TalendAgent {
                     try {
                         CtClass ctClass = cp.get("java.io.FileInputStream");
 
+                        CtConstructor constructor = ctClass.getDeclaredConstructor(new CtClass[]{cp.get("java.io.File")});
+                        constructor.insertAfter("org.talend.metrics.FileReadIOCount.start($1, path);");
+
                         CtMethod m1 = ctClass.getDeclaredMethod("read", new CtClass[]{cp.get("byte[]"), CtClass.intType, CtClass.intType});
-                        m1.insertAfter( "if($_ > 0) org.talend.metrics.FileReadIOCount.add( $_ );");
+                        m1.insertAfter( "org.talend.metrics.FileReadIOCount.add( $_ );");
 
                         CtMethod m2 = ctClass.getDeclaredMethod("read");
-                        m2.insertAfter( "if($_ > 0) org.talend.metrics.FileReadIOCount.add( $_ );");
+                        m2.insertAfter( "org.talend.metrics.FileReadIOCount.add( $_ );");
 
                         CtMethod m3 = ctClass.getDeclaredMethod("read", new CtClass[]{cp.get("byte[]")});
-                        m3.insertAfter( "if($_ > 0) org.talend.metrics.FileReadIOCount.add( $_ );");
+                        m3.insertAfter( "org.talend.metrics.FileReadIOCount.add( $_ );");
 
                         byte[] byteCode = ctClass.toBytecode();
                         ctClass.detach();
