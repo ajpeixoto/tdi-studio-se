@@ -105,74 +105,74 @@
   <CODEGENERATION>
 	<IMPORTS>
 			<IMPORT NAME="d00a-mapping-1.4" MODULE="d00a-mapping-1.4.jar" MVN="mvn:org.milyn.edi.unedifact/d00a-mapping/1.4" 
-			    REQUIRED="true" />
+			    REQUIRED_IF="(EDI_VERSION == 'd00a')" />
 			<IMPORT NAME="d00b-mapping-1.4" MODULE="d00b-mapping-1.4.jar" MVN="mvn:org.milyn.edi.unedifact/d00b-mapping/1.4" 
-			    REQUIRED="true" />
+			    REQUIRED_IF="(EDI_VERSION == 'd00b')" />
 			<IMPORT NAME="d01a-mapping-1.4" MODULE="d01a-mapping-1.4.jar" MVN="mvn:org.milyn.edi.unedifact/d01a-mapping/1.4" 
-			    REQUIRED="true" />
+			    REQUIRED_IF="(EDI_VERSION == 'd01a')" />
 			<IMPORT NAME="d01b-mapping-1.4" MODULE="d01b-mapping-1.4.jar" MVN="mvn:org.milyn.edi.unedifact/d01b-mapping/1.4" 
-			    REQUIRED="true" />
+			    REQUIRED_IF="(EDI_VERSION == 'd01b')" />
 			<IMPORT NAME="d01c-mapping-1.4" MODULE="d01c-mapping-1.4.jar" MVN="mvn:org.milyn.edi.unedifact/d01c-mapping/1.4" 
-			    REQUIRED="true" />
+			    REQUIRED_IF="(EDI_VERSION == 'd01c')" />
 			<IMPORT NAME="d02a-mapping-1.4" MODULE="d02a-mapping-1.4.jar" MVN="mvn:org.milyn.edi.unedifact/d02a-mapping/1.4" 
-			    REQUIRED="true" />
+			    REQUIRED_IF="(EDI_VERSION == 'd02a')" />
 			<IMPORT NAME="d02b-mapping-1.4" MODULE="d02b-mapping-1.4.jar" MVN="mvn:org.milyn.edi.unedifact/d02b-mapping/1.4" 
-			    REQUIRED="true" />
+			    REQUIRED_IF="(EDI_VERSION == 'd02b')" />
 			<IMPORT NAME="d03a-mapping-1.4" MODULE="d03a-mapping-1.4.jar" MVN="mvn:org.milyn.edi.unedifact/d03a-mapping/1.4" 
-			    REQUIRED="true" />
+			    REQUIRED_IF="(EDI_VERSION == 'd03a')" />
 			<IMPORT NAME="d03b-mapping-1.4" MODULE="d03b-mapping-1.4.jar" MVN="mvn:org.milyn.edi.unedifact/d03b-mapping/1.4" 
-			    REQUIRED="true" />
+			    REQUIRED_IF="(EDI_VERSION == 'd03b')" />
 			<IMPORT NAME="d04a-mapping-1.4" MODULE="d04a-mapping-1.4.jar" MVN="mvn:org.milyn.edi.unedifact/d04a-mapping/1.4" 
-			    REQUIRED="true" />
+			    REQUIRED_IF="(EDI_VERSION == 'd04a')" />
 			<IMPORT NAME="d04b-mapping-1.4" MODULE="d04b-mapping-1.4.jar" MVN="mvn:org.milyn.edi.unedifact/d04b-mapping/1.4" 
-			    REQUIRED="true" />
+			    REQUIRED_IF="(EDI_VERSION == 'd04b')" />
 			<IMPORT NAME="d05a-mapping-1.4" MODULE="d05a-mapping-1.4.jar" MVN="mvn:org.milyn.edi.unedifact/d05a-mapping/1.4" 
-			    REQUIRED="true" />
+			    REQUIRED_IF="(EDI_VERSION == 'd05a')" />
 			<IMPORT NAME="d05b-mapping-1.4" MODULE="d05b-mapping-1.4.jar" MVN="mvn:org.milyn.edi.unedifact/d05b-mapping/1.4" 
-			    REQUIRED="true" />
+			    REQUIRED_IF="(EDI_VERSION == 'd05b')" />
 			<IMPORT NAME="d06a-mapping-1.4" MODULE="d06a-mapping-1.4.jar" MVN="mvn:org.milyn.edi.unedifact/d06a-mapping/1.4" 
-			    REQUIRED="true" />
+			    REQUIRED_IF="(EDI_VERSION == 'd06a')" />
 			<IMPORT NAME="d06b-mapping-1.4" MODULE="d06b-mapping-1.4.jar" MVN="mvn:org.milyn.edi.unedifact/d06b-mapping/1.4" 
-			    REQUIRED="true" />
+			    REQUIRED_IF="(EDI_VERSION == 'd06b')" />
 			<IMPORT NAME="d07a-mapping-1.4" MODULE="d07a-mapping-1.4.jar" MVN="mvn:org.milyn.edi.unedifact/d07a-mapping/1.4" 
-			    REQUIRED="true" />
+			    REQUIRED_IF="(EDI_VERSION == 'd07a')" />
 			<IMPORT NAME="d07b-mapping-1.4" MODULE="d07b-mapping-1.4.jar" MVN="mvn:org.milyn.edi.unedifact/d07b-mapping/1.4" 
-			    REQUIRED="true" />
+			    REQUIRED_IF="(EDI_VERSION == 'd07b')" />
 			<IMPORT NAME="d08a-mapping-1.4" MODULE="d08a-mapping-1.4.jar" MVN="mvn:org.milyn.edi.unedifact/d08a-mapping/1.4" 
-			    REQUIRED="true" />
+			    REQUIRED_IF="(EDI_VERSION == 'd08a')" />
 			<IMPORT NAME="d08b-mapping-1.4" MODULE="d08b-mapping-1.4.jar" MVN="mvn:org.milyn.edi.unedifact/d08b-mapping/1.4" 
-			    REQUIRED="true" />
+			    REQUIRED_IF="(EDI_VERSION == 'd08b')" />
 			<IMPORT NAME="d09a-mapping-1.4" MODULE="d09a-mapping-1.4.jar" MVN="mvn:org.milyn.edi.unedifact/d09a-mapping/1.4" 
-			    REQUIRED="true" />
+			    REQUIRED_IF="(EDI_VERSION == 'd09a')" />
 			<IMPORT NAME="d09b-mapping-1.4" MODULE="d09b-mapping-1.4.jar" MVN="mvn:org.milyn.edi.unedifact/d09b-mapping/1.4" 
-			    REQUIRED="true" />
+			    REQUIRED_IF="(EDI_VERSION == 'd09b')" />
 			<IMPORT NAME="d93a-mapping-1.4" MODULE="d93a-mapping-1.4.jar" MVN="mvn:org.milyn.edi.unedifact/d93a-mapping/1.4" 
-			    REQUIRED="true" />
+			    REQUIRED_IF="(EDI_VERSION == 'd93a')" />
 			<IMPORT NAME="d94a-mapping-1.4" MODULE="d94a-mapping-1.4.jar" MVN="mvn:org.milyn.edi.unedifact/d94a-mapping/1.4" 
-			    REQUIRED="true" />
+			    REQUIRED_IF="(EDI_VERSION == 'd94a')" />
 			<IMPORT NAME="d94b-mapping-1.4" MODULE="d94b-mapping-1.4.jar" MVN="mvn:org.milyn.edi.unedifact/d94b-mapping/1.4" 
-			    REQUIRED="true" />
+			    REQUIRED_IF="(EDI_VERSION == 'd94b')" />
 			<IMPORT NAME="d95a-mapping-1.4" MODULE="d95a-mapping-1.4.jar" MVN="mvn:org.milyn.edi.unedifact/d95a-mapping/1.4" 
-			    REQUIRED="true" />
+			    REQUIRED_IF="(EDI_VERSION == 'd95a')" />
 			<IMPORT NAME="d95b-mapping-1.4" MODULE="d95b-mapping-1.4.jar" MVN="mvn:org.milyn.edi.unedifact/d95b-mapping/1.4" 
-			    REQUIRED="true" />
+			    REQUIRED_IF="(EDI_VERSION == 'd95b')" />
 			<IMPORT NAME="d96a-mapping-1.4" MODULE="d96a-mapping-1.4.jar" MVN="mvn:org.milyn.edi.unedifact/d96a-mapping/1.4" 
-			    REQUIRED="true" />
+			    REQUIRED_IF="(EDI_VERSION == 'd96a')" />
 			<IMPORT NAME="d96b-mapping-1.4" MODULE="d96b-mapping-1.4.jar" MVN="mvn:org.milyn.edi.unedifact/d96b-mapping/1.4"
-			    REQUIRED="true" />
+			    REQUIRED_IF="(EDI_VERSION == 'd96b')" />
 			<IMPORT NAME="d97a-mapping-1.4" MODULE="d97a-mapping-1.4.jar" MVN="mvn:org.milyn.edi.unedifact/d97a-mapping/1.4"
-			    REQUIRED="true" />
+			    REQUIRED_IF="(EDI_VERSION == 'd97a')" />
 			<IMPORT NAME="d97b-mapping-1.4" MODULE="d97b-mapping-1.4.jar" MVN="mvn:org.milyn.edi.unedifact/d97b-mapping/1.4"
-			    REQUIRED="true" />
+			    REQUIRED_IF="(EDI_VERSION == 'd97b')" />
 			<IMPORT NAME="d98a-mapping-1.4" MODULE="d98a-mapping-1.4.jar" MVN="mvn:org.milyn.edi.unedifact/d98a-mapping/1.4"
-			    REQUIRED="true" />
+			    REQUIRED_IF="(EDI_VERSION == 'd98a')" />
 			<IMPORT NAME="d98b-mapping-1.4" MODULE="d98b-mapping-1.4.jar" MVN="mvn:org.milyn.edi.unedifact/d98b-mapping/1.4"
-			    REQUIRED="true" />
+			    REQUIRED_IF="(EDI_VERSION == 'd98b')" />
 			<IMPORT NAME="d99a-mapping-1.4" MODULE="d99a-mapping-1.4.jar" MVN="mvn:org.milyn.edi.unedifact/d99a-mapping/1.4"
-			    REQUIRED="true" />
+			    REQUIRED_IF="(EDI_VERSION == 'd99a')" />
 			<IMPORT NAME="d99b-mapping-1.4" MODULE="d99b-mapping-1.4.jar" MVN="mvn:org.milyn.edi.unedifact/d99b-mapping/1.4"
-			    REQUIRED="true" />
-			<IMPORT NAME="mylin-smooks" MODULE="milyn-smooks-all-1.7.0.jar" MVN="mvn:org.talend.libraries/milyn-smooks-all-1.7.0/6.0.0"
+			    REQUIRED_IF="(EDI_VERSION == 'd99b')" />
+			<IMPORT NAME="mylin-smooks" MODULE="milyn-smooks-all-1.7.0.jar" MVN="mvn:org.milyn/milyn-smooks-all/1.7.0"
 				REQUIRED="true" />
 			<IMPORT NAME="jaxen" MODULE="jaxen-1.1.6.jar" MVN="mvn:jaxen/jaxen/1.1.6" BundleID="org.apache.servicemix.bundles.jaxen"
 				REQUIRED="true" />
