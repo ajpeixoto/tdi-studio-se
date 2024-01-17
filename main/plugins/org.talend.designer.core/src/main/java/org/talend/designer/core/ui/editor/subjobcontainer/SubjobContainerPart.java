@@ -181,7 +181,7 @@ public class SubjobContainerPart extends AbstractSwtGraphicalEditPart
         String prop = evt.getPropertyName();
         if (SubjobContainer.UPDATE_SUBJOB_CONTENT.equals(prop)) {
             refresh();
-            List<AbstractGraphicalEditPart> childrens = getChildren();
+            List<AbstractGraphicalEditPart> childrens = (List<AbstractGraphicalEditPart>)getChildren();
             for (AbstractGraphicalEditPart part : childrens) {
                 part.refresh();
             }

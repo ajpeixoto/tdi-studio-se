@@ -19,7 +19,6 @@ Require-Bundle: org.talend.model,
  org.eclipse.ui.views.properties.tabbed,
  org.eclipse.gef,
  org.apache.commons.collections,
- org.apache.commons.io,
  org.apache.commons.lang,
  org.talend.core,
  org.talend.core.ui,
@@ -75,7 +74,8 @@ Require-Bundle: org.talend.model,
  com.fasterxml.jackson.core.jackson-databind,
  org.talend.cwm.mip,
  org.eclipse.gmf.runtime.notation,
- avro
+ avro,
+ org.apache.axis
 Eclipse-LazyStart: true
 Plugin-Class: org.talend.designer.core.DesignerPlugin
 Export-Package: org.talend.designer.core;
@@ -271,6 +271,7 @@ Service-Component: OSGI-INF/core.xml
 Eclipse-ExtensibleAPI: true
 Import-Package: org.apache.axis.utils,
  org.apache.axis.wsdl,
+ org.apache.commons.io,
  org.slf4j,
  org.talend.hadoop.distribution,
  org.talend.hadoop.distribution.component

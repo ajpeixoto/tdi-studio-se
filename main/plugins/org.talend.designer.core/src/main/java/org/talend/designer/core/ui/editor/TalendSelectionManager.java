@@ -189,7 +189,7 @@ public class TalendSelectionManager extends SelectionManager {
                 if (!subjobContainer.isCollapsed()) {
                     // childrens are NodeContainer part
                     newSelection.remove(element);
-                    List<NodeContainerPart> nodeContainerParts = subjobContainerPart.getChildren();
+                    List<NodeContainerPart> nodeContainerParts = (List<NodeContainerPart>)subjobContainerPart.getChildren();
                     for (NodeContainerPart nodeContainerPart : nodeContainerParts) {
                         for (Object object : nodeContainerPart.getChildren()) {
                             if (object instanceof NodePart) {

@@ -95,7 +95,7 @@ public class SetParallelizationAction extends SelectionAction {
                 getCommandStack().execute(new SetParallelizationCommand(node));
             } else if (o instanceof SubjobContainerPart) {
                 boolean hasStartNode = false;
-                List<NodeContainerPart> childNodes = ((SubjobContainerPart) o).getChildren();
+                List<NodeContainerPart> childNodes = (List<NodeContainerPart>)((SubjobContainerPart) o).getChildren();
                 for (NodeContainerPart childNode : childNodes) {
                     NodeContainerPart part = (NodeContainerPart) childNode;
                     NodeContainer node = (NodeContainer) part.getModel();

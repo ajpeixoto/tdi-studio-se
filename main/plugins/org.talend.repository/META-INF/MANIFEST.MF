@@ -8,7 +8,6 @@ Bundle-Localization: plugin
 Eclipse-LazyStart: true
 Bundle-Vendor: .Talend SA.
 Require-Bundle: org.apache.commons.collections,
- org.apache.commons.io,
  org.apache.commons.logging,
  org.apache.commons.lang,
  org.talend.model,
@@ -113,5 +112,6 @@ Bundle-ClassPath: .,
  lib/velocity-engine-core-2.3.jar
 Import-Package: com.fasterxml.jackson.core,
  com.fasterxml.jackson.databind,
+ org.apache.commons.io,
  org.slf4j,
  org.talend.utils.json;version="1.0.0"

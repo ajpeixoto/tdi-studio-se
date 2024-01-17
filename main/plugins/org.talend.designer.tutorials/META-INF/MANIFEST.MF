@@ -3,6 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Tutorials
 Bundle-SymbolicName: org.talend.designer.tutorials;singleton:=true
 Bundle-Version: 8.0.2.qualifier
+Import-Package: org.apache.commons.io
 Bundle-Activator: org.talend.designer.tutorials.TutorialsPlugin
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ui,
@@ -10,7 +11,6 @@ Require-Bundle: org.eclipse.core.runtime,
  org.apache.commons.collections,
  org.apache.commons.logging,
  org.apache.commons.commons-beanutils,
- org.apache.commons.io,
  org.apache.commons.lang,
  org.apache.commons.httpclient,
  org.talend.commons.ui,
