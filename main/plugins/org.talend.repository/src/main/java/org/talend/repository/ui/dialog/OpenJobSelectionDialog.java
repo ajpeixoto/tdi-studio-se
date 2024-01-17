@@ -36,6 +36,10 @@ public class OpenJobSelectionDialog extends RepositoryReviewDialog {
         super(parentShell, repObjectTypes, null, true);
     }
 
+    public OpenJobSelectionDialog(Shell parentShell, List<ERepositoryObjectType> repObjectTypes, String processId) {
+        super(parentShell, repObjectTypes, processId, true);
+    }
+
     /*
      * (non-Javadoc)
      *
