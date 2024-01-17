@@ -5,22 +5,17 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public class FileReadIOCount {
 
-    //we use this for this pattern:
-    //create fileinputstream and read it at once
-    //can't fix this pattern: create fileinputstream A, and create another fileinputstream B, and read A and read B, but is ok, as we only use this filter for some jvm inside usage, that should match the first pattern
-    private static final ThreadLocal<Boolean> threadLocal = new ThreadLocal() {
-        @Override
-        protected Boolean initialValue() {
-            return Boolean.TRUE;
-        }
-    };
-
     public static void start(File file, String path) {
-        threadLocal.set(Boolean.TRUE);
         if (path != null) {
-            if (path.equals("/dev/urandom")) {
-                threadLocal.set(Boolean.FALSE);
-            } else if (path.endsWith(".class") || path.endsWith("/conf/security/java.security") || path.endsWith("/lib/tzdb.dat") || path.endsWith("/log4j2.xml") || path.endsWith("/conf/logging.properties") || path.endsWith("/conf/net.properties") || path.endsWith("/templates/jobInfo_template.properties") || path.endsWith("/contexts/Default.properties")) {
+            String[] notCountFile = {".class", "/conf/security/java.security", "/lib/security/cacerts", "/lib/tzdb.dat", "/log4j2.xml", "/conf/logging.properties", "/conf/net.properties", "/templates/jobInfo_template.properties", "/contexts/Default.properties"};
+            boolean notCount = false;
+            for (int i = 0; i < notCountFile.length; i++) {
+                if (path.endsWith(notCountFile[i])) {
+                    notCount = true;
+                    break;
+                }
+            }
+            if (notCount) {
                 count.getAndAdd(0 - file.length());
             }
         }
@@ -28,15 +23,19 @@ public class FileReadIOCount {
 
     private static AtomicLong count = new AtomicLong(0l);
 
-    public static void add(int val) {
-        if(val > 0) {
-            if (threadLocal.get()) count.getAndAdd(val);
+    public static void add(String path, int val) {
+        if (val > 0) {
+            if(path !=null && !(path.endsWith("/dev/urandom") || path.endsWith("/dev/random"))) {
+                count.getAndAdd(val);
+            }
         }
     }
 
-    public static void add(long val) {
-        if(val > 0) {
-            if (threadLocal.get()) count.getAndAdd(val);
+    public static void add(String path, long val) {
+        if (val > 0) {
+            if(path !=null && !(path.endsWith("/dev/urandom") || path.endsWith("/dev/random"))) {
+                count.getAndAdd(val);
+            }
         }
     }
 

@@ -6,11 +6,11 @@ public class NetworkReadIOCount {
     private static AtomicLong count = new AtomicLong(0l);
 
     public static void add(int val) {
-        count.addAndGet(val);
+        count.getAndAdd(val);
     }
 
     public static void add(long val) {
-        count.addAndGet(val);
+        count.getAndAdd(val);
     }
 
     public static AtomicLong get() {

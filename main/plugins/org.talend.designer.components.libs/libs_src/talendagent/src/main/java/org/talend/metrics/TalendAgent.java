@@ -50,13 +50,13 @@ public class TalendAgent {
                         constructor.insertAfter("org.talend.metrics.FileReadIOCount.start($1, path);");
 
                         CtMethod m1 = ctClass.getDeclaredMethod("read", new CtClass[]{cp.get("byte[]"), CtClass.intType, CtClass.intType});
-                        m1.insertAfter( "org.talend.metrics.FileReadIOCount.add( $_ );");
+                        m1.insertAfter( "org.talend.metrics.FileReadIOCount.add(path, $_);");
 
                         CtMethod m2 = ctClass.getDeclaredMethod("read");
-                        m2.insertAfter( "org.talend.metrics.FileReadIOCount.add( $_ );");
+                        m2.insertAfter( "org.talend.metrics.FileReadIOCount.add(path, $_);");
 
                         CtMethod m3 = ctClass.getDeclaredMethod("read", new CtClass[]{cp.get("byte[]")});
-                        m3.insertAfter( "org.talend.metrics.FileReadIOCount.add( $_ );");
+                        m3.insertAfter( "org.talend.metrics.FileReadIOCount.add(path, $_);");
 
                         byte[] byteCode = ctClass.toBytecode();
                         ctClass.detach();
