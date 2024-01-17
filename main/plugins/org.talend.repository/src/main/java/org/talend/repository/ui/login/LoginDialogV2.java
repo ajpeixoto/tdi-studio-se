@@ -55,7 +55,6 @@ import org.talend.core.service.ICloudSignOnService;
 import org.talend.core.ui.branding.IBrandingConfiguration;
 import org.talend.core.ui.branding.IBrandingService;
 import org.talend.core.ui.workspace.ChooseWorkspaceData;
-import org.talend.designer.core.IDesignerCoreService;
 import org.talend.registration.license.LicenseManagement;
 import org.talend.repository.i18n.Messages;
 import org.talend.repository.ui.image.ImageUtils;
@@ -74,6 +73,8 @@ public class LoginDialogV2 extends TrayDialog {
     public static final String FONT_TALEND_FOR_LOGIN_UI = "FONT_TALEND_FOR_LOGIN_UI"; //$NON-NLS-1$
 
     public static final String COLOR_LOGON_DIALOG_BACKGROUND = "COLOR_LOGON_DIALOG_BACKGROUND"; //$NON-NLS-1$
+
+    public static final String COLOR_LOGON_DIALOG_BTN_BACKGROUND = "COLOR_LOGON_DIALOG_BTN_BACKGROUND";//$NON-NLS-1$
 
     public static final String FONT_ARIAL = "Arial"; //$NON-NLS-1$
 
@@ -119,6 +120,8 @@ public class LoginDialogV2 extends TrayDialog {
 
     protected Color backgroundColor;
 
+    protected Color btnBackgroundColor;
+
     protected Composite brandingArea;
 
     protected Composite errorMessageArea;
@@ -143,17 +146,15 @@ public class LoginDialogV2 extends TrayDialog {
         perReader = ConnectionUserPerReader.getInstance();
         setHelpAvailable(false);
 
+
         ColorRegistry colorRegistry = JFaceResources.getColorRegistry();
         backgroundColor = colorRegistry.get(COLOR_LOGON_DIALOG_BACKGROUND);
-        if (backgroundColor == null) {
+        btnBackgroundColor = colorRegistry.get(COLOR_LOGON_DIALOG_BTN_BACKGROUND);
+        if (backgroundColor == null || btnBackgroundColor == null) {
             backgroundColor = ColorConstants.white;
-            IDesignerCoreService service = (IDesignerCoreService) GlobalServiceRegister.getDefault()
-                    .getService(IDesignerCoreService.class);
-            if (service != null && service.isDarkModeTheme()) {
-                    backgroundColor = ColorConstants.darkGray;
-            }
-            // backgroundColor = new Color(null, 215, 215, 215);
+            btnBackgroundColor = ColorConstants.darkGray;
             colorRegistry.put(COLOR_LOGON_DIALOG_BACKGROUND, backgroundColor.getRGB());
+            colorRegistry.put(COLOR_LOGON_DIALOG_BTN_BACKGROUND, btnBackgroundColor.getRGB());
         }
     }
 
