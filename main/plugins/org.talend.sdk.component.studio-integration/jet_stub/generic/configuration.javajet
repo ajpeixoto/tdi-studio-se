@@ -198,7 +198,7 @@ globalMap.put("<%=cid %>_MAPPINGS_URL", mappings_url_<%=cid %>);
                                 }
                                 if (meta.equals("comment")){
                                 %>
-                                configuration_<%=cid%>.put("<%=parameterName%>[<%=i%>].comment", "<%=org.talend.core.model.utils.TalendTextUtils.removeQuotes(column.getComment())%>");
+                                configuration_<%=cid%>.put("<%=parameterName%>[<%=i%>].comment", "<%=org.talend.core.model.utils.TalendTextUtils.escapeJavaText(org.talend.core.model.utils.TalendTextUtils.removeQuotes(column.getComment()))%>");
                                 <%
                                 }
                             }
