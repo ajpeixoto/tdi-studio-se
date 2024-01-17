@@ -74,6 +74,7 @@ if(inputSchema != null && inputSchema.size() > 0 && outputSchema != null && outp
         java.sql.Connection connection_<%=cid%> = (java.sql.Connection) globalMap.get("<%=connectionName%>");
         <%        
     } else {
+        %>
     	java.lang.Class.forName("com.vertica.jdbc.Driver");
         dbschema_<%=cid%> = <%=dbschema%>;
         
