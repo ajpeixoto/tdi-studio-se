@@ -647,6 +647,7 @@ public class LoginProjectPage extends AbstractLoginActionPage {
         if (brandingService.isPoweredbyTalend()) {
             switchLoginTypeButton =  new Button(connectionManageArea, SWT.NONE);
             switchLoginTypeButton.setFont(LoginDialogV2.fixedFont);
+            switchLoginTypeButton.setForeground(backgroundBtnColor);
             switchLoginTypeButton.setBackground(backgroundRadioColor);
             switchLoginTypeButton.setText(Messages.getString("LoginProjectPage.switchLoginTypeButton"));  
         }
@@ -692,6 +693,7 @@ public class LoginProjectPage extends AbstractLoginActionPage {
         executeCreateNewProject.setFont(LoginDialogV2.fixedFont);
         executeCreateNewProject.setText(Messages.getString("LoginProjectPage.create")); //$NON-NLS-1$
         executeCreateNewProject.setForeground(backgroundBtnColor);
+        executeCreateNewProject.setBackground(backgroundRadioColor);
         // Import Demo Project
         importDemoProject = new Button(projectOperationArea, SWT.RADIO);
         importDemoProject.setFont(LoginDialogV2.fixedFont);
@@ -702,6 +704,7 @@ public class LoginProjectPage extends AbstractLoginActionPage {
         executeImportDemoProject.setFont(LoginDialogV2.fixedFont);
         // executeImportDemoProject.setImage(openImage);
         executeImportDemoProject.setText(execute);
+        executeImportDemoProject.setForeground(backgroundBtnColor);
         executeImportDemoProject.setBackground(backgroundRadioColor);
         // Import Local Project
         importLocalProject = new Button(projectOperationArea, SWT.RADIO);
@@ -712,6 +715,7 @@ public class LoginProjectPage extends AbstractLoginActionPage {
         executeImportLocalProject.setFont(LoginDialogV2.fixedFont);
         // executeImportLocalProject.setImage(openImage);
         executeImportLocalProject.setText(execute);
+        executeImportLocalProject.setForeground(backgroundBtnColor);
         executeImportLocalProject.setBackground(backgroundRadioColor);
         // Create SandBox Project
         createSandBoxProject = new Button(projectOperationArea, SWT.RADIO);
@@ -722,6 +726,7 @@ public class LoginProjectPage extends AbstractLoginActionPage {
         executeCreateSandBoxProject.setFont(LoginDialogV2.fixedFont);
         // executeCreateSandBoxProject.setImage(openImage);
         executeCreateSandBoxProject.setText(execute);
+        executeCreateSandBoxProject.setForeground(backgroundBtnColor);
         executeCreateSandBoxProject.setBackground(backgroundRadioColor);
 
         super.instantiateControl(container);

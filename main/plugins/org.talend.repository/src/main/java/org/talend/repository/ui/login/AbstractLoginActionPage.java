@@ -139,10 +139,12 @@ public abstract class AbstractLoginActionPage extends AbstractActionPage {
         previousButton = new Button(navigateArea, SWT.NONE);
         previousButton.setFont(LoginDialogV2.fixedFont);
         previousButton.setForeground(backgroundBtnColor);
+        previousButton.setBackground(backgroundRadioColor);
         previousButton.setText(Messages.getString("LoginProjectPage.previous")); //$NON-NLS-1$
         finishButton = new Button(navigateArea, SWT.NONE);
         finishButton.setFont(LoginDialogV2.fixedFont);
         finishButton.setForeground(backgroundBtnColor);
+        finishButton.setBackground(backgroundRadioColor);
         finishButton.setText(Messages.getString("LoginProjectPage.finish")); //$NON-NLS-1$
     }
 
