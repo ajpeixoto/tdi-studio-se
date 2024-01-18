@@ -25,5 +25,6 @@ Require-Bundle: org.eclipse.ui,
  org.talend.repository.view.di,
  org.talend.repository.view,
  org.talend.designer.core.generic,
- org.talend.libraries.bigquery
+ org.talend.libraries.bigquery,
+ org.eclipse.core.resources
 Bundle-ActivationPolicy: lazy
