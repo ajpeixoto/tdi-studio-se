@@ -2217,14 +2217,20 @@ public class LoginProjectPage extends AbstractLoginActionPage {
             if (workspaceDir.listFiles().length == 1 && workspaceDir.listFiles()[0].isDirectory() && StringUtils.equals(workspaceDir.listFiles()[0].getName(), METADATA_FOLDER)) {
                 needUpdate = true;
             } else {
+                boolean foundGitRepo = false;
                 for (File f : workspaceDir.listFiles()) {
                     if (f.isDirectory() && StringUtils.equals(GIT_REPOSITORIES_FOLDER, f.getName())) {
+                        foundGitRepo = true;
                         if (f.listFiles().length < 2) {
                             // only one must be temp, no old repos were cloned
                             needUpdate = true;
                             break;
                         }
                     }
+                }
+                // no git repositories yet
+                if (!foundGitRepo) {
+                    needUpdate = true;
                 }
             }
         }
