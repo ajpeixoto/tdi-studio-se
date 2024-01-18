@@ -1616,7 +1616,7 @@ public class JavaJobScriptsExportWSWizardPage extends JavaJobScriptsExportWizard
 
     @Override
     protected void updateOptionBySelection() {
-        if (exportTypeCombo.getText().equals(JobExportType.MSESB_IMAGE.label)) {
+        if (exportTypeCombo.getText().equals(JobExportType.MSESB_IMAGE.label) || exportTypeCombo.getText().equals(JobExportType.IMAGE.label)) {
             RepositoryNode[] selectedNodes = treeViewer.getCheckNodes();
             if (selectedNodes.length > 1) {
                 if (imageText != null) {
