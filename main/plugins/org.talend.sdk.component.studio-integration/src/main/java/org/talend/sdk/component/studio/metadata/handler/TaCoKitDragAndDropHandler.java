@@ -136,6 +136,8 @@ public class TaCoKitDragAndDropHandler extends AbstractDragAndDropServiceHandler
         } else if (EParameterFieldType.TABLE.equals(fieldType)
                 || EParameterFieldType.TACOKIT_SUGGESTABLE_TABLE.equals(fieldType)) {
             return model.convertParameterValue(repositoryKey, key, valueModel.getValue());
+        } else if (TaCoKitConst.TYPE_BOOLEAN.equalsIgnoreCase(valueModel.getType())) {
+            return Boolean.parseBoolean(valueModel.getValue());
         } else {
             return valueModel.getValue();
         }

@@ -63,6 +63,7 @@ import org.talend.designer.runprocess.ItemCacheManager;
 import org.talend.designer.runprocess.ProcessorUtilities;
 import org.talend.repository.ProjectManager;
 import org.talend.repository.model.RepositoryNode;
+import org.talend.repository.ui.dialog.OpenJobSelectionDialog;
 import org.talend.repository.ui.dialog.RepositoryReviewDialog;
 import org.talend.repository.ui.dialog.UseDynamicJobSelectionDialog;
 
@@ -181,7 +182,7 @@ public class ProcessController extends AbstractElementPropertySectionController 
             }
         }
         Control lastControlUsed = btn;
-        IBrandingService brandingService = (IBrandingService) GlobalServiceRegister.getDefault().getService(
+        IBrandingService brandingService = GlobalServiceRegister.getDefault().getService(
                 IBrandingService.class);
         boolean allowVerchange = brandingService.getBrandingConfiguration().isAllowChengeVersion();
         if (allowVerchange) {
@@ -485,7 +486,7 @@ public class ProcessController extends AbstractElementPropertySectionController 
             repObjectTypes.add(ERepositoryObjectType.PROCESS);
             repObjectTypes.add(ERepositoryObjectType.PROCESS_STORM);
             repObjectTypes.add(ERepositoryObjectType.PROCESS_MR);
-            RepositoryReviewDialog dialog = new RepositoryReviewDialog((button).getShell(), repObjectTypes, procssId);
+            OpenJobSelectionDialog dialog = new OpenJobSelectionDialog((button).getShell(), repObjectTypes, procssId);
 
             // see feature 0003664: tRunJob: When opening the tree dialog to select the job target, it could be useful
             // to
