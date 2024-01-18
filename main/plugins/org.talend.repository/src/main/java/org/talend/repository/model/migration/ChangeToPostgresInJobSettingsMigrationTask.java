@@ -93,7 +93,7 @@ public class ChangeToPostgresInJobSettingsMigrationTask extends AbstractJobMigra
     @Override
     public ExecutionResult execute(Item item) {
         ProcessType processType = getProcessType(item);
-        if (processType.getParameters() != null) {
+        if (processType != null && processType.getParameters() != null) {
             @SuppressWarnings("rawtypes")
             EList elementParameter = processType.getParameters().getElementParameter();
             boolean modified = false;
