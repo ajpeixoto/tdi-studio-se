@@ -844,12 +844,12 @@ public class JobJavaScriptsManager extends JobScriptsManager {
 
             // project file
             checkAndAddProjectResource(allResources, resource, JOB_ITEMS_FOLDER_NAME + PATH_SEPARATOR + projectName,
-                    FileLocator.toFileURL(projectFilePath.toFile().toURL()));
+                    FileLocator.resolve(projectFilePath.toFile().toURL()));
 
             List<URL> emfFileUrls = new ArrayList<URL>();
-            emfFileUrls.add(FileLocator.toFileURL(itemFilePath.toFile().toURL()));
-            emfFileUrls.add(FileLocator.toFileURL(propertiesFilePath.toFile().toURL()));
-            emfFileUrls.add(FileLocator.toFileURL(screenshotFilePath.toFile().toURL()));
+            emfFileUrls.add(FileLocator.resolve(itemFilePath.toFile().toURL()));
+            emfFileUrls.add(FileLocator.resolve(propertiesFilePath.toFile().toURL()));
+            emfFileUrls.add(FileLocator.resolve(screenshotFilePath.toFile().toURL()));
 
             ERepositoryObjectType itemType = ERepositoryObjectType.getItemType(processItem);
             IPath typeFolderPath = new Path(ERepositoryObjectType.getFolderName(itemType));
@@ -937,7 +937,7 @@ public class JobJavaScriptsManager extends JobScriptsManager {
             File file = path.toFile();
             if (file.exists() && file.isDirectory()) {
                 for (File curFile : file.listFiles(filter)) {
-                    javaFileUrls.add(FileLocator.toFileURL(curFile.toURL()));
+                    javaFileUrls.add(FileLocator.resolve(curFile.toURL()));
                 }
             }
 
@@ -1106,7 +1106,7 @@ public class JobJavaScriptsManager extends JobScriptsManager {
                     }
                     if (log4jFile.exists()) {
                         List<URL> log4jFileUrls = new ArrayList<URL>();
-                        log4jFileUrls.add(FileLocator.toFileURL(log4jFile.getLocationURI().toURL()));
+                        log4jFileUrls.add(FileLocator.resolve(log4jFile.getLocationURI().toURL()));
                         resource.addResources(PATH_SEPARATOR, log4jFileUrls);
                     }
                 }
@@ -1323,7 +1323,7 @@ public class JobJavaScriptsManager extends JobScriptsManager {
                         log4jFile = resourcesFolder.getFile(Log4jPrefsConstants.LOG4J_FILE_NAME);
                     }
                     if (log4jFile.exists()) {
-                        list.add(FileLocator.toFileURL(log4jFile.getLocationURI().toURL()));
+                        list.add(FileLocator.resolve(log4jFile.getLocationURI().toURL()));
                     }
                 }
             } catch (MalformedURLException e) {

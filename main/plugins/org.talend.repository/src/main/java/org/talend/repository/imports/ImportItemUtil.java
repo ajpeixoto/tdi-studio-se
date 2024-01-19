@@ -824,7 +824,7 @@ public class ImportItemUtil {
                             URI propertyResourceURI = EcoreUtil.getURI(((ConnectionItem) tmpItem).getProperty());
                             URI relativePlateformDestUri = propertyResourceURI.trimFileExtension().appendFileExtension(
                                     FileConstants.ITEM_EXTENSION);
-                            URL fileURL = FileLocator.toFileURL(new java.net.URL(
+                            URL fileURL = FileLocator.resolve(new java.net.URL(
                                     "platform:/resource" + relativePlateformDestUri.toPlatformString(true))); //$NON-NLS-1$
                             OutputStream os = new FileOutputStream(fileURL.getFile());
                             try {
@@ -944,7 +944,7 @@ public class ImportItemUtil {
             URI propertyResourceURI = EcoreUtil.getURI(itemRecord.getItem().getProperty());
             URI relativePlateformDestUri = propertyResourceURI.trimFileExtension().appendFileExtension(
                     FileConstants.SCREENSHOT_EXTENSION);
-            URL fileURL = FileLocator.toFileURL(new java.net.URL(
+            URL fileURL = FileLocator.resolve(new java.net.URL(
                     "platform:/resource" + relativePlateformDestUri.toPlatformString(true))); //$NON-NLS-1$
             // for migration task ,there is not .screeenshot file in preceding version - begin
             boolean hasScreenshotFile = false;
@@ -987,7 +987,7 @@ public class ImportItemUtil {
             haveRef = true;
             URI relativePlateformDestUri = propertyResourceURI.trimFileExtension().appendFileExtension(refItem.getExtension());
             try {
-                URL fileURL = FileLocator.toFileURL(new java.net.URL(
+                URL fileURL = FileLocator.resolve(new java.net.URL(
                         "platform:/resource" + relativePlateformDestUri.toPlatformString(true))); //$NON-NLS-1$
                 os = new FileOutputStream(fileURL.getFile());
                 is = manager.getStream(pathToRead.removeFileExtension().addFileExtension(refItem.getExtension()));
