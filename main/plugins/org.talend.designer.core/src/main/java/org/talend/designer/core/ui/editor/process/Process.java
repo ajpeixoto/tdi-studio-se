@@ -20,6 +20,8 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -961,19 +963,34 @@ public class Process extends Element implements IProcess2, IGEFProcess, ILastVer
                 }
             }
 
+            Map<List<INode>, Integer> relatedIndexMap = new HashMap<List<INode>, Integer>();
             for (List<INode> ns : notMainStart) {
-
+                int index = -1;
                 for (INode node : ns) {
-                    if (branch.contains(node)) {
-                        for (INode nodeadd : ns) {
-                            if (!res.contains(nodeadd)) {
-                                res.add(nodeadd);
-                            }
-                            break;
-                        }
+                    int indexOf = branch.indexOf(node);
+                    if (indexOf >= 0) {
+                        index = indexOf;
+                        break;
                     }
                 }
+                if (index != -1) {
+                    relatedIndexMap.put(ns, index);
+                }
+            }
+            List<List<INode>> relatedNotMainStart = new ArrayList<List<INode>>(relatedIndexMap.keySet());
+            Collections.sort(relatedNotMainStart, new Comparator<List<INode>>() {
 
+                @Override
+                public int compare(List<INode> o1, List<INode> o2) {
+                    return relatedIndexMap.get(o1) - relatedIndexMap.get(o2);
+                }
+            });
+            for (List<INode> relatedFlow : relatedNotMainStart) {
+                for (INode nodeAdd : relatedFlow) {
+                    if (!res.contains(nodeAdd)) {
+                        res.add(nodeAdd);
+                    }
+                }
             }
         }
         return res;
