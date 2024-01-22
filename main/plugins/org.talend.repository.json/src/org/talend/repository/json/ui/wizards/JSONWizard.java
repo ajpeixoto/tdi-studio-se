@@ -45,7 +45,6 @@ import org.eclipse.ui.PlatformUI;
 import org.talend.commons.exception.LoginException;
 import org.talend.commons.exception.PersistenceException;
 import org.talend.commons.ui.runtime.exception.ExceptionHandler;
-import org.talend.commons.ui.runtime.image.ImageProvider;
 import org.talend.commons.utils.VersionUtils;
 import org.talend.core.GlobalServiceRegister;
 import org.talend.core.context.Context;
@@ -65,7 +64,6 @@ import org.talend.core.model.properties.ConnectionItem;
 import org.talend.core.model.properties.PropertiesFactory;
 import org.talend.core.model.properties.Property;
 import org.talend.core.model.update.RepositoryUpdateManager;
-import org.talend.core.model.utils.ContextParameterUtils;
 import org.talend.core.repository.model.ProxyRepositoryFactory;
 import org.talend.core.runtime.CoreRuntimePlugin;
 import org.talend.core.ui.preference.metadata.MetadataTypeLengthConstants;
@@ -87,7 +85,6 @@ import org.talend.repository.RepositoryWorkUnit;
 import org.talend.repository.json.node.JSONRepositoryNodeType;
 import org.talend.repository.json.ui.shadow.JSONShadowProcessHelper;
 import org.talend.repository.json.util.JSONConnectionContextUtils;
-import org.talend.repository.json.util.JSONImage;
 import org.talend.repository.json.util.JSONUtil;
 import org.talend.repository.model.IProxyRepositoryFactory;
 import org.talend.repository.model.RepositoryNode;
@@ -178,7 +175,6 @@ public class JSONWizard extends CheckLastVersionRepositoryWizard implements INew
         this.selection = selection;
         this.existingNames = existingNames;
         setNeedsProgressMonitor(true);
-        // setDefaultPageImageDescriptor(ImageProvider.getImageDesc(EImage.METADATA_FILE_json_WIZ));
 
         Object obj = ((IStructuredSelection) selection).getFirstElement();
         RepositoryNode node = (RepositoryNode) obj;
@@ -250,7 +246,6 @@ public class JSONWizard extends CheckLastVersionRepositoryWizard implements INew
         this.selection = selection;
         this.existingNames = existingNames;
         setNeedsProgressMonitor(true);
-        // setDefaultPageImageDescriptor(ImageProvider.getImageDesc(EImage.METADATA_FILE_json_WIZ));
         switch (node.getType()) {
         case SIMPLE_FOLDER:
         case REPOSITORY_ELEMENT:
@@ -327,7 +322,6 @@ public class JSONWizard extends CheckLastVersionRepositoryWizard implements INew
 
         jsonFileSelectPage = new JSONFileSelectWizardPage(creation, connectionItem, isRepositoryObjectEditable(), existingNames);
 
-        setDefaultPageImageDescriptor(ImageProvider.getImageDesc(JSONImage.JSON_ICON32));
         if (connection != null) {
             List schemas = connection.getSchema();
             if (!schemas.isEmpty()) {

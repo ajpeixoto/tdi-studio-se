@@ -23,13 +23,12 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.internal.WorkbenchPlugin;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
-import org.talend.core.prefs.IDEWorkbenchPlugin;
 import org.talend.repository.i18n.Messages;
 
 /**
  * This is a wizard for generating job information as HTML file.
  *
- * $Id: GenerateDocAsHTMLWizard.java 2007-3-7,下午02:26:29 ftang $
+ * $Id: GenerateDocAsHTMLWizard.java 2007-3-7,ä¸‹å�ˆ02:26:29 ftang $
  *
  */
 public class GenerateDocAsHTMLWizard extends Wizard implements IExportWizard {
@@ -72,8 +71,7 @@ public class GenerateDocAsHTMLWizard extends Wizard implements IExportWizard {
 
         setWindowTitle(Messages.getString("GenerateDocAsHTMLWizard.GenerateDocumentation")); //$NON-NLS-1$
         //        setDefaultPageImageDescriptor(IDEWorkbenchPlugin.getIDEImageDescriptor("wizban/exportzip_wiz.png"));//$NON-NLS-1$
-        setDefaultPageImageDescriptor(AbstractUIPlugin.imageDescriptorFromPlugin(IDEWorkbenchPlugin.IDE_WORKBENCH,
-                "$nl$/icons/full/wizban/exportzip_wiz.png"));//$NON-NLS-1$
+
         setNeedsProgressMonitor(true);
     }
 

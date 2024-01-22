@@ -21,8 +21,6 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.wizard.Wizard;
 import org.talend.commons.exception.ExceptionHandler;
-import org.talend.commons.ui.runtime.image.ECoreImage;
-import org.talend.commons.ui.runtime.image.ImageProvider;
 import org.talend.commons.utils.VersionUtils;
 import org.talend.commons.utils.workbench.resources.ResourceUtils;
 import org.talend.core.CorePlugin;
@@ -72,8 +70,6 @@ public class NewRoutinesJarWizard extends Wizard {
         mainPage = new NewRoutinesJarWizardPage(property, path);
         addPage(mainPage);
         setWindowTitle(Messages.getString("NewRoutinesJarWizard.title")); //$NON-NLS-1$
-        // TODO find a new icon?
-        setDefaultPageImageDescriptor(ImageProvider.getImageDesc(ECoreImage.ROUTINE_WIZ));
     }
 
     @Override

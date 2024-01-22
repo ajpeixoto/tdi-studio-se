@@ -19,7 +19,6 @@ import org.talend.core.model.process.IContext;
 import org.talend.core.model.process.IContextManager;
 import org.talend.core.model.process.IContextParameter;
 import org.talend.core.ui.context.view.Contexts;
-import org.talend.designer.core.DesignerPlugin;
 import org.talend.designer.core.i18n.Messages;
 
 /**
@@ -48,7 +47,6 @@ public class ContextParameterWizard extends Wizard {
         this.parameter = parameter;
 
         setWindowTitle(Messages.getString("ContextParameterWizard.title")); //$NON-NLS-1$
-        setDefaultPageImageDescriptor(DesignerPlugin.getImageDescriptor("icons/ctxprm_wiz.png")); //$NON-NLS-1$
         setNeedsProgressMonitor(false);
     }
 

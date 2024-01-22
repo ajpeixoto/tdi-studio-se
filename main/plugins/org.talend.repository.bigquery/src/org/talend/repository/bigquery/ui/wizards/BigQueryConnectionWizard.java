@@ -158,7 +158,6 @@ public class BigQueryConnectionWizard extends CheckLastVersionRepositoryWizard i
     @Override
     public void addPages() {
         setWindowTitle(Messages.getString("BigQueryWizard.windowTitle"));
-        setDefaultPageImageDescriptor(ImageProvider.getImageDesc(ECoreImage.METADATA_CONNECTION_WIZ));
         if (isToolBar) {
             pathToSave = null;
         }

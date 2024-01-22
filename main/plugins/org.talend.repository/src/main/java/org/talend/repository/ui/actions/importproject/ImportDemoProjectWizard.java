@@ -18,8 +18,6 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.ui.IImportWizard;
 import org.eclipse.ui.IWorkbench;
-import org.eclipse.ui.plugin.AbstractUIPlugin;
-import org.talend.core.prefs.IDEWorkbenchPlugin;
 
 /**
  * DOC Administrator class global comment. Detailled comment <br/>
@@ -44,8 +42,6 @@ public class ImportDemoProjectWizard extends Wizard implements IImportWizard {
     public void init(IWorkbench workbench, IStructuredSelection selection) {
 
         //        setDefaultPageImageDescriptor(IDEWorkbenchPlugin.getIDEImageDescriptor("wizban/exportzip_wiz.png"));//$NON-NLS-1$
-        setDefaultPageImageDescriptor(AbstractUIPlugin.imageDescriptorFromPlugin(IDEWorkbenchPlugin.IDE_WORKBENCH,
-                "$nl$/icons/full/wizban/exportzip_wiz.png")); //$NON-NLS-1$
         setNeedsProgressMonitor(true);
     }
 

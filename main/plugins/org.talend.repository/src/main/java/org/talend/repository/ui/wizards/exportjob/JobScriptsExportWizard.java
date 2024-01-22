@@ -27,14 +27,13 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.talend.core.CorePlugin;
 import org.talend.core.context.Context;
 import org.talend.core.context.RepositoryContext;
-import org.talend.core.prefs.IDEWorkbenchPlugin;
 import org.talend.designer.runprocess.ProcessorUtilities;
 import org.talend.repository.i18n.Messages;
 
 /**
  * Job scripts export wizard. <br/>
  *
- * $Id: JobScriptsExportWizard.java 1 2006-12-13 下午03:13:18 bqian
+ * $Id: JobScriptsExportWizard.java 1 2006-12-13 ä¸‹å�ˆ03:13:18 bqian
  *
  */
 public class JobScriptsExportWizard extends Wizard implements IExportWizard {
@@ -112,8 +111,7 @@ public class JobScriptsExportWizard extends Wizard implements IExportWizard {
     protected void populateUIMessage() {
         setWindowTitle(Messages.getString("JobScriptsExportWizard.buildJob")); //$NON-NLS-1$
         //        setDefaultPageImageDescriptor(IDEWorkbenchPlugin.getIDEImageDescriptor("wizban/exportzip_wiz.png"));//$NON-NLS-1$
-        setDefaultPageImageDescriptor(AbstractUIPlugin.imageDescriptorFromPlugin(IDEWorkbenchPlugin.IDE_WORKBENCH,
-                "$nl$/icons/full/wizban/exportzip_wiz.png")); //$NON-NLS-1$
+
         setNeedsProgressMonitor(true);
     }
 

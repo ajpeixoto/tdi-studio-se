@@ -28,7 +28,6 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
-import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.IWizardContainer;
 import org.eclipse.jface.wizard.IWizardPage;
@@ -58,7 +57,6 @@ import org.talend.core.runtime.services.IGenericDBService;
 import org.talend.core.runtime.services.IGenericWizardInternalService;
 import org.talend.core.runtime.services.IGenericWizardService;
 import org.talend.daikon.properties.presentation.Form;
-import org.talend.designer.core.IDesignerCoreService;
 import org.talend.designer.core.generic.constants.IGenericConstants;
 import org.talend.metadata.managment.ui.utils.ConnectionContextHelper;
 import org.talend.metadata.managment.ui.wizard.CheckLastVersionRepositoryWizard;
@@ -203,7 +201,6 @@ public class GenericConnWizard extends CheckLastVersionRepositoryWizard {
         }
         setWindowTitle(wizardDefinition.getDisplayName());
         Image wiardImage = wizardService.getWiardImage(repObjType.getType());
-        setDefaultPageImageDescriptor(ImageDescriptor.createFromImage(wiardImage));
         connectionItem.setTypeName(repObjType.getType());
 
         List<Form> forms = wizard.getForms();
