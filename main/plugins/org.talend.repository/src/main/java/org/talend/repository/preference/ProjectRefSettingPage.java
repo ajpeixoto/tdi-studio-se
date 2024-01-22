@@ -81,6 +81,7 @@ import org.talend.core.runtime.CoreRuntimePlugin;
 import org.talend.core.runtime.projectsetting.IProjectSettingPreferenceConstants;
 import org.talend.core.runtime.projectsetting.ProjectPreferenceManager;
 import org.talend.core.services.IGITProviderService;
+import org.talend.designer.maven.tools.CodeM2CacheManager;
 import org.talend.repository.ProjectManager;
 import org.talend.repository.ReferenceProjectProblemManager;
 import org.talend.repository.ReferenceProjectProvider;
@@ -838,9 +839,13 @@ public class ProjectRefSettingPage extends ProjectSettingPage {
         if (isRollback) {
             ReferenceProjectProvider.removeAllTempReferenceList();
         } else {
+            Project project = ProjectManager.getInstance().getCurrentProject();
             List<ProjectReference> newReferenceSetting = convertToProjectReference(viewerInput);
-            ReferenceProjectProvider.setTempReferenceList(ProjectManager.getInstance().getCurrentProject().getTechnicalLabel(),
-                    newReferenceSetting);
+            ReferenceProjectProvider.setTempReferenceList(project.getTechnicalLabel(), newReferenceSetting);
+            // reset to force to read reference projects from temp during relogin
+            project.getReferenceProjectProvider().resetReferenceProjectList();
+            // force to clean m2 code cache since routines from ref might be changed while add/deleting ref projects
+            CodeM2CacheManager.updateAllCacheStatus(false);
         }
         monitor.subTask(Messages.getString("RepoReferenceProjectSetupAction.TaskLogon", switchProject.getLabel())); //$NON-NLS-1$
         try {
