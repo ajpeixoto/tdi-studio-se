@@ -211,7 +211,7 @@ for(int i = 0; i &lt; result.length; i++){
 	<CODEGENERATION>
 		<IMPORTS>
 			<!-- axis1 api support -->
-			<IMPORT NAME="WebServiceInput" MODULE="talend-webservice-input-1.0.2.jar" MVN="mvn:org.talend.libraries/talend-webservice-input-1.0.2/6.0.0"
+			<IMPORT NAME="WebServiceInput" MODULE="talend-webservice-input-1.0.2.jar" MVN="mvn:org.talend.components.lib/talend-webservice-input/1.0.2"
 				REQUIRED_IF="(API=='AXIS')" />
 			<IMPORT NAME="SOAP-axis" MODULE="axis-1.4.jar" MVN="mvn:org.apache.axis/axis/1.4" REQUIRED_IF="(API=='AXIS')"/>
 			<IMPORT NAME="SOAP-jaxrpc" MODULE="axis-jaxrpc-1.4.jar" MVN="mvn:org.apache.axis/axis-jaxrpc/1.4"  UrlPath="platform:/plugin/org.talend.libraries.jax/lib/jaxrpc.jar"
@@ -388,13 +388,13 @@ for(int i = 0; i &lt; result.length; i++){
 			<IMPORT
 				NAME="jaxb-xjc"
 				MODULE="jaxb-xjc-2.2.6-modified.jar"
-				MVN="mvn:org.talend.libraries/jaxb-xjc-2.2.6-modified/6.0.0"
+				MVN="mvn:com.sun.xml.bind/jaxb-xjc/2.2.6-modified"
 				REQUIRED_IF="(API=='CXF')"
 			/>
 			<IMPORT
 				NAME="jaxb-impl"
 				MODULE="jaxb-impl-2.2.6-modified.jar"
-				MVN="mvn:org.talend.libraries/jaxb-impl-2.2.6-modified/6.0.0"
+				MVN="mvn:com.sun.xml.bind/jaxb-impl/2.2.6-modified"
 				REQUIRED_IF="(API=='CXF')"
 			/>
 		</IMPORTS>
