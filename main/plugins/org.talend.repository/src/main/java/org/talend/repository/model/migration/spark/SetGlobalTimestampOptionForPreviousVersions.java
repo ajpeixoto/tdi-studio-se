@@ -54,8 +54,7 @@ public class SetGlobalTimestampOptionForPreviousVersions extends AbstractJobMigr
 
 	private static final List<String> IMPACTED_COMPONENTS =
             Arrays.asList("tFileOutputParquet", "tHiveOutput", "tRedshiftOutput", "tSqlRow", "tMatchPairing",
-                    "tMatchPredict", "tMatchModel", "tDataShuffling", "tFileInputParquet", "tHiveInput",
-                    "tDeltaLakeInput", "tDeltaLakeOutput");
+                    "tMatchPredict", "tMatchModel", "tDataShuffling", "tDeltaLakeOutput");
     
     private String TIMESTAMP_OPTION = "USE_TIMESTAMP_FOR_DATASET"; //$NON-NLS-1$
     
