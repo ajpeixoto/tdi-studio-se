@@ -410,7 +410,8 @@ public class LoginWithCloudPage extends AbstractLoginActionPage implements Login
                         + DigestUtil.sha256Hex(token.getAccessToken().getBytes()) + "\t Refresh token SHA256 is:" + DigestUtil.sha256Hex(token.getRefreshToken().getBytes()));
             }
             ConnectionBean conn = saveConnection(token, TMCRepositoryUtil.getCloudAdminURL(dataCenter),
-                    ICloudSignOnService.get().getTokenUser(TMCRepositoryUtil.getCloudAdminURL(dataCenter), token));
+                    ICloudSignOnService.get().getTokenUser(TMCRepositoryUtil.getCloudAdminURL(dataCenter),
+                            token.getAccessToken()));
             TMCRepositoryUtil.saveRecentDataCenter(dataCenter);
             LoginHelper.getInstance().setCurrentSelectedConnBean(conn);
             if (isRefreshToken) {
