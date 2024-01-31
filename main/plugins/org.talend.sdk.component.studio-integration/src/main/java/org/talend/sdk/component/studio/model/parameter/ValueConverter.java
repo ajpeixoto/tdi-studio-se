@@ -16,9 +16,12 @@
 package org.talend.sdk.component.studio.model.parameter;
 
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.regex.Pattern;
 
 /**
@@ -79,6 +82,16 @@ public final class ValueConverter {
         }
         return table;
     }
+    
+    
+    /**
+     * The logic same with TableElementParameter.getStringValue
+     * @param list
+     * @return
+     */
+    public static String toStringValue(List<Map<String, String>> list) {
+        return list.toString();
+    }
 
     /**
      * Checks whether String representation of the list is empty or not
@@ -110,4 +123,79 @@ public final class ValueConverter {
         return CURLY_BRACKETS_PATTERN.matcher(str).replaceAll("");
     }
 
+
+    public static String getMainTableParameterName(String name) {
+        int begin = name.indexOf("[");
+        int end = name.indexOf("]");
+        if (begin > 0 && end > 0 && end > begin) {
+            return name.substring(0, begin);
+        }
+        return name;
+    }
+
+
+    public static int getTableParameterIndex(String name) {
+        int begin = name.indexOf("[");
+        int end = name.indexOf("]");
+        if (begin > 0 && end > 0 && end > begin) {
+            return Integer.parseInt(name.substring(begin + 1, end));
+        }
+        return -1;
+    }
+    
+    public static String getTableParameterNameNoIndex(String name) {
+        int begin = name.indexOf("[");
+        int end = name.indexOf("]");
+        if (begin > 0 && end > 0 && end > begin) {
+            return name.substring(0, begin + 1) + name.substring(end);
+        }
+        return name;
+    }
+    
+    public static String getTableParameterNameWithIndex(int index, String paramName) {
+        if (paramName != null && paramName.indexOf("[") >= 0 && paramName.indexOf("]") > 0) {
+            StringBuffer sb = new StringBuffer();
+            sb.append(paramName.substring(0, paramName.indexOf("[") + 1)).append(index)
+                    .append(paramName.substring(paramName.indexOf("]")));
+            return sb.toString();
+        }
+        return null;
+    }
+    
+    /**
+     *  Get same main name parameters that key sorted by index
+     * @param paramName
+     * @param migratedProperties
+     * @return same main name parameters that key sorted by index
+     */
+    public static Map<String, String> getSameNameTableParameter(String paramName, Map<String, String> migratedProperties) {
+        Map<String, String> properties = new HashMap<String, String>();
+        for (String key : migratedProperties.keySet()) {
+            String name = ValueConverter.getMainTableParameterName(key);
+            if (paramName.equals(name)) {
+                properties.put(key, migratedProperties.get(key));
+            }
+        }
+        Map<String, String> sortedMap = new TreeMap<String, String>(new Comparator<String>() {
+
+            @Override
+            public int compare(String o1, String o2) {
+                int index1 = ValueConverter.getTableParameterIndex(o1);
+                int index2 = ValueConverter.getTableParameterIndex(o2);
+                if (index1 != index2) {
+                    return index1 - index2;
+                }
+                return o1.compareTo(o2);
+            }
+        });
+        sortedMap.putAll(properties);
+        return sortedMap;
+    }
+
+    public static boolean isListParameterValue(String value) {
+        if (value != null && value.trim().startsWith("[") && value.trim().endsWith("]")) {
+            return true;
+        }
+        return false;
+    }
 }

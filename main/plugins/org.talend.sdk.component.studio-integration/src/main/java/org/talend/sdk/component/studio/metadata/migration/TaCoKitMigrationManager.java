@@ -12,9 +12,14 @@
  */
 package org.talend.sdk.component.studio.metadata.migration;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -37,6 +42,7 @@ import org.talend.sdk.component.studio.exception.UserCancelledException;
 import org.talend.sdk.component.studio.i18n.Messages;
 import org.talend.sdk.component.studio.metadata.TaCoKitCache;
 import org.talend.sdk.component.studio.metadata.model.TaCoKitConfigurationModel;
+import org.talend.sdk.component.studio.model.parameter.ValueConverter;
 import org.talend.sdk.component.studio.model.update.TaCoKitUpdateManager;
 import org.talend.sdk.component.studio.util.TaCoKitUtil;
 import org.talend.sdk.component.studio.websocket.WebSocketClient.V1Component;
@@ -47,7 +53,6 @@ import org.talend.sdk.studio.process.TaCoKitNode;
  * DOC cmeng  class global comment. Detailled comment
  */
 public class TaCoKitMigrationManager {
-
     private V1ConfigurationType configurationClient;
 
     private final V1Component componentClient = Lookups.client().v1().component();
@@ -56,7 +61,8 @@ public class TaCoKitMigrationManager {
         configurationClient = Lookups.client().v1().configurationType();
     }
     
-    public void checkProcessItemMigration(final Item item, final String compType, final IProgressMonitor progressMonitor) throws UserCancelledException {
+    public void checkProcessItemMigration(final Item
+            item, final String compType, final IProgressMonitor progressMonitor) throws UserCancelledException {
         IProgressMonitor monitor = progressMonitor;
         if (monitor == null) {
             monitor = new NullProgressMonitor();
@@ -179,11 +185,72 @@ public class TaCoKitMigrationManager {
         final int storedVersion = configModel.getVersion();
         final int newVersion = configModel.getConfigurationVersion();
         monitor.subTask(Messages.getString("migration.check.progress.execute", label, storedVersion, newVersion)); //$NON-NLS-1$
-
         Map<String, String> migratedProperties = configurationClient.migrate(configModel.getConfigurationId(),
-                configModel.getVersion(), configModel.getProperties());
-        configModel.migrate(migratedProperties);
+                configModel.getVersion(), expandTableParameters(configModel));
+        configModel.migrate(collapseTableParameters(configModel, migratedProperties));
     }
+    
+    private Map<String, String> expandTableParameters(TaCoKitConfigurationModel configModel) {
+        Map<String, String> properties = new HashMap<>();
+        for (String key : configModel.getProperties().keySet()) {
+            String value = configModel.getProperties().get(key);
+            boolean isAdded = false;
+            if (ValueConverter.isListParameterValue(value)) {
+                List<Map<String, Object>> listValue = ValueConverter.toTable(value);
+                if (listValue.size() > 0) {
+                    for (int i = 0; i < listValue.size(); i++) {
+                        Map<String, Object> map = listValue.get(i);
+                        for (String name : map.keySet()) {
+                            String nameWithIndex = ValueConverter.getTableParameterNameWithIndex(i, name);
+                            properties.put(nameWithIndex, map.get(name).toString());
+                        }
+                    }
+                    isAdded = true;
+                }
+            }
+            if (!isAdded) {
+                properties.put(key, value);
+            }
+        }
+        return properties;
+    }
+
+    private Map<String, String> collapseTableParameters(TaCoKitConfigurationModel configModel,
+            Map<String, String> migratedProperties) {
+        Map<String, String> properties = new LinkedHashMap<String, String>();
+        Set<String> processedName = new HashSet<String>();
+        for (String key : migratedProperties.keySet()) {
+            int paramIndex = ValueConverter.getTableParameterIndex(key);
+            if (paramIndex >= 0) {
+                String paramName = ValueConverter.getMainTableParameterName(key);
+                if (processedName.contains(paramName)) {
+                    continue;
+                } else {
+                    processedName.add(paramName);
+                }
+                Map<String, String> newParams = ValueConverter.getSameNameTableParameter(paramName, migratedProperties);
+                List<Map<String, String>> newProperties = new ArrayList<Map<String, String>>();
+                String firstKey = null;
+                Map<String, String> data = null;
+                for (String newParamName : newParams.keySet()) {
+                    String propertyName = ValueConverter.getTableParameterNameNoIndex(newParamName);
+                    if (firstKey == null) {
+                        firstKey = propertyName;
+                    }
+                    if (firstKey.equals(propertyName)) {
+                        data = new HashMap<String, String>();
+                        newProperties.add(data);
+                    }
+                    data.put(propertyName, newParams.get(newParamName));
+                }
+                properties.put(paramName, ValueConverter.toStringValue(newProperties));
+            } else {
+                properties.put(key, migratedProperties.get(key));
+            }
+        }
+        return properties;
+    }
+
 
     public void updatedRelatedItems(final ConnectionItem item, final String version, final IProgressMonitor progressMonitor) {
         IProgressMonitor monitor = progressMonitor;

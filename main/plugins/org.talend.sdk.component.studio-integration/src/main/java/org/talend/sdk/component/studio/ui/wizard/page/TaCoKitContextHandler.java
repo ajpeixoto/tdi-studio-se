@@ -139,6 +139,8 @@ public class TaCoKitContextHandler extends AbstractRepositoryContextHandler {
                     List<Map<String, Object>> tableValueList = ValueConverter.toTable((String) valueModel.getValue());
                     List<Map<String, Object>> originalTableValueList = new ArrayList<>();
                     for (Map<String, Object> map : tableValueList) {
+                        Map<String, Object> originMap = new HashMap<String, Object>();
+                        originalTableValueList.add(originMap);
                         for (Entry<String, Object> entryTable : map.entrySet()) {
                             Object value = entryTable.getValue();
                             if (value instanceof String) {
@@ -146,8 +148,6 @@ public class TaCoKitContextHandler extends AbstractRepositoryContextHandler {
                                 if (tableOriginalValue != null) {
                                     String[] splitValues = tableOriginalValue.split(";");
                                     for (String s : splitValues) {
-                                        Map<String, Object> originMap = new HashMap<String, Object>();
-                                        originalTableValueList.add(originMap);
                                         originMap.put(entryTable.getKey(), TalendQuoteUtils.removeQuotes(s));
                                     }
                                 }
